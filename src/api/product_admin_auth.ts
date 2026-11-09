@@ -29,10 +29,14 @@ export function adminCookieValue(request: Request, name: string): string {
   return "";
 }
 
+// In production an admin who hasn't set up two-step sign-in
+// (admin_two_step.ts) can only reach the set-up routes, which pass
+// allowTwoStepSetup.
 export async function authenticatedAdmin(
   request: Request,
-  mutation: boolean
-): Promise<Readonly<{ user_id: string; raw_session_token: string }>> {
+  mutation: boolean,
+  options: Readonly<{ allowTwoStepSetup?: boolean }> = {}
+): Promise<Readonly<{ user_id: string; raw_session_token: string; session_hash: string }>> {
   const rawToken = adminCookieValue(request, ADMIN_SESSION_COOKIE);
 
   if (!rawToken) {
@@ -46,7 +50,10 @@ export async function authenticatedAdmin(
       assertAdminCsrf(rawToken, request.get("x-kolosseum-csrf"));
     }
     const session = await resolveAdminSession(rawToken);
-    return Object.freeze({ user_id: session.user_id, raw_session_token: rawToken });
+    if (session.two_step_setup_required && !options.allowTwoStepSetup) {
+      throw forbidden("ADMIN_TWO_STEP_SETUP_REQUIRED", { failure_token: "admin_two_step_setup_required" });
+    }
+    return Object.freeze({ user_id: session.user_id, raw_session_token: rawToken, session_hash: session.session_hash });
   }
   catch (error) {
     if (error instanceof AdminAuthError) {

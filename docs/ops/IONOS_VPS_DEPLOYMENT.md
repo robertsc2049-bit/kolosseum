@@ -69,6 +69,7 @@ Fill in:
 
 - **`KOLOSSEUM_DOMAIN` and `KOLOSSEUM_PUBLIC_APP_URL`:** your domain, without and with `https://`.
 - **`POSTGRES_PASSWORD`:** generate one with `openssl rand -hex 24`. Never reuse a password.
+- **`KOLOSSEUM_ADMIN_TWO_STEP_KEY`:** generate one with `openssl rand -base64 32`. It encrypts the admin console's two-step sign-in secrets. Once it's set, every admin must set up two-step sign-in (an authenticator app code after the password) before the console does anything else. Don't change it later: that makes every admin's authenticator stop working until reset (see "Day to day").
 - **`VAPID_*`:** run `node scripts/generate_vapid_keys.mjs` on your own computer, in the repo. Use a new pair for production, not your local development keys. `VAPID_SUBJECT` is `mailto:` followed by your email.
 - **`RESEND_API_KEY` and `KOLOSSEUM_EMAIL_FROM`:** needed for real users. They email the sign-up verification and password-reset codes; without them nobody can reset a forgotten password. In Resend, add and verify a sending domain (a subdomain such as `mail.<your-domain>` keeps your main domain's email untouched), then create a key with Sending access. `KOLOSSEUM_EMAIL_FROM` is an address on that domain, e.g. `Kolosseum <no-reply@mail.<your-domain>>`. Outgoing port 25 being blocked on the VPS doesn't matter: Resend is called over HTTPS.
 - **Optional:**
@@ -97,7 +98,7 @@ docker compose -f docker-compose.prod.yml exec -e ADMIN_BOOTSTRAP_TOKEN=<any-val
 - `https://<your-domain>/health` returns `{"status":"ok",...}`.
 - `https://<your-domain>/app/` loads with a padlock. Register a test athlete.
 - On your phone, open the site and install it with **Add to Home Screen**. Turn on notifications from the account screen.
-- `https://<your-domain>/admin/` lets you sign in with the admin account from step 5.
+- `https://<your-domain>/admin/` lets you sign in with the admin account from step 5. It then asks you to set up two-step sign-in: scan the QR code with an authenticator app (Google Authenticator, 1Password, Authy and so on), enter its code, and keep the 8 backup codes somewhere safe, away from your password.
 
 If HTTPS fails, check that DNS points at the server (`dig +short <your-domain>`) and that ports 80/443 are open. Then read Caddy's logs:
 
@@ -231,3 +232,10 @@ It emails you when the site stops answering, and again when it's back.
 - **Logs:** `docker compose -f docker-compose.prod.yml logs -f app`
 - **Restart:** `docker compose -f docker-compose.prod.yml restart app`
 - **Daily operating checklist:** `docs/ops/V1_RUNBOOK.md`.
+
+**Lost the authenticator and the backup codes?** Reset two-step sign-in over SSH. It signs that admin out everywhere, and they set it up again at their next sign-in:
+
+```bash
+docker compose -f docker-compose.prod.yml exec -e ADMIN_BOOTSTRAP_TOKEN=<any-value-you-choose> app \
+  node scripts/bootstrap_admin_account.mjs --reset-two-step --email you@example.com
+```

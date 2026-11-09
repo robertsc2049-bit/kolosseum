@@ -76,6 +76,9 @@ services:
       KOLOSSEUM_CONTROLLED_LAUNCH_PRICE_ID: ${KOLOSSEUM_CONTROLLED_LAUNCH_PRICE_ID:-}
       KOLOSSEUM_CONTROLLED_LAUNCH_SEAT_LIMIT: ${KOLOSSEUM_CONTROLLED_LAUNCH_SEAT_LIMIT:-}
       KOLOSSEUM_PROGRAMME_AUTHORS: ${KOLOSSEUM_PROGRAMME_AUTHORS:-}
+      # Encrypts admin two-step sign-in secrets (admin_two_step.ts). Once set,
+      # every admin must set up two-step sign-in.
+      KOLOSSEUM_ADMIN_TWO_STEP_KEY: ${KOLOSSEUM_ADMIN_TWO_STEP_KEY:-}
 
   caddy:
     # Logs (which can include IP addresses) are capped at 3 x 10 MB per
