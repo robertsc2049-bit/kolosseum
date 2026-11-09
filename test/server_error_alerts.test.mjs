@@ -1,4 +1,5 @@
-// Server error alerts (src/api/server_error_alerts.ts): the pure parts - how
+// Server error alerts (src/api/server_error_alerts.ts): the pure parts
+// (server_error_report.ts, which has no database import) - how
 // a route and an error code are kept without anything personal, and what the
 // admin's email says. The recording, hourly batching and console summary are
 // proven against a real database in server_error_alerts_persistent
@@ -7,7 +8,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
-import { errorCodeFrom, normaliseRoute, serverErrorDigestEmail } from "../dist/src/api/server_error_alerts.js";
+import { errorCodeFrom, normaliseRoute, serverErrorDigestEmail } from "../dist/src/api/server_error_report.js";
 
 test("ids, numbers, tokens and emails in a route become :id; words stay", () => {
   assert.equal(normaliseRoute("/messages/thread_9f8e7d6c5b4a3/read"), "/messages/:id/read");
