@@ -36,6 +36,8 @@ test("the server passes the key through, and the operator can reset a locked-out
   assert.match(script, /SET password_salt = \$2, password_hash = \$3, failed_sign_in_count = 0, locked_until = NULL/u, "a reset clears the lockout");
   assert.match(script, /if \(!input\.isTTY\) \{/u, "the new password is only ever typed, never piped or passed as an argument");
   assert.match(read("docs/ops/IONOS_VPS_DEPLOYMENT.md"), /--reset-password --email/u);
+  assert.match(read("src/api/product_admin_account_service.ts"), /if \(password\.length < 12 \|\| password\.length > 200\)/u, "admin passwords are 12 to 200 characters");
+  assert.match(script, /first\.length < 12 \|\| first\.length > 200/u, "the reset uses the same rule as sign-in");
 });
 
 test("the console asks for the code, sets it up, and shows backup codes once", () => {

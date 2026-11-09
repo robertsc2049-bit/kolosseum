@@ -91,7 +91,7 @@ function validateEmail(value: unknown): string {
 
 function validatePassword(value: unknown): string {
   const password = typeof value === "string" ? value : "";
-  if (password.length < 16 || password.length > 200) {
+  if (password.length < 12 || password.length > 200) {
     throw new AdminAuthError("admin_password_invalid", 400);
   }
   return password;
