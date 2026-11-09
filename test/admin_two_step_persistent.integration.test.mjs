@@ -10,7 +10,7 @@ import { promisify } from "node:util";
 
 import { app } from "../dist/src/server.js";
 import { pool } from "../dist/src/db/pool.js";
-import { createAdminAccount } from "../dist/src/api/product_admin_account_service.js";
+import { createAdminAccount, signInAdminAccount } from "../dist/src/api/product_admin_account_service.js";
 import { base32Encode, decryptSecret, encryptSecret, hotp, matchTotp, timeStep } from "../dist/src/api/admin_two_step.js";
 
 const KEY = "test-only-two-step-key-0123456789abcdef";
@@ -243,6 +243,76 @@ test("an admin sets up two-step sign-in, then needs a code after their password"
   assert.equal(afterReset.json.two_step.enabled, false);
   assert.equal(afterReset.json.two_step.backup_codes_left, 0);
   assert.equal(afterReset.json.two_step.recent_events[0].event_type, "two_step_reset");
+});
+
+// Runs the bootstrap script with a fake terminal on stdin, so the hidden
+// password prompt can be driven the way a person at a keyboard would.
+async function runWithTerminal(args, keystrokes) {
+  const harness = `
+    const { PassThrough } = await import("node:stream");
+    const { pathToFileURL } = await import("node:url");
+    const fake = new PassThrough();
+    fake.isTTY = true;
+    fake.setRawMode = () => fake;
+    Object.defineProperty(process, "stdin", { value: fake, configurable: true });
+    process.argv = [process.argv[0], "scripts/bootstrap_admin_account.mjs", ...JSON.parse(process.env.HARNESS_ARGS)];
+    let delay = 100;
+    for (const chunk of JSON.parse(process.env.HARNESS_KEYS)) { setTimeout(() => fake.write(chunk), delay); delay += 100; }
+    await import(pathToFileURL("scripts/bootstrap_admin_account.mjs").href);
+  `;
+  return promisify(execFile)(process.execPath, ["--input-type=module", "-e", harness], {
+    env: { ...process.env, ADMIN_BOOTSTRAP_TOKEN: "test", HARNESS_ARGS: JSON.stringify(args), HARNESS_KEYS: JSON.stringify(keystrokes) }
+  }).catch((error) => error);
+}
+
+test("the operator can set a new password for an admin who forgot theirs, typed hidden", { timeout: 120000 }, async (t) => {
+  const nonce = crypto.randomUUID().replaceAll("-", "").slice(0, 12);
+  const email = `pw_reset_${nonce}@example.com`;
+  const oldPassword = `OldAdminPassword-${nonce}`;
+  const newPassword = `NewAdminPassword-${nonce}`;
+  const adminId = (await createAdminAccount(email, "Forgetful Admin", oldPassword)).user_id;
+  t.after(async () => {
+    for (const table of ["product_admin_sign_in_challenges", "product_admin_sessions"]) {
+      await pool.query(`DELETE FROM ${table} WHERE user_id = $1`, [adminId]).catch(() => {});
+    }
+    await pool.query(`DELETE FROM product_admin_accounts WHERE user_id = $1`, [adminId]).catch(() => {});
+  });
+  const before = await signInAdminAccount({ email, password: oldPassword });
+  assert.ok(before.raw_session_token, "signed in with the old password");
+  await pool.query(`UPDATE product_admin_accounts SET failed_sign_in_count = 5, locked_until = now() + interval '15 minutes' WHERE user_id = $1`, [adminId]);
+  const hashOf = async () => (await pool.query(`SELECT password_hash FROM product_admin_accounts WHERE user_id = $1`, [adminId])).rows[0].password_hash;
+  const originalHash = await hashOf();
+
+  // Without a terminal it refuses rather than reading a password from a pipe.
+  const piped = await promisify(execFile)(process.execPath, ["scripts/bootstrap_admin_account.mjs", "--reset-password", "--email", email], { env: { ...process.env, ADMIN_BOOTSTRAP_TOKEN: "test" } }).catch((error) => error);
+  assert.equal(piped.code, 1);
+  assert.match(piped.stderr, /interactive terminal/u);
+  assert.equal(await hashOf(), originalHash);
+
+  // Too short, and a mismatch, change nothing.
+  const short = await runWithTerminal(["--reset-password", "--email", email], ["short\r"]);
+  assert.match(short.stderr, /16 to 200 characters\. Nothing was changed\./u);
+  const mismatch = await runWithTerminal(["--reset-password", "--email", email], [`${newPassword}\r`, `${newPassword}X\r`]);
+  assert.match(mismatch.stderr, /didn't match\. Nothing was changed\./u);
+  assert.equal(await hashOf(), originalHash);
+
+  // Typed with a correction, then pasted with a Windows line ending.
+  const done = await runWithTerminal(["--reset-password", "--email", email], [`${newPassword}z\u007f\r`, `${newPassword}\r\n`]);
+  assert.match(done.stdout, /Password changed for/u, done.stderr);
+  assert.ok(!done.stdout.includes(newPassword), "the password is never echoed");
+  assert.notEqual(await hashOf(), originalHash);
+
+  const state = (await pool.query(`SELECT failed_sign_in_count, locked_until FROM product_admin_accounts WHERE user_id = $1`, [adminId])).rows[0];
+  assert.equal(state.failed_sign_in_count, 0, "lockout cleared");
+  assert.equal(state.locked_until, null);
+  const live = await pool.query(`SELECT 1 FROM product_admin_sessions WHERE user_id = $1 AND revoked_at IS NULL`, [adminId]);
+  assert.equal(live.rowCount, 0, "signed out everywhere");
+  await assert.rejects(signInAdminAccount({ email, password: oldPassword }), /admin_sign_in_failed/u);
+  const after = await signInAdminAccount({ email, password: newPassword });
+  assert.ok(after.raw_session_token, "signs in with the new password");
+
+  const unknown = await runWithTerminal(["--reset-password", "--email", `nobody_${nonce}@example.com`], []);
+  assert.match(unknown.stderr, /No admin account for/u);
 });
 
 test("in production, an admin without two-step sign-in can only set it up", { timeout: 120000 }, async (t) => {

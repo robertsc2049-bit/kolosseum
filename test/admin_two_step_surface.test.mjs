@@ -32,6 +32,10 @@ test("the server passes the key through, and the operator can reset a locked-out
   assert.match(script, /process\.argv\.includes\("--reset-two-step"\)/u);
   assert.match(script, /UPDATE product_admin_sessions SET revoked_at = now\(\) WHERE user_id = \$1 AND revoked_at IS NULL/u);
   assert.match(read("docs/ops/IONOS_VPS_DEPLOYMENT.md"), /--reset-two-step --email/u);
+  assert.match(script, /process\.argv\.includes\("--reset-password"\)/u);
+  assert.match(script, /SET password_salt = \$2, password_hash = \$3, failed_sign_in_count = 0, locked_until = NULL/u, "a reset clears the lockout");
+  assert.match(script, /if \(!input\.isTTY\) \{/u, "the new password is only ever typed, never piped or passed as an argument");
+  assert.match(read("docs/ops/IONOS_VPS_DEPLOYMENT.md"), /--reset-password --email/u);
 });
 
 test("the console asks for the code, sets it up, and shows backup codes once", () => {
