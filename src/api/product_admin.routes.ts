@@ -59,6 +59,7 @@ import {
 import { badRequest, conflict, notFound } from "./http_errors.js";
 import { SellerTaxReportError, sellerTaxReport } from "./seller_tax_service.js";
 import { assessBackupHealth, readBackupStatus } from "./backup_health.js";
+import { serverErrorSummary } from "./server_error_alerts.js";
 import { MessageSafetyError, decideReport, liftRestriction, listReportsForAdmin } from "./message_safety_service.js";
 import {
   ExerciseDemoVideoError,
@@ -580,7 +581,8 @@ productAdminRouter.get(
 );
 
 // Whether the server's backups are working (backup_health.ts): when the last
-// backup and off-server copy finished, and anything wrong.
+// backup and off-server copy finished, and anything wrong. Plus server
+// errors in the last 24 hours (server_error_alerts.ts).
 const systemStatusRateLimit = rateLimit({ keyGenerator: accountRateLimitKey, windowMs: 15 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false });
 
 productAdminRouter.get(
@@ -588,7 +590,7 @@ productAdminRouter.get(
   systemStatusRateLimit,
   asyncHandler(async (request, response) => {
     await authenticatedAdmin(request, false);
-    return response.status(200).json({ ok: true, backups: assessBackupHealth(readBackupStatus()) });
+    return response.status(200).json({ ok: true, backups: assessBackupHealth(readBackupStatus()), server_errors: await serverErrorSummary() });
   })
 );
 

@@ -4117,3 +4117,23 @@ CREATE TABLE IF NOT EXISTS product_admin_security_events (
 
 CREATE INDEX IF NOT EXISTS idx_product_admin_security_events_user
   ON product_admin_security_events (user_id, created_at DESC);
+
+-- Server errors (5xx responses) the live app sent, so the admin hears about
+-- them (server_error_alerts.ts). Nothing personal: no user id, request body
+-- or query string; ids in the route are replaced by ":id". Kept 30 days.
+CREATE TABLE IF NOT EXISTS server_error_events (
+  event_id     TEXT PRIMARY KEY,
+  occurred_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+  method       TEXT NOT NULL,
+  route        TEXT NOT NULL,
+  status       INTEGER NOT NULL,
+  error_code   TEXT NOT NULL,
+  alerted_at   TIMESTAMPTZ
+);
+
+CREATE INDEX IF NOT EXISTS idx_server_error_events_occurred
+  ON server_error_events (occurred_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_server_error_events_unalerted
+  ON server_error_events (occurred_at)
+  WHERE alerted_at IS NULL;

@@ -60,7 +60,7 @@
     ]
   },
   "sha256": {
-    "schema.sql": "38c8a58261e1410a24f6ebce4a5ce4554218b707b02c7d2f43b29cf54ceaf8e5",
+    "schema.sql": "6b156fd4b274f792364ab0779f597e32d2aaf4b9f945cfcb511a829036805c04",
     "src/api/beta_product_record_store.ts": "7b66e4c4431ed993bba82de43ee5a353cbe92a0ed08e6429ba34c27f5956e77e",
     "src/api/beta_product_journey_service.ts": "138b3c4eb874928a97540f21dc7e2168a88d6f235a5017d8f59836a16a385047",
     "src/api/block_compile_write_service.ts": "45db532638eb42b45da0cd93669422d3985ec35556afae05a592c4196f24f642",
@@ -71,6 +71,6 @@
     "test/beta_e2e_01_product_record_store.integration.test.mjs": "2a7d9e800b6f28a995d93049547c9103495b32e1b6bcea7ae6c047f4e943405a",
     "test/beta_e2e_01_stored_journey_composition.integration.test.mjs": "e4f6f8710164200663e42e3a68065fb1c53e6fda3a0b6728ce73a84f5ba1d89c",
     "test/beta_e2e_01_persistent_http_product_journey_restart.integration.test.mjs": "e6ccb7d4296afc1a5a3b832a4705e7317c5b8ed432b0b3825aa1aaf107ee3693",
-    "ci/contracts/test_ci_integration_vertical_slice_cluster_manifest.json": "4f869db077bf5cd96eeb55e8bea88aab04ffbd25f9a0fd7df46cf9d4999ebd04"
+    "ci/contracts/test_ci_integration_vertical_slice_cluster_manifest.json": "aec7934ccfbe2297a8ed36c8f753d4e88ef5d141459f47342bb7f5cba935d15c"
   }
 }
