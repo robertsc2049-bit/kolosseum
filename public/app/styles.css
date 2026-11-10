@@ -5612,3 +5612,12 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
 .message-safety-form { display: grid; gap: 8px; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border, rgba(127, 127, 127, 0.25)); }
 .message-safety-form fieldset { border: 0; padding: 0; margin: 0; display: grid; gap: 4px; }
 .message-removed { font-style: italic; }
+
+/* The sign-up verification prompt (VerifyEmailPrompt.tsx): only on the home
+   screens (Today, the coach's Overview) - never above a workout in progress
+   (the session screen keeps Today's address, so this goes by which screen is
+   showing) - with a gap under it. */
+#verify-email-prompt-root { display: none; }
+main.views:has(> #view-today:not([hidden])) > #verify-email-prompt-root,
+main.views:has(> #view-coach-overview:not([hidden])) > #verify-email-prompt-root { display: block; }
+.verify-email-prompt { margin-bottom: var(--k-space-5, 20px); }

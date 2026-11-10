@@ -75,8 +75,9 @@ function formatLogged(log: JsonRecord): string {
   return `${Number(log.reps)} reps${load}${speed}${missed}${log.is_pr === true ? " · PR" : ""}${log.pending === true ? " · saved on this phone" : ""}`;
 }
 
-function SetRow({ exerciseId, setIndex, optional = false, defaults, logged, busy, logSet, speedOn = false }: {
+function SetRow({ exerciseId, setIndex, optional = false, defaults, logged, busy, logSet, speedOn = false, weightNeeded = false }: {
   speedOn?: boolean;
+  weightNeeded?: boolean;
   exerciseId: string;
   setIndex: number;
   optional?: boolean;
@@ -100,8 +101,12 @@ function SetRow({ exerciseId, setIndex, optional = false, defaults, logged, busy
     }
     const trimmed = load.trim();
     const loadNumber = Number(trimmed);
+    if (!trimmed && weightNeeded) {
+      setError("Enter the weight you lifted - your next session's weight is worked out from it.");
+      return;
+    }
     if (trimmed && (!Number.isFinite(loadNumber) || loadNumber === 0)) {
-      setError("Enter the load, or leave it blank for bodyweight.");
+      setError(weightNeeded ? "Enter the weight you lifted." : "Enter the load, or leave it blank for bodyweight.");
       return;
     }
     const speedText = speed.trim();
@@ -135,7 +140,7 @@ function SetRow({ exerciseId, setIndex, optional = false, defaults, logged, busy
       <span aria-hidden="true">×</span>
       <label className="set-log-field">
         <span className="visually-hidden">{`Set ${setIndex} load (${defaults.unit})`}</span>
-        <input aria-label={`Set ${setIndex} load (${defaults.unit})`} type="number" inputMode="decimal" step="0.5" placeholder="BW" value={load} onChange={(event) => setLoad(event.target.value)} />
+        <input aria-label={`Set ${setIndex} load (${defaults.unit})`} type="number" inputMode="decimal" step="0.5" placeholder={weightNeeded ? defaults.unit : "BW"} value={load} onChange={(event) => setLoad(event.target.value)} />
       </label>
       <span>{defaults.unit}</span>
       {speedOn ? (
@@ -179,6 +184,22 @@ export function SetLogger({ exercise, setLogs, busy, logSet }: {
   const setRange = exercise.set_range && typeof exercise.set_range === "object" ? (exercise.set_range as JsonRecord) : null;
   const mostSets = Number.isInteger(setRange?.maximum) && Number(setRange?.maximum) > sets ? Number(setRange?.maximum) : sets;
   const loggedCount = [...bySet.keys()].filter((index) => index <= mostSets).length;
+  // A lift whose weights build from what's logged (no weight given yet the
+  // first time): a weight is needed, not bodyweight.
+  const guidance = exercise.load_guidance && typeof exercise.load_guidance === "object" ? (exercise.load_guidance as JsonRecord) : null;
+  const weightNeeded = guidance?.type === "progression";
+  // With no weight written for a set, the last weight logged in this
+  // exercise carries over - "Log set 2" straight after set 1 at 60 kg is
+  // 60 kg, not bodyweight (walkthrough 11).
+  const carriedLoad = (setIndex: number): JsonRecord | undefined => [...bySet.entries()]
+    .filter(([index, log]) => index < setIndex && log.load_value !== null && log.load_value !== undefined && log.load_value !== "")
+    .sort((a, b) => b[0] - a[0])[0]?.[1];
+  const rowDefaults = (setIndex: number) => {
+    const own = setDefaults(exercise, setIndex);
+    if (own.load) return own;
+    const carried = carriedLoad(setIndex);
+    return carried ? { ...own, load: String(Number(carried.load_value)), unit: carried.load_unit === "lb" ? "lb" as const : "kg" as const } : own;
+  };
 
   return (
     <section className="set-logger" aria-label="Log your sets">
@@ -186,11 +207,12 @@ export function SetLogger({ exercise, setLogs, busy, logSet }: {
       <ul className="set-log-list">
         {Array.from({ length: mostSets }, (_, i) => i + 1).map((setIndex) => (
           <SetRow
-            key={`${exerciseId}-${setIndex}-${bySet.has(setIndex) ? "logged" : "open"}`}
+            key={`${exerciseId}-${setIndex}-${bySet.has(setIndex) ? "logged" : `open-${rowDefaults(setIndex).load}`}`}
             exerciseId={exerciseId}
             setIndex={setIndex}
             optional={setIndex > sets}
-            defaults={setDefaults(exercise, setIndex)}
+            weightNeeded={weightNeeded}
+            defaults={rowDefaults(setIndex)}
             logged={bySet.get(setIndex)}
             busy={busy}
             logSet={logSet}
@@ -198,7 +220,9 @@ export function SetLogger({ exercise, setLogs, busy, logSet }: {
           />
         ))}
       </ul>
-      {!setDefaults(exercise, 1).load ? <p className="muted small set-log-hint">No weight set: leave the weight blank for bodyweight, or enter what you added (a weighted pull-up or dip) or used.</p> : null}
+      {weightNeeded && !setDefaults(exercise, 1).load
+        ? <p className="muted small set-log-hint">Enter the weight you lift - it carries over to your next sets, and your next session builds from it.</p>
+        : !setDefaults(exercise, 1).load ? <p className="muted small set-log-hint">No weight set: leave the weight blank for bodyweight, or enter what you added (a weighted pull-up or dip) or used.</p> : null}
       <label className="set-log-speed-toggle">
         <input type="checkbox" checked={speedOn} onChange={(event) => { setSpeedOn(event.target.checked); writeSpeedSetting(event.target.checked); }} />
         <span>Log bar speed (from a VBT device)</span>

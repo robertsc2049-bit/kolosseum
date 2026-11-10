@@ -289,7 +289,7 @@ test("a self-coached athlete with nothing assigned is pointed at building their 
   nav.id = "athleteOnboardingNav";
   nav.addEventListener("click", () => { opened = true; });
   document.body.appendChild(nav);
-  await act(async () => { screen.getByRole("button", { name: "Build your training" }).click(); });
+  await act(async () => { screen.getByRole("button", { name: "My training" }).click(); });
   assert.equal(opened, true, "Build your training opens Declarations");
   nav.remove();
 });
@@ -317,7 +317,7 @@ test("a coached athlete still waiting for a programme is told to ask their coach
   render(<AthleteTodaySessionCard />);
   await waitFor(() => screen.getByRole("heading", { name: "No active programme" }));
   assert.match(document.body.textContent ?? "", /Ask your coach to assign one/u);
-  assert.equal(screen.queryByRole("button", { name: "Build your training" }), null);
+  assert.equal(screen.queryByRole("button", { name: "My training" }), null);
 });
 
 test("refetches when kolosseum:today-changed fires", async () => {
@@ -406,5 +406,33 @@ test("an athlete who chose a coach and is waiting for one isn't told they train 
   await waitFor(() => screen.getByRole("heading", { name: "Waiting for your coach" }));
   assert.equal(document.querySelector(".badge")?.textContent, "Waiting for coach");
   assert.doesNotMatch(document.body.textContent ?? "", /training without a coach/u);
-  assert.equal(screen.queryByRole("button", { name: "Build your training" }), null);
+  assert.equal(screen.queryByRole("button", { name: "My training" }), null);
+});
+
+test("a self-coached session that's started but not finished is continued, never started again on top (walkthrough 11)", async () => {
+  installMocks({ state: "no_current_assignment", assignment: null, session: { action: "continue", session_id: "s_half_done" }, event: null, notes: [] }, undefined, undefined, []);
+  let created = 0;
+  const onCreate = () => { created += 1; };
+  document.addEventListener("kolosseum:create-session", onCreate);
+  try {
+    render(<><AthleteTodayCreateSessionButton /><AthleteTodaySessionCard /></>);
+    await waitFor(() => screen.getByRole("heading", { name: "Session in progress" }));
+    assert.equal(document.querySelector(".badge")?.textContent, "In progress");
+    const buttons = screen.getAllByRole("button", { name: "Continue session" });
+    assert.equal(buttons.length, 1, "one way back in, no Create session");
+    assert.equal(screen.queryByRole("button", { name: "Create session" }), null);
+
+    let opened = false;
+    const nav = document.createElement("button");
+    nav.dataset.view = "session";
+    nav.addEventListener("click", () => { opened = true; });
+    document.body.prepend(nav);
+    await act(async () => { buttons[0].click(); });
+    assert.equal(opened, true, "opens the session screen");
+    assert.equal(created, 0, "no new session");
+    nav.remove();
+  }
+  finally {
+    document.removeEventListener("kolosseum:create-session", onCreate);
+  }
 });

@@ -124,11 +124,13 @@ function DeclarationFacts({ fields, promptPosition = false }: { fields: JsonReco
       ) : null}
       <div className="declaration-fact"><span>Training days per week</span><strong>{fields.training_days_per_week ? String(fields.training_days_per_week) : "Not declared"}</strong></div>
       <div className="declaration-fact"><span>Season or competition</span><strong>{planDatesLabel(fields)}</strong></div>
-      <div className="declaration-fact"><span>Position</span><strong>{positionLabel(fields.activity_id, fields.position)}</strong></div>
+      {(POSITION_OPTIONS_BY_ACTIVITY[String(fields.activity_id ?? "")] ?? []).length > 1 ? (
+        <div className="declaration-fact"><span>Position</span><strong>{positionLabel(fields.activity_id, fields.position)}</strong></div>
+      ) : null}
       {promptPosition && POSITION_PROGRAMME_SPORTS.has(String(fields.activity_id ?? "")) && (!fields.position || fields.position === "athlete") ? (
         <p className="inline-result position-prompt" data-tone="warning" data-testid="position-prompt">{POSITION_PROMPT}</p>
       ) : null}
-      <div className="declaration-fact"><span>Execution scope<InfoTooltip label="About execution scope">Whether you work in your own athlete workspace (Individual), or on work assigned through an accepted coach relationship (Coach managed).</InfoTooltip></span><strong>{label(fields.execution_scope)}</strong></div>
+      <div className="declaration-fact"><span>Who sets your sessions</span><strong>{fields.execution_scope === "coach_managed" ? "My coach sets them" : fields.execution_scope === "individual" ? "I train myself" : label(fields.execution_scope)}</strong></div>
       <div className="declaration-fact"><span>Product acknowledgement</span><strong>{fields.product_acknowledged ? "Accepted" : "Not accepted"}</strong></div>
       <div className="declaration-fact"><span>Jurisdiction<InfoTooltip label="About jurisdiction">The legal jurisdiction you selected yourself when you set up your account - it isn't inferred from your location.</InfoTooltip></span><strong>{label(fields.jurisdiction_code)}</strong></div>
       <div className="declaration-fact"><span>Accessibility</span><strong>{accessibilityLabel(fields.accessibility_preferences)}</strong></div>

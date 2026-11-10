@@ -419,12 +419,13 @@ test("reaching the review stage shows all declared facts, and confirming shows t
   await screen.findByText("Review and confirmation");
 
   assert.ok(screen.getByText("Powerlifting"));
-  assert.ok(screen.getByText("Individual"));
+  assert.ok(screen.getByText("I train myself"));
   assert.ok(screen.getByText("Accepted"));
   assert.ok(screen.getByText("England and Wales"));
   assert.ok(screen.getByText("reduced motion"));
   assert.ok(screen.getByText("Detailed"));
-  assert.ok(screen.getByLabelText("About execution scope"));
+  // Powerlifting has no positions, so there's no Position row to fill in.
+  assert.equal(screen.queryByText("Position"), null);
   assert.ok(screen.getByLabelText("About jurisdiction"));
 
   await act(async () => {
