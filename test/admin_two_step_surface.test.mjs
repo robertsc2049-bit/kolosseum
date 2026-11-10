@@ -21,7 +21,8 @@ test("in production, an admin without it can only reach the set-up routes", () =
   const allowed = routes.split("productAdminRouter.").slice(1)
     .filter((block) => block.includes("allowTwoStepSetup: true"))
     .map((block) => block.match(/^(?:get|post)\(\s*"([^"]+)"/u)?.[1]);
-  assert.deepEqual(allowed, ["/two-step", "/two-step/setup", "/two-step/setup/confirm"]);
+  // /session is read-only: a reload while set-up is owed lands back on set-up.
+  assert.deepEqual(allowed, ["/two-step", "/two-step/setup", "/two-step/setup/confirm", "/session"]);
   assert.match(read("src/api/admin_two_step.ts"), /return process\.env\.NODE_ENV === "production" && twoStepAvailable\(\);/u);
 });
 
@@ -51,4 +52,15 @@ test("the console asks for the code, sets it up, and shows backup codes once", (
   assert.match(js, /api\("POST", "\/admin\/sign-in\/two-step"/u);
   assert.match(js, /if \(state\.twoStep\?\.required && !state\.twoStep\.enabled\) \{\s*el\("adminSignInSection"\)\.hidden = true;\s*openTwoStepSetup\(true\);\s*return;/u, "set-up comes before the workspace");
   assert.match(js, /el\("adminBackupCodesList"\)\.innerHTML = "";/u, "codes are cleared once saved");
+});
+
+test("a reload asks the server whether the admin is still signed in before showing the sign-in form", () => {
+  const js = read("public/admin/admin.js");
+  assert.match(js, /async function restoreSession\(\) \{\s*el\("adminSignInSection"\)\.hidden = true;\s*try \{\s*signedIn\(await api\("GET", "\/admin\/session"\)\);/u);
+  assert.match(js, /^restoreSession\(\);$/mu);
+  const routes = read("src/api/product_admin.routes.ts");
+  const block = routes.slice(routes.indexOf('"/session",'), routes.indexOf('"/sign-out",'));
+  assert.match(block, /response\.set\("Cache-Control", "no-store"\);/u);
+  assert.match(block, /if \(site && site !== "same-origin"\) \{/u, "another site's page is refused");
+  assert.match(block, /authenticatedAdmin\(request, false, \{ allowTwoStepSetup: true \}\)/u);
 });

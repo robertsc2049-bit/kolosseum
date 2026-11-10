@@ -352,6 +352,11 @@ test("in production, an admin without two-step sign-in can only set it up", { ti
   const blockedErase = await fetch(`${base}/admin/data-rights/deletions/x/erase`, { method: "POST", headers, body: JSON.stringify({ correlation_id: "x" }) });
   assert.equal(blockedErase.status, 403);
 
+  // A reload while set-up is still owed lands back on the set-up screen.
+  const owed = await fetch(`${base}/admin/session`, { headers: { cookie } });
+  assert.equal(owed.status, 200);
+  assert.deepEqual(((b) => ({ required: b.two_step.required, enabled: b.two_step.enabled }))(await owed.json()), { required: true, enabled: false });
+
   assert.equal((await fetch(`${base}/admin/two-step`, { headers })).status, 200);
   const setup = await (await fetch(`${base}/admin/two-step/setup`, { method: "POST", headers, body: "{}" })).json();
   const secret = base32Decode(setup.secret_base32);
@@ -363,4 +368,43 @@ test("in production, an admin without two-step sign-in can only set it up", { ti
   process.env.KOLOSSEUM_ADMIN_TWO_STEP_KEY = "";
   const status = await (await fetch(`${base}/admin/two-step`, { headers })).json();
   assert.deepEqual({ available: status.two_step.available, required: status.two_step.required }, { available: false, required: false });
+});
+
+test("a reload keeps the admin signed in: the console gets its session back, and only this site can read it", { timeout: 60000 }, async (t) => {
+  const nonce = crypto.randomUUID().replaceAll("-", "").slice(0, 12);
+  const server = await new Promise((resolve) => { const s = app.listen(0, "127.0.0.1", () => resolve(s)); });
+  const base = `http://127.0.0.1:${server.address().port}`;
+  const email = `session_restore_${nonce}@example.com`;
+  const password = `SessionRestore-${nonce}`;
+  const adminId = (await createAdminAccount(email, "Reload Admin", password)).user_id;
+  t.after(async () => {
+    await new Promise((resolve) => server.close(resolve));
+    await pool.query(`DELETE FROM product_admin_sessions WHERE user_id = $1`, [adminId]).catch(() => {});
+    await pool.query(`DELETE FROM product_admin_accounts WHERE user_id = $1`, [adminId]).catch(() => {});
+  });
+
+  const signIn = await fetch(`${base}/admin/sign-in`, { method: "POST", headers: { origin: base, "content-type": "application/json" }, body: JSON.stringify({ email, password }) });
+  const signedIn = await signIn.json();
+  const cookie = signIn.headers.getSetCookie().find((c) => c.startsWith("kolosseum_admin_session=")).split(";")[0];
+
+  const restored = await fetch(`${base}/admin/session`, { headers: { cookie, "sec-fetch-site": "same-origin" } });
+  assert.equal(restored.status, 200);
+  assert.equal(restored.headers.get("cache-control"), "no-store");
+  const body = await restored.json();
+  assert.equal(body.csrf_token, signedIn.csrf_token, "the same token as signing in gave");
+  assert.equal(body.admin.display_name, "Reload Admin");
+  assert.equal(body.session_expires_at_iso8601, signedIn.session_expires_at_iso8601);
+  assert.equal(body.two_step.enabled, false);
+
+  // The restored token works for changes.
+  const headers = { origin: base, cookie, "x-kolosseum-csrf": body.csrf_token, "content-type": "application/json" };
+  assert.equal((await fetch(`${base}/admin/accounts?query=x`, { headers })).status, 200);
+
+  const crossSite = await fetch(`${base}/admin/session`, { headers: { cookie, "sec-fetch-site": "cross-site" } });
+  assert.equal(crossSite.status, 403, "another site's page can't read it");
+  assert.ok(!(await crossSite.text()).includes(body.csrf_token));
+  assert.equal((await fetch(`${base}/admin/session`)).status, 401, "no cookie, no session");
+
+  assert.equal((await fetch(`${base}/admin/sign-out`, { method: "POST", headers, body: "{}" })).status, 200);
+  assert.equal((await fetch(`${base}/admin/session`, { headers: { cookie } })).status, 401, "signed out stays signed out");
 });

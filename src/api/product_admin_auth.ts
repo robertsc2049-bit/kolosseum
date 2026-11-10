@@ -36,7 +36,7 @@ export async function authenticatedAdmin(
   request: Request,
   mutation: boolean,
   options: Readonly<{ allowTwoStepSetup?: boolean }> = {}
-): Promise<Readonly<{ user_id: string; raw_session_token: string; session_hash: string }>> {
+): Promise<Readonly<{ user_id: string; raw_session_token: string; session_hash: string; admin: Readonly<Record<string, unknown>>; session_expires_at_iso8601: string }>> {
   const rawToken = adminCookieValue(request, ADMIN_SESSION_COOKIE);
 
   if (!rawToken) {
@@ -53,7 +53,13 @@ export async function authenticatedAdmin(
     if (session.two_step_setup_required && !options.allowTwoStepSetup) {
       throw forbidden("ADMIN_TWO_STEP_SETUP_REQUIRED", { failure_token: "admin_two_step_setup_required" });
     }
-    return Object.freeze({ user_id: session.user_id, raw_session_token: rawToken, session_hash: session.session_hash });
+    return Object.freeze({
+      user_id: session.user_id,
+      raw_session_token: rawToken,
+      session_hash: session.session_hash,
+      admin: session.admin,
+      session_expires_at_iso8601: session.session_expires_at_iso8601
+    });
   }
   catch (error) {
     if (error instanceof AdminAuthError) {

@@ -334,7 +334,7 @@ export async function completeAdminTwoStepSignIn(inputValue: unknown): Promise<A
 
 export async function resolveAdminSession(
   rawSessionToken: string
-): Promise<Readonly<{ admin: Readonly<JsonRecord>; user_id: string; two_step_setup_required: boolean; session_hash: string }>> {
+): Promise<Readonly<{ admin: Readonly<JsonRecord>; user_id: string; two_step_setup_required: boolean; session_hash: string; session_expires_at_iso8601: string }>> {
   if (!rawSessionToken) {
     throw new AdminAuthError("admin_session_missing", 401);
   }
@@ -375,7 +375,8 @@ export async function resolveAdminSession(
     admin: publicAdmin(row),
     user_id: row.user_id,
     two_step_setup_required: twoStepRequired() && !row.two_step_enabled,
-    session_hash: sessionHash
+    session_hash: sessionHash,
+    session_expires_at_iso8601: new Date(result.rows[0].session_expires_at).toISOString()
   });
 }
 

@@ -8887,6 +8887,12 @@
     },
     {
       "method": "GET",
+      "path": "/admin/session",
+      "source": "src/api/product_admin.routes.ts",
+      "tracked_by_area": "founder_admin"
+    },
+    {
+      "method": "GET",
       "path": "/admin/two-step",
       "source": "src/api/product_admin.routes.ts",
       "tracked_by_area": "founder_admin"

@@ -1331,3 +1331,17 @@ el("orgOwnerAccountToggleStateButton").addEventListener("click", requestOrgOwner
 el("orgOwnerAccountToggleStateConfirmButton").addEventListener("click", () => confirmOrgOwnerAccountStateToggle().catch(console.error));
 el("orgOwnerExportRequestsSearch").addEventListener("input", renderOrgOwnerDataRightsReview);
 el("orgOwnerDeletionRequestsSearch").addEventListener("input", renderOrgOwnerDataRightsReview);
+
+// Still signed in from before a reload (GET /admin/session)? Open straight
+// into the console - or the two-step set-up, if that's still owed - instead
+// of asking for the password and code again. Otherwise the sign-in form.
+async function restoreSession() {
+  el("adminSignInSection").hidden = true;
+  try {
+    signedIn(await api("GET", "/admin/session"));
+  }
+  catch {
+    el("adminSignInSection").hidden = false;
+  }
+}
+restoreSession();
