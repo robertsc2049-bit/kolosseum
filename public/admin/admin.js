@@ -1185,6 +1185,10 @@ async function refreshExerciseDemoVideos() {
     `;
     tbody.appendChild(row);
   }
+  // The list is folded away (it's long); the summary says how many.
+  el("exerciseDemoVideoSummary").textContent = demos.length
+    ? `Show all default demos (${demos.length})`
+    : "Show default demos (none set yet)";
   if (demos.length === 0) {
     const emptyRow = document.createElement("tr");
     emptyRow.innerHTML = `<td colspan="3" class="muted">No default demos set yet.</td>`;

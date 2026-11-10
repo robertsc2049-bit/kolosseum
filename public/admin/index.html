@@ -58,6 +58,14 @@
     button.primary { background: var(--k-accent); border-color: var(--k-accent); color: var(--k-canvas); }
     button.danger { background: var(--k-danger); color: var(--k-canvas); border: none; }
     button.confirm { background: var(--k-danger-deep); color: var(--k-text); border: none; }
+    /* A second heading inside a card (e.g. Deletion-request review under the
+       export table) starts its own block instead of touching the table above. */
+    section h2:not(:first-child) { margin-top: 1.6rem; padding-top: 1.2rem; border-top: 1px solid var(--k-border); }
+    /* Typing fields wide enough to show their placeholder; search boxes wider. */
+    input[type="text"], input[type="email"], input[type="password"], input[type="url"] { width: min(100%, 26rem); }
+    input[type="search"] { width: min(100%, 34rem); }
+    details.fold > summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; font-weight: 700; }
+    details.fold > summary:focus-visible { outline: 3px solid var(--k-accent-bright); outline-offset: 2px; border-radius: var(--k-radius-s); }
     .muted { color: var(--k-text-secondary); }
     .error-text { color: var(--k-danger); }
     .server-error-kinds { overflow-wrap: anywhere; padding-left: 1.2rem; }
@@ -366,12 +374,15 @@
       <button type="submit">Set default demo</button>
     </form>
     <p id="exerciseDemoVideoResult" class="muted" hidden></p>
-    <div class="table-scroll">
-      <table>
-        <thead><tr><th>Exercise</th><th>Video</th><th></th></tr></thead>
-        <tbody id="exerciseDemoVideoList"></tbody>
-      </table>
-    </div>
+    <details id="exerciseDemoVideoFold" class="fold">
+      <summary id="exerciseDemoVideoSummary">Show all default demos</summary>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Exercise</th><th>Video</th><th></th></tr></thead>
+          <tbody id="exerciseDemoVideoList"></tbody>
+        </table>
+      </div>
+    </details>
   </section>
 
   <section id="sellerTaxSection" hidden>
