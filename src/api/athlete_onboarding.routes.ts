@@ -53,7 +53,7 @@ import { WeightClassError, getWeightClass, saveWeightClass } from "./weight_clas
 import { AthleteMaxesError, getAthleteMaxes, saveAthleteMaxes } from "./athlete_maxes_service.js";
 import { ProgrammeCatalogueError, getAthleteProgrammes, setAthleteProgramme } from "./programme_catalogue_service.js";
 import { ProgrammeGrantError, declineProgrammeGrant, listAthleteProgrammeGrants, startProgrammeGrant } from "./programme_grant_service.js";
-import { TrainingWeekError, getAthleteTrainingWeek, saveAthleteTrainingWeek } from "./athlete_training_week_service.js";
+import { TrainingWeekError, getAthleteTrainingWeek, saveAthleteTrainingWeek, starterTrainingWeek } from "./athlete_training_week_service.js";
 import { loadAthleteMyProgramme } from "./athlete_my_programme_service.js";
 
 export const athleteOnboardingRouter = Router();
@@ -549,6 +549,17 @@ athleteOnboardingRouter.get(
   asyncHandler(async (request, response) => {
     const { session } = await athleteSession(request);
     return response.status(200).json(await getAthleteTrainingWeek(session.account_row.user_id));
+  })
+);
+
+// A starter week to edit (nothing is saved): quick build's exercises for the
+// athlete's sport, level and equipment, for the days a week they've chosen.
+athleteOnboardingRouter.get(
+  "/training-week/starter",
+  athleteProgrammeRateLimit,
+  asyncHandler(async (request, response) => {
+    const { session } = await athleteSession(request);
+    return response.status(200).json(await starterTrainingWeek(session.account_row.user_id, request.query.days));
   })
 );
 

@@ -505,6 +505,25 @@ test(
     // Still the week back after two weeks away: a set fewer than they chose.
     assert.equal(today.json.planned_session.own_training.reentry.reentry_week, true);
     assert.deepEqual(training(today.json.planned_session.exercises).map((e) => e.sets), [1, 2]);
+    // A starter week to edit (walkthrough 11): quick build's exercises for
+    // their sport and level, which save as their week unchanged. Nothing is
+    // saved by asking for it.
+    const starter = await requestJson(base, "GET", "/account/onboarding/training-week/starter?days=3", { cookie: athlete.cookie });
+    assertStatus(starter, 200, "starter week");
+    assert.equal(starter.json.days.length, 3, "one starter day per training day");
+    const choosable = new Set(noWeek.json.exercise_options.map((o) => o.exercise_id));
+    for (const day of starter.json.days) {
+      assert.ok(day.items.length >= 1 && day.items.length <= 10);
+      for (const item of day.items) {
+        assert.ok(choosable.has(item.exercise_id), `${item.exercise_id} is one they can choose`);
+        assert.ok(Number.isInteger(item.sets) && item.sets >= 1 && Number.isInteger(item.reps) && item.reps >= 1);
+      }
+      assert.equal(new Set(day.items.map((i) => i.exercise_id)).size, day.items.length, "no exercise twice in a day");
+    }
+    assert.equal((await requestJson(base, "GET", "/account/onboarding/training-week", { cookie: athlete.cookie })).json.week, null, "asking saves nothing");
+    assertStatus(await requestJson(base, "GET", "/account/onboarding/training-week/starter?days=9", { cookie: athlete.cookie }), 422, "1 to 6 days");
+    const starterSaved = await requestJson(base, "PUT", "/account/onboarding/training-week", { cookie: athlete.cookie, csrf, body: { days: starter.json.days, lighter_every_fourth: true } });
+    assertStatus(starterSaved, 200, "a starter week saves as it is");
     const ownWeek = await requestJson(base, "PUT", "/account/onboarding/training-week", { cookie: athlete.cookie, csrf, body: {
       days: [{ items: [{ exercise_id: "back_squat", sets: 3, reps: 5 }, { exercise_id: "push_up", sets: 3, reps: 10 }] }, { items: [{ exercise_id: "deadlift", sets: 1, reps: 5 }] }],
       lighter_every_fourth: true
