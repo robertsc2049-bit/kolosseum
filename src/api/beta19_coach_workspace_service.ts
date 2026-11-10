@@ -24,6 +24,7 @@ import {
 import { V1_ACTIVITY_IDS } from "../../shared/v1-boundary/v1ActivityRegistry.mjs";
 import { getAthleteDeclaredActivityAndPosition } from "./athlete_onboarding_service.js";
 import { plannedSessionTitle } from "./session_title.js";
+import { loadSessionReports } from "./athlete_training_log_service.js";
 
 type JsonRecord = Record<string, unknown>;
 type QueryClient = Pick<PoolClient, "query">;
@@ -1387,6 +1388,31 @@ export async function loadCoachAthleteDetail(
           ),
           NULL
         ) AS session_skip_reasons,
+        -- Which exercise each skip and pain report was on, and where it
+        -- hurt, for the coach's review (ReviewSessionWork.tsx).
+        COALESCE(
+          json_agg(
+            DISTINCT jsonb_build_object(
+              'exercise_id', re.event->>'exercise_id',
+              'reason_code', re.event->>'reason_code'
+            )
+          ) FILTER (
+            WHERE re.event->>'type' = 'SKIP_EXERCISE'
+          ),
+          '[]'::json
+        ) AS session_skips,
+        COALESCE(
+          json_agg(
+            DISTINCT jsonb_build_object(
+              'exercise_id', re.event->>'exercise_id',
+              'pain_area', re.event->>'pain_area'
+            )
+          ) FILTER (
+            WHERE re.event->>'type' = 'PAIN_REPORT'
+              AND re.event->>'pain_reported' = 'true'
+          ),
+          '[]'::json
+        ) AS session_pain_reports,
         COALESCE(
           json_agg(
             DISTINCT jsonb_build_object(
@@ -1718,6 +1744,22 @@ export async function loadCoachAthleteDetail(
                     reason.length > 0
                 )
               : [],
+          skips:
+            Array.isArray(row.session_skips)
+              ? row.session_skips.filter(
+                  (entry: unknown) =>
+                    isRecord(entry) &&
+                    typeof entry.exercise_id === "string"
+                )
+              : [],
+          pain_reports:
+            Array.isArray(row.session_pain_reports)
+              ? row.session_pain_reports.filter(
+                  (entry: unknown) =>
+                    isRecord(entry) &&
+                    typeof entry.exercise_id === "string"
+                )
+              : [],
           substitutions:
             Array.isArray(
               row.session_substitutions
@@ -1811,6 +1853,20 @@ export async function loadCoachAthleteDetail(
       }
     );
 
+  // How hard the athlete rated each finished session and how long it took
+  // ("How was that session?", athlete_training_log_service.ts), shown on
+  // the coach's review.
+  const oldestSession = sessionHistory.reduce(
+    (oldest, entry) => (entry.created_at < oldest ? entry.created_at : oldest),
+    new Date().toISOString()
+  );
+  const sessionLoads = sessionHistory.length
+    ? await loadSessionReports(athleteUserId, oldestSession.slice(0, 10))
+    : {};
+  const sessionHistoryWithLoad = sessionHistory.map((entry) =>
+    deepFreeze({ ...entry, session_load: sessionLoads[entry.session_id] ?? null })
+  );
+
   const noteHistory =
     noteResult.rows
       .map((row) => {
@@ -1895,7 +1951,7 @@ export async function loadCoachAthleteDetail(
     event_link_history:
       eventLinkHistory,
     session_history:
-      sessionHistory,
+      sessionHistoryWithLoad,
     note_history:
       noteHistory,
     counts: deepFreeze({

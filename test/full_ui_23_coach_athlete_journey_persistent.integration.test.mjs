@@ -804,7 +804,7 @@ test(
         painReportedExerciseId = exerciseId;
         assertStatus(
           await request(baseUrl, "POST", `/sessions/${encodeURIComponent(secondSessionId)}/events`, {
-            event: { type: "PAIN_REPORT", exercise_id: exerciseId, pain_reported: true }
+            event: { type: "PAIN_REPORT", exercise_id: exerciseId, pain_reported: true, pain_area: "knee" }
           }),
           201,
           `pain report ${exerciseId} (second session)`
@@ -879,6 +879,11 @@ test(
       Array.isArray(secondSessionSummary.skip_reasons) && secondSessionSummary.skip_reasons.includes(usedSkipReason),
       "expected the coach's session history to surface the athlete's recorded skip reason"
     );
+    // Which exercise, and where it hurt (walkthrough 10): the coach's review
+    // shows them on the exercise itself.
+    assert.deepEqual(secondSessionSummary.skips, [{ exercise_id: skippedExerciseId, reason_code: usedSkipReason }]);
+    assert.deepEqual(secondSessionSummary.pain_reports, [{ exercise_id: painReportedExerciseId, pain_area: "knee" }]);
+    assert.equal(secondSessionSummary.session_load, null, "no rating given for this session");
     assert.ok(Array.isArray(secondSessionSummary.substitutions), "expected a substitutions array on the coach's session summary");
     assert.ok(
       secondSessionSummary.substitutions.some(
@@ -902,6 +907,8 @@ test(
     assert.ok(firstSessionSummary, "expected the first session in the coach's session history");
     assert.equal(firstSessionSummary.pain_reported, false);
     assert.deepEqual(firstSessionSummary.skip_reasons, []);
+    assert.deepEqual(firstSessionSummary.skips, []);
+    assert.deepEqual(firstSessionSummary.pain_reports, []);
     assert.deepEqual(firstSessionSummary.substitutions, []);
     assert.deepEqual(firstSessionSummary.rpe_reports, []);
     assert.equal(firstSessionSummary.split_entered, false, "a session with no SPLIT_SESSION event must not be reported as split");

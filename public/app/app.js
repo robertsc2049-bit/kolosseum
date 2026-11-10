@@ -1286,6 +1286,9 @@ document.addEventListener("kolosseum:entry-auth-succeeded", (event) => {
   }
 
   enterApplication().then(() => {
+    // The sign-up form is long on a phone: start the app at the top, not
+    // wherever the "Create account" button was scrolled to.
+    window.scrollTo(0, 0);
     showNotice(
       mode === "create"
         ? "Account created."

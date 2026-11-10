@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 import { loadAthleteRelationshipsMine } from "../../api/accountRelationshipsClient";
-import { loadTrainingWeek } from "../../api/athleteOnboardingClient";
+import { loadAthleteOnboardingState, loadTrainingWeek } from "../../api/athleteOnboardingClient";
 import { type JsonRecord } from "../../api/transport";
 import { InfoTooltip } from "../../components/InfoTooltip";
 import { InstallAppPrompt } from "../../components/InstallAppPrompt";
@@ -75,19 +75,38 @@ const SELF_COACHED_COPY = {
   badgeClass: "neutral"
 };
 
-// Whether an athlete with nothing assigned has an accepted coach - asked only
-// in that state. Null while unknown, so neither message shows early.
-function useHasAcceptedCoach(needed: boolean): boolean | null {
-  const [hasCoach, setHasCoach] = useState<boolean | null>(null);
+// Chose "My coach sets them" at onboarding but no coach has been accepted
+// yet: not self-coached, and nobody to "ask to assign" yet either.
+const WAITING_FOR_COACH_COPY = {
+  icon: "C",
+  heading: "Waiting for your coach",
+  body: "You chose to have a coach set your sessions. When a coach invites you, accept it on your Account page - they then assign your programme and it shows here.",
+  badgeLabel: "Waiting for coach",
+  badgeClass: "neutral"
+};
+
+type CoachState = "coached" | "waiting" | "self";
+
+// Whether an athlete with nothing assigned has an accepted coach, is
+// waiting for one, or trains on their own - asked only in that state. Null
+// while unknown, so no message shows early.
+function useCoachState(needed: boolean, refreshKey: unknown): CoachState | null {
+  const [coachState, setCoachState] = useState<CoachState | null>(null);
   useEffect(() => {
     if (!needed) return undefined;
     let cancelled = false;
-    loadAthleteRelationshipsMine()
-      .then((relationships) => { if (!cancelled) setHasCoach(relationships.some((relationship) => relationship.relationship_state === "accepted")); })
-      .catch(() => { if (!cancelled) setHasCoach(true); });
+    (async () => {
+      const relationships = await loadAthleteRelationshipsMine();
+      if (relationships.some((relationship) => relationship.relationship_state === "accepted")) return "coached" as const;
+      const onboarding = await loadAthleteOnboardingState().catch(() => ({} as JsonRecord));
+      const fields = (((onboarding.current_effective_declaration ?? {}) as JsonRecord).fields ?? {}) as JsonRecord;
+      return fields.execution_scope === "coach_managed" ? "waiting" as const : "self" as const;
+    })()
+      .then((next) => { if (!cancelled) setCoachState(next); })
+      .catch(() => { if (!cancelled) setCoachState("coached"); });
     return () => { cancelled = true; };
-  }, [needed]);
-  return needed ? hasCoach : null;
+  }, [needed, refreshKey]);
+  return needed ? coachState : null;
 }
 
 function openTrainingSetup() {
@@ -228,9 +247,11 @@ export function AthleteTodaySessionCard() {
   const { loading, today, sessionState, actorType, refresh } = useAthleteToday();
   const unassigned = today?.state === "no_current_assignment";
   // /coach-workspace/relationships/mine is athlete-only (403 for anyone else).
-  const hasCoach = useHasAcceptedCoach(unassigned && (actorType === "" || actorType === "athlete"));
-  const selfCoached = unassigned && hasCoach === false;
-  const badge = selfCoached ? { label: SELF_COACHED_COPY.badgeLabel, className: SELF_COACHED_COPY.badgeClass } : statusBadge(today, sessionState);
+  const coachState = useCoachState(unassigned && (actorType === "" || actorType === "athlete"), today);
+  const selfCoached = unassigned && coachState === "self";
+  const waitingForCoach = unassigned && coachState === "waiting";
+  const unassignedCopy = selfCoached ? SELF_COACHED_COPY : waitingForCoach ? WAITING_FOR_COACH_COPY : null;
+  const badge = unassignedCopy ? { label: unassignedCopy.badgeLabel, className: unassignedCopy.badgeClass } : statusBadge(today, sessionState);
 
   if (loading && !today) {
     return (
@@ -265,7 +286,7 @@ export function AthleteTodaySessionCard() {
   const assignment = (today?.assignment ?? null) as JsonRecord | null;
   const session = (today?.session ?? null) as JsonRecord | null;
   const notes = Array.isArray(today?.notes) ? (today!.notes as JsonRecord[]) : [];
-  const messageCopy = selfCoached ? SELF_COACHED_COPY : MESSAGE_STATE_COPY[stateKey];
+  const messageCopy = unassignedCopy ?? MESSAGE_STATE_COPY[stateKey];
   const firstPlannedItem = Array.isArray(session?.planned_items) ? (session!.planned_items[0] as JsonRecord | undefined) : undefined;
   const resolvedLoad = firstPlannedItem?.resolved_load as JsonRecord | undefined;
   const resolvedLoadSource = resolvedLoad?.source as JsonRecord | undefined;
@@ -287,7 +308,7 @@ export function AthleteTodaySessionCard() {
         </div>
       ) : null}
 
-      {messageCopy && !(unassigned && hasCoach === null) ? (
+      {messageCopy && !(unassigned && coachState === null) ? (
         <div className="empty-state">
           <div className="empty-icon">{messageCopy.icon}</div>
           <h3>{messageCopy.heading}</h3>

@@ -7,19 +7,19 @@ import { titleCase } from "../utils/format";
 import { type JsonRecord, request } from "./transport";
 
 export const NOTIFICATION_TYPE_LABELS: Record<string, string> = {
-  relationship_invited: "Relationship invited",
-  relationship_accepted: "Relationship accepted",
-  relationship_declined: "Relationship declined",
-  relationship_revoked: "Relationship revoked",
-  assignment_created: "Assignment created",
-  assignment_replaced: "Assignment replaced",
-  assignment_cancelled: "Assignment cancelled",
-  event_linked: "Event linked",
-  event_unlinked: "Event unlinked",
+  relationship_invited: "New coach invitation",
+  relationship_accepted: "Invitation accepted",
+  relationship_declined: "Invitation declined",
+  relationship_revoked: "Coaching connection ended",
+  assignment_created: "New programme assigned",
+  assignment_replaced: "Your programme changed",
+  assignment_cancelled: "Programme cancelled",
+  event_linked: "Programme linked to an event",
+  event_unlinked: "Programme unlinked from an event",
   event_cancelled: "Event cancelled",
-  programme_available: "Programme available",
+  programme_available: "Programme ready",
   session_completed: "Session completed",
-  coach_note_visible: "Coach note visible",
+  coach_note_visible: "New note from your coach",
   billing_action_required: "Billing action required",
   marketplace_template_released: "Template released",
   weekly_checkin_submitted: "Weekly check-in submitted",
@@ -61,6 +61,34 @@ export const NOTIFICATION_TYPE_LABELS: Record<string, string> = {
   message_report_outcome: "We've looked at the message you reported",
   message_removed: "A message you sent was removed"
 };
+
+// With a name to put first, these read as one sentence: "Sam Walker
+// invited you to train with them" instead of a label and a name underneath.
+const SUBJECT_SENTENCES: Record<string, string> = {
+  relationship_invited: "invited you to train with them",
+  relationship_accepted: "accepted your invitation",
+  relationship_declined: "declined your invitation",
+  relationship_revoked: "ended your coaching connection",
+  relationship_ended_by_athlete: "ended your coaching connection",
+  assignment_created: "assigned you a programme",
+  assignment_replaced: "changed your programme",
+  assignment_cancelled: "cancelled your programme",
+  programme_available: "has a programme ready for you",
+  session_completed: "finished a session",
+  coach_note_visible: "left you a note",
+  weekly_checkin_submitted: "sent their weekly check-in",
+  athlete_pain_reported: "reported pain",
+  athlete_goal_achieved: "reached a goal",
+  video_submitted: "sent a video for review",
+  video_feedback_received: "gave feedback on your video",
+  coaching_requested: "asked you to coach them",
+  coaching_request_declined: "can't take you on right now"
+};
+
+export function notificationSentence(notification: JsonRecord, subject: string | null): string | null {
+  const verb = SUBJECT_SENTENCES[String(notification.notification_type ?? "")];
+  return verb && subject ? `${subject} ${verb}` : null;
+}
 
 export function notificationTypeLabel(notification: JsonRecord): string {
   const type = String(notification.notification_type ?? "");

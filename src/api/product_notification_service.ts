@@ -336,15 +336,9 @@ async function deriveAssignmentNotifications(
         notificationPayload: payload,
         occurredAtIso8601
       });
-      await insertDerivedNotification(client, {
-        recipientUserId,
-        notificationType: "programme_available",
-        sourceRecordType: "beta17_assignment_trigger",
-        sourceRecordId: recordId,
-        deepLinkRouteId: DEEP_LINK_ROUTE_IDS.athleteToday,
-        notificationPayload: payload,
-        occurredAtIso8601
-      });
+      // One assignment, one notification: "programme_available" said the
+      // same thing a second time (walkthrough 10). The type stays valid so
+      // notifications already sent still show.
     }
     else if (status === "assigned" && lifecycleAction === "replace") {
       await insertDerivedNotification(client, {

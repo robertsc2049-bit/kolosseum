@@ -110,6 +110,16 @@ async function tourFor(detail) {
   }
   catch { /* fall back to what the athlete declared */ }
   if (!coached) coached = JSON.stringify(detail.bootstrap.declaration_record.declaration_payload ?? {}).includes("\"execution_scope\":\"coach_managed\"");
+  // The bootstrap can predate the athlete finishing onboarding a moment
+  // ago: ask for the saved answer, so someone who chose "My coach sets
+  // them" and is waiting for their coach doesn't get the self-coached tour.
+  if (!coached) {
+    try {
+      const onboarding = await getJson("/account/onboarding/");
+      coached = onboarding?.current_effective_declaration?.fields?.execution_scope === "coach_managed";
+    }
+    catch { /* keep what the bootstrap said */ }
+  }
 
   return coached
     ? { id: "athlete_coached", userId, steps: coachedAthleteSteps(account, coachName) }

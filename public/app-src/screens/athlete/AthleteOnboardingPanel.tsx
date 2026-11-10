@@ -364,7 +364,9 @@ function DraftView({ api }: { api: OnboardingApi }) {
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
-    if (currentStage === "review") confirm();
+    // Set up: straight to Today, where the first session (or the "ask your
+    // coach" card) is - not left on the declaration summary.
+    if (currentStage === "review") confirm().then((done) => { if (done) openTodayAfterSetup(); }).catch(() => {});
     else {
       // The accessibility stage is genuinely optional (its own copy says
       // so) - but the server requires the field to be present at all once
@@ -661,6 +663,13 @@ function PositionChangeCard({ api }: { api: OnboardingApi }) {
   }
 
   return null;
+}
+
+// After first-time setup: the app's own Today navigation, which reloads it
+// while the reload-required flag is set (athlete_onboarding_ui.js) so the
+// new declaration is picked up.
+function openTodayAfterSetup() {
+  (document.querySelector<HTMLElement>('.nav-item[data-view="today"]') ?? document.querySelector<HTMLElement>('[data-view="today"]'))?.click();
 }
 
 function openWorkspace() {

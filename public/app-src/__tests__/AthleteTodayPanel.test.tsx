@@ -392,3 +392,19 @@ test("an athlete with a coach, or with a week of their own, starts straight away
     unmount();
   }
 });
+
+test("an athlete who chose a coach and is waiting for one isn't told they train without a coach (walkthrough 10)", async () => {
+  globalThis.fetch = (async (input: RequestInfo | URL) => {
+    const path = String(input);
+    if (path === "/coach-workspace/relationships/mine") return jsonResponse({ ok: true, relationships: [] });
+    if (path === "/account/onboarding/") return jsonResponse({ current_effective_declaration: { fields: { execution_scope: "coach_managed" } } });
+    if (path.startsWith("/account/detail")) return jsonResponse({ account: { user_id: ATHLETE_USER_ID } });
+    if (path.startsWith("/sessions/beta-athlete-today")) return jsonResponse({ ok: true, state: "no_current_assignment", assignment: null, session: null, event: null, notes: [] });
+    return jsonResponse({ error: `unhandled_request_${path}` }, false, 404);
+  }) as typeof fetch;
+  render(<AthleteTodaySessionCard />);
+  await waitFor(() => screen.getByRole("heading", { name: "Waiting for your coach" }));
+  assert.equal(document.querySelector(".badge")?.textContent, "Waiting for coach");
+  assert.doesNotMatch(document.body.textContent ?? "", /training without a coach/u);
+  assert.equal(screen.queryByRole("button", { name: "Build your training" }), null);
+});

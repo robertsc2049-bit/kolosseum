@@ -188,8 +188,8 @@ export function useAthleteOnboarding() {
     }
   }, [state.busy, state.draft, currentStage]);
 
-  const confirm = useCallback(async () => {
-    if (state.busy) return;
+  const confirm = useCallback(async (): Promise<boolean> => {
+    if (state.busy) return false;
     setState((current) => ({ ...current, busy: true, validationError: null }));
     try {
       const token = await csrfToken();
@@ -198,6 +198,7 @@ export function useAthleteOnboarding() {
       applyAccessibilityPreferences(fields);
       sessionStorage.setItem(RELOAD_KEY, "1");
       setState((current) => ({ ...current, busy: false, serverState, draft: { ...(fields ?? {}) } }));
+      return true;
     }
     catch (error) {
       setState((current) => ({
@@ -205,6 +206,7 @@ export function useAthleteOnboarding() {
         busy: false,
         validationError: error instanceof ApiRequestError ? error : new ApiRequestError("athlete_onboarding_request_failed", 0, null)
       }));
+      return false;
     }
   }, [state.busy]);
 

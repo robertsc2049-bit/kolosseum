@@ -3,7 +3,7 @@ import React, { useEffect, useRef } from "react";
 import { type JsonRecord } from "../../api/transport";
 import { PhoneNotificationsToggle } from "../../components/PhoneNotificationsToggle";
 import { formatDate } from "../../utils/format";
-import { notificationTypeLabel, resolveNotificationSubject } from "../../api/notificationsClient";
+import { notificationSentence, notificationTypeLabel, resolveNotificationSubject } from "../../api/notificationsClient";
 import { useNotifications } from "./useNotifications";
 
 // DEV NOTE: FULL-UI-18 factual in-product notifications (bell + dropdown
@@ -31,7 +31,8 @@ function NotificationItem({
   onToggleRead: () => void;
 }) {
   const isRead = notification.read_at_iso8601 !== null;
-  const label = notificationTypeLabel(notification);
+  const sentence = notificationSentence(notification, subject);
+  const label = sentence ?? notificationTypeLabel(notification);
   const targetAvailable = notification.target_available === true;
 
   return (
@@ -40,7 +41,7 @@ function NotificationItem({
         {!isRead ? <span className="notification-item-dot" aria-hidden="true" /> : null}
         <span className="notification-item-body">
           <span className="notification-item-type">{label}</span>
-          {subject ? <span className="notification-item-subject">{subject}</span> : null}
+          {subject && !sentence ? <span className="notification-item-subject">{subject}</span> : null}
           <span className="notification-item-time">{formatDate(notification.occurred_at_iso8601)}</span>
           {targetAvailable ? null : <span className="notification-item-unavailable">This item is no longer available</span>}
         </span>
