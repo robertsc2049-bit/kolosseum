@@ -14,6 +14,7 @@ import { rateLimit } from "express-rate-limit";
 import { accountRateLimitKey } from "./rate_limit_key.js";
 
 import {
+  adminCsrfTokenForSession,
   ADMIN_SESSION_COOKIE,
   ADMIN_SESSION_MAX_AGE_SECONDS,
   AdminAuthError,
@@ -56,7 +57,7 @@ import {
   searchAdminAccounts,
   searchAdminOrgOwnerAccounts
 } from "./product_admin_review_service.js";
-import { badRequest, conflict, notFound } from "./http_errors.js";
+import { badRequest, conflict, forbidden, notFound } from "./http_errors.js";
 import { SellerTaxReportError, sellerTaxReport } from "./seller_tax_service.js";
 import { assessBackupHealth, readBackupStatus } from "./backup_health.js";
 import { serverErrorSummary } from "./server_error_alerts.js";
@@ -183,6 +184,30 @@ productAdminRouter.post(
     const admin = await authenticatedAdmin(request, true);
     const result = await replaceBackupCodesWithCode(admin.user_id, request.body?.code);
     return response.status(200).json({ ...result, two_step: await twoStepStatus(admin.user_id) });
+  })
+);
+
+// Still signed in? The console asks on page load so a reload doesn't mean
+// the password and code again. Same answer as signing in (the CSRF token is
+// derived from the session cookie, never stored), so only this site's own
+// pages may read it: no CORS, the cookie is SameSite=lax, and a browser that
+// says the request came from another site is refused. Never cached.
+productAdminRouter.get(
+  "/session",
+  rateLimit({ windowMs: 15 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false }),
+  asyncHandler(async (request, response) => {
+    response.set("Cache-Control", "no-store");
+    const site = request.get("sec-fetch-site");
+    if (site && site !== "same-origin") {
+      throw forbidden("ADMIN_SESSION_CROSS_SITE", { failure_token: "admin_session_cross_site" });
+    }
+    const session = await authenticatedAdmin(request, false, { allowTwoStepSetup: true });
+    return response.status(200).json({
+      admin: session.admin,
+      csrf_token: adminCsrfTokenForSession(session.raw_session_token),
+      session_expires_at_iso8601: session.session_expires_at_iso8601,
+      two_step: await twoStepStatus(session.user_id)
+    });
   })
 );
 
