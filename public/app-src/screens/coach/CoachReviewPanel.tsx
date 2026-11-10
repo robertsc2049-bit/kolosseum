@@ -88,7 +88,7 @@ function ReviewActions({
       ) : status === "reviewed" ? (
         <button className={`button secondary${size}`} type="button" disabled={marking} onClick={() => onMark(record, "unreviewed")}>Mark unreviewed</button>
       ) : null}
-      <button className={`button secondary${size}`} type="button" onClick={() => onNote(record)}>{compact ? "Add note" : "Add private note"}</button>
+      <button className={`button secondary${size}`} type="button" onClick={() => onNote(record)}>Add note</button>
     </>
   );
 }
@@ -496,7 +496,7 @@ export function CoachReviewPanel() {
       {noteRecord ? (
         <form className="panel form-panel narrow" onSubmit={handleSubmitNote}>
           <div>
-            <p className="eyebrow">Private note</p>
+            <p className="eyebrow">Coach note</p>
             <h3>Add note for {reviewAthleteName(noteRecord, athleteNamesById)}</h3>
           </div>
           <label className="field">

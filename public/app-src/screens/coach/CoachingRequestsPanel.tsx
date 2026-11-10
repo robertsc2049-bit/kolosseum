@@ -4,6 +4,7 @@ import { decideCoachingRequest, loadCoachingRequests } from "../../api/coachWork
 import { loadAccountDetail } from "../../api/client";
 import { type JsonRecord } from "../../api/transport";
 import { formatDate } from "../../utils/format";
+import { NOTIFICATIONS_ARRIVED_EVENT } from "../../utils/liveUpdates";
 
 // Athletes who found the coach at a gym and asked to be coached
 // (coaching_request_service.ts): invite them (the usual invitation they
@@ -28,7 +29,12 @@ export function CoachingRequestsPanel() {
   useEffect(() => {
     refresh();
     document.addEventListener("kolosseum:account-role-known", refresh);
-    return () => document.removeEventListener("kolosseum:account-role-known", refresh);
+    // A request made while this was open.
+    document.addEventListener(NOTIFICATIONS_ARRIVED_EVENT, refresh);
+    return () => {
+      document.removeEventListener("kolosseum:account-role-known", refresh);
+      document.removeEventListener(NOTIFICATIONS_ARRIVED_EVENT, refresh);
+    };
   }, [refresh]);
 
   async function decide(request: JsonRecord, decision: "invite" | "dismiss") {
@@ -41,7 +47,11 @@ export function CoachingRequestsPanel() {
       const payload = await decideCoachingRequest(id, decision, typeof account.csrf_token === "string" ? account.csrf_token : "");
       setRequests(Array.isArray(payload.requests) ? (payload.requests as JsonRecord[]) : []);
       setNotice(decision === "invite" ? `Invitation sent to ${String(request.athlete_display_name)}.` : "Request dismissed.");
-      if (decision === "invite") document.dispatchEvent(new CustomEvent("kolosseum:data-changed"));
+      if (decision === "invite") {
+        document.dispatchEvent(new CustomEvent("kolosseum:data-changed"));
+        // The invited athlete shows as pending in the roster straight away.
+        document.dispatchEvent(new CustomEvent("kolosseum:athlete-directory-changed"));
+      }
     }
     catch {
       setError("That didn't work. Try again.");
@@ -57,7 +67,7 @@ export function CoachingRequestsPanel() {
     <section className="panel" aria-labelledby="coachingRequestsHeading" data-testid="coaching-requests">
       <p className="eyebrow">Requests</p>
       <h3 id="coachingRequestsHeading">Athletes asking you to coach them</h3>
-      <p className="muted small">They found you at a gym that confirmed you coach there.</p>
+      <p className="muted small">They found you through your share link or at a gym where you coach. Invite them to add them to your roster.</p>
       {error ? <p role="alert" className="field-error">{error}</p> : null}
       {notice ? <p role="status" className="muted small">{notice}</p> : null}
       <div className="record-list">

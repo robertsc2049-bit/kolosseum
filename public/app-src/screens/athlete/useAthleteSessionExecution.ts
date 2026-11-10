@@ -486,7 +486,8 @@ export function useAthleteSessionExecution() {
   const confirmPainReport = useCallback(async (painArea?: string) => {
     const exerciseId = currentExerciseId(state.sessionState);
     if (!exerciseId) return false;
-    setState((current) => ({ ...current, actionPanel: null }));
+    // Skipping straight after reporting pain is usually because of it.
+    setState((current) => ({ ...current, actionPanel: null, skipReasonCode: "pain_or_discomfort" }));
     return runMutation(async (sessionId, csrfToken) => {
       return postOrQueue(sessionId, { type: "PAIN_REPORT", exercise_id: exerciseId, pain_reported: true, ...(painArea ? { pain_area: painArea } : {}) }, csrfToken);
     }, true);

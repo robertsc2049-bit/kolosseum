@@ -220,7 +220,7 @@ test("sport is required - there's no 'Not yet' choice, and the chosen sport is s
 test("the Back button is enabled past the first stage and moves backward", async () => {
   installMocks({ initialState: draftState({ current_stage: "execution_scope", draft: { fields: { activity_id: "powerlifting" } } }) });
   render(<AthleteOnboardingPanel />);
-  await screen.findByText("Execution-scope declaration");
+  await screen.findByText("Do you have a coach?");
 
   const backButton = screen.getByText("Back") as HTMLButtonElement;
   assert.equal(backButton.disabled, false);
@@ -777,7 +777,7 @@ test("the training-plan stage asks a team athlete for days and season dates, and
   assert.equal((savedFields ?? {}).season_start_date, "2026-09-05");
   assert.equal((savedFields ?? {}).season_end_date, "2027-05-29");
   assert.equal(Object.prototype.hasOwnProperty.call(savedFields ?? {}, "no_fixed_date"), false);
-  assert.ok(screen.getByText("Execution-scope declaration"));
+  assert.ok(screen.getByText("Do you have a coach?"));
 });
 
 test("choosing 'no fixed season' clears and disables the season dates", async () => {

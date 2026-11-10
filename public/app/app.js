@@ -1442,6 +1442,19 @@ async function createSession(options = {}) {
       if (phase4Token === "pain_check_in_required") {
         showNotice("You reported pain last time. Check in on how it is now before this session.", "error");
         document.getElementById("athleteOnboardingNav")?.click();
+        // The check-in sits well down that page on a phone: take them to it
+        // once it has loaded (it fetches its own pain flags).
+        let tries = 0;
+        const scrollToCheckIn = () => {
+          const card = document.querySelector('[data-testid="pain-check-in"]');
+          if (card) {
+            window.scrollTo({ top: Math.max(0, card.getBoundingClientRect().top + window.scrollY - 80), behavior: "smooth" });
+            return;
+          }
+          tries += 1;
+          if (tries < 20) window.setTimeout(scrollToCheckIn, 200);
+        };
+        window.setTimeout(scrollToCheckIn, 300);
         return;
       }
       if (phase4Token === "medical_stand_down") {
@@ -5825,7 +5838,7 @@ async function completeTemplateById(templateId) {
     );
 
     await refreshProgrammeLibrary({ quiet: true });
-    showNotice("Template marked complete. Ready to activate.");
+    showNotice("Programme checked - it's ready to send.");
     return response.template ?? null;
   }
   finally {

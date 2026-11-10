@@ -222,14 +222,14 @@ function StageFields({ stage, draft, onChange }: { stage: string; draft: JsonRec
   if (stage === "execution_scope") {
     return (
       <>
-        <p>Declare where session instructions originate.</p>
+        <p>Choose who sets your sessions. You can change this later.</p>
         <label className="onboarding-choice">
           <input type="radio" name="scope" value="individual" checked={draft.execution_scope === "individual"} onChange={() => onChange({ ...draft, execution_scope: "individual" })} />
-          <span><strong>Individual</strong><small>Work in my athlete workspace.</small></span>
+          <span><strong>I train myself</strong><small>Build your own training week - Kolosseum fills in the weights.</small></span>
         </label>
         <label className="onboarding-choice">
           <input type="radio" name="scope" value="coach_managed" checked={draft.execution_scope === "coach_managed"} onChange={() => onChange({ ...draft, execution_scope: "coach_managed" })} />
-          <span><strong>Coach managed</strong><small>Work assigned through an accepted coach relationship.</small></span>
+          <span><strong>My coach sets them</strong><small>Your coach assigns your programme once you've accepted them.</small></span>
         </label>
       </>
     );
@@ -241,7 +241,7 @@ function StageFields({ stage, draft, onChange }: { stage: string; draft: JsonRec
         <p>This is a controlled-beta product. Features and availability may change. Records are not medical, safety or readiness decisions.</p>
         <label className="onboarding-choice">
           <input type="checkbox" checked={draft.product_acknowledged === true} onChange={(event) => onChange({ ...draft, product_acknowledged: event.target.checked })} />
-          <span><strong>I acknowledge the controlled-beta product boundary.</strong><small>september_beta_2026</small></span>
+          <span><strong>I understand Kolosseum is in beta and may change.</strong></span>
         </label>
       </>
     );

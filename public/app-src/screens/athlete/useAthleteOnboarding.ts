@@ -36,7 +36,7 @@ export const STAGE_TITLES: Record<OnboardingStage, string> = {
   activity: "Activity declaration",
   experience_level: "Training level",
   training_plan: "Training plan",
-  execution_scope: "Execution-scope declaration",
+  execution_scope: "Do you have a coach?",
   product_acknowledgement: "Beta/product acknowledgement",
   jurisdiction: "Jurisdiction acknowledgement",
   accessibility: "Accessibility preferences",

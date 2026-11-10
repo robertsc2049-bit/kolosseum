@@ -186,7 +186,7 @@ export function EntryAuthPanel() {
       {mode === "create" || mode === "sign-in" ? (
         <form className="entry-form" onSubmit={handleEntrySubmit}>
           <div>
-            <p className="eyebrow">September controlled beta</p>
+            <p className="eyebrow">Beta</p>
             <h2>{createMode ? "Create your account" : "Sign in"}</h2>
             <p className="muted">
               {createMode

@@ -167,6 +167,17 @@ test("adding a new strength record posts it alongside the existing persisted ben
   assert.equal(valueInputs[0].disabled, true, "the persisted record stays immutable");
   assert.equal(valueInputs[1].disabled, false, "the new draft record is editable");
 
+  // A new row starts blank - no exercise or load is guessed for the coach.
+  const exerciseSelects = screen.getAllByLabelText("Exercise") as HTMLSelectElement[];
+  assert.equal(exerciseSelects[1].value, "");
+  assert.equal(valueInputs[1].value, "");
+  await act(async () => {
+    fireEvent.submit(screen.getByText("Save athlete profile").closest("form")!);
+  });
+  screen.getByText("Choose the exercise and enter the load for each new max.");
+  assert.equal(mock.calls.some((call) => String(call.input) === "/coach-workspace/athlete-strength-profile" && call.init?.method === "POST"), false, "nothing is saved until it's filled in");
+
+  fireEvent.change(exerciseSelects[1], { target: { value: exerciseSelects[1].options[1].value } });
   fireEvent.change(valueInputs[1], { target: { value: "205" } });
 
   await act(async () => {

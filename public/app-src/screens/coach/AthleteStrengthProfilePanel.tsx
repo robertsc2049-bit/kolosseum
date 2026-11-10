@@ -85,13 +85,16 @@ function benchmarksFromProfile(profile: JsonRecord | null): BenchmarkDraft[] {
   }));
 }
 
-function newBenchmarkDraft(preferredUnit: Unit, exercises: JsonRecord[]): BenchmarkDraft {
-  const exercise = exercises[0];
+// A new max starts blank: the exercise list is the whole library in
+// alphabetical order, so pre-picking its first entry (a sprint drill) - or
+// a made-up load - would be saved as the athlete's max by a coach who
+// didn't notice.
+function newBenchmarkDraft(preferredUnit: Unit): BenchmarkDraft {
   return {
     draftKey: `new-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
     benchmark_id: "",
-    exercise_id: exercise ? String(exercise.exercise_id ?? "") : "",
-    value: preferredUnit === "lb" ? "225" : "100",
+    exercise_id: "",
+    value: "",
     unit: preferredUnit,
     basis: "tested_1rm",
     effective_date: new Date().toISOString().slice(0, 10),
@@ -180,12 +183,16 @@ export function AthleteStrengthProfilePanel() {
   }
 
   function addBenchmark() {
-    setBenchmarks((current) => [...current, newBenchmarkDraft(settings.preferredWeightUnit, exercises)]);
+    setBenchmarks((current) => [...current, newBenchmarkDraft(settings.preferredWeightUnit)]);
   }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (saving) return;
+    if (benchmarks.some((row) => !row.persisted && (!row.exercise_id || !(Number(row.value) > 0)))) {
+      setResult("Choose the exercise and enter the load for each new max.");
+      return;
+    }
     setSaving(true);
     setResult(null);
 
@@ -299,6 +306,7 @@ export function AthleteStrengthProfilePanel() {
                     value={row.exercise_id}
                     onChange={(event) => updateBenchmark(row.draftKey, { exercise_id: event.target.value })}
                   >
+                    {row.exercise_id ? null : <option value="">Choose an exercise</option>}
                     {exercises.map((exercise) => (
                       <option key={String(exercise.exercise_id)} value={String(exercise.exercise_id)}>
                         {String(exercise.display_name ?? exercise.exercise_id)}

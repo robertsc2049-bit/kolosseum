@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 
+import { openShareLink } from "../../components/GuideChecklist";
 import { useInviteAthleteByEmail } from "./useInviteAthleteByEmail";
 
 // DEV NOTE: ported from index.html's #inviteAthleteByEmailForm ("Lawful
 // invitation / Invite athlete by email").
 export function InviteAthleteByEmailPanel() {
-  const { submitting, error, notice, invite } = useInviteAthleteByEmail();
+  const { submitting, error, errorCode, notice, invite } = useInviteAthleteByEmail();
   const [email, setEmail] = useState("");
 
   async function handleSubmit(event: React.FormEvent) {
@@ -37,6 +38,9 @@ export function InviteAthleteByEmailPanel() {
       </label>
 
       {error ? <p role="status" className="muted small error">{error}</p> : null}
+      {errorCode === "relationship_invitation_athlete_not_found" ? (
+        <button className="button secondary" type="button" onClick={openShareLink}>Send them my share link instead</button>
+      ) : null}
       {notice ? <p role="status" className="muted small">{notice}</p> : null}
 
       <button className="button primary" type="submit" disabled={submitting}>Send invitation</button>

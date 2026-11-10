@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { loadAccountDetail } from "../../api/client";
 import { loadCoachAssignments, loadCoachRelationships, loadCoachTemplates } from "../../api/coachWorkspaceClient";
 import { type JsonRecord } from "../../api/transport";
-import { dismissGuide, guideDismissed, GuideChecklist, openAppView, revealSection, type GuideStep } from "../../components/GuideChecklist";
+import { dismissGuide, guideDismissed, GuideChecklist, openAppView, openShareLink, revealSection, type GuideStep } from "../../components/GuideChecklist";
 import { ENTRY_AUTH_SUCCEEDED_EVENT } from "../entry/useEntryAuth";
 import { OPEN_QUICK_BUILD_EVENT } from "./QuickBuildForm";
 
@@ -103,9 +103,12 @@ export function CoachFirstProgrammeGuide() {
     {
       id: "athlete",
       title: "Bring in an athlete",
-      body: "Invite an athlete by email, share your link or QR code (Account → Branding), or add one with their account code. They're on your roster once they accept.",
+      body: "New to Kolosseum? Send them your share link or QR code - they sign up and ask you to coach them. Already on Kolosseum? Invite them by email. They're on your roster once they accept.",
       done: athletes.length > 0,
-      actions: [{ label: "Invite an athlete", primary: true, onClick: openInvite }]
+      actions: [
+        { label: "Share my link", primary: true, onClick: openShareLink },
+        { label: "Invite by email", onClick: openInvite }
+      ]
     },
     {
       id: "assign",

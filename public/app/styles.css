@@ -2330,6 +2330,14 @@ html[data-a11y-screen-reader-optimised="true"] [tabindex]:focus-visible {
   color: var(--stone);
 }
 
+/* A success shown in the entry form's message box (password reset done)
+   reads as good news, not an error. */
+.form-error.success-message {
+  border-color: rgba(126, 184, 0, 0.45);
+  background: rgba(126, 184, 0, 0.08);
+  color: var(--k-text);
+}
+
 .account-settings-grid {
   display: grid;
   grid-template-columns:
@@ -4359,6 +4367,10 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
   .views p,
   .views h2,
   .views h3 { overflow-wrap: anywhere; }
+
+  /* A long exercise name in the session order ("Countermovement jump")
+     hyphenates at a syllable instead of splitting anywhere. */
+  .exercise-row strong { hyphens: auto; overflow-wrap: break-word; }
 
   /* The coach's athlete list comes before the forms that change it. */
   #view-athletes:not([hidden]) { display: flex; flex-direction: column; }

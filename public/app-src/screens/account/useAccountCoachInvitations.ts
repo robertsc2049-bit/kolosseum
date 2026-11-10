@@ -7,6 +7,7 @@ import {
   loadPendingRelationshipInvitations
 } from "../../api/accountRelationshipsClient";
 import { type JsonRecord } from "../../api/transport";
+import { NOTIFICATIONS_ARRIVED_EVENT } from "../../utils/liveUpdates";
 
 // DEV NOTE: ported from app.js's refreshPendingRelationshipInvitations()/
 // renderPendingRelationshipInvitations() - one of five panels legacy used
@@ -69,9 +70,11 @@ export function useAccountCoachInvitations() {
     // utils/role.ts's useRole().
     document.addEventListener(RELATIONSHIP_CHANGED_EVENT, refresh);
     document.addEventListener("kolosseum:account-role-known", refresh);
+    document.addEventListener(NOTIFICATIONS_ARRIVED_EVENT, refresh);
     return () => {
       document.removeEventListener(RELATIONSHIP_CHANGED_EVENT, refresh);
       document.removeEventListener("kolosseum:account-role-known", refresh);
+      document.removeEventListener(NOTIFICATIONS_ARRIVED_EVENT, refresh);
     };
   }, [refresh]);
 
