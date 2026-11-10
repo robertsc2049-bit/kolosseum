@@ -136,8 +136,8 @@ test("opening the panel loads and displays a notification with its resolved subj
     fireEvent.click(screen.getByLabelText("Open notifications"));
   });
 
-  await screen.findByText("Relationship accepted");
-  assert.ok(screen.getByText("Alex Athlete"));
+  // With a name, the row is one sentence (walkthrough 10).
+  await screen.findByText("Alex Athlete accepted your invitation");
   assert.ok(screen.getByText("Mark read"));
 });
 
@@ -222,7 +222,7 @@ test("opening a notification with an unavailable target does not dispatch a navi
   document.addEventListener("kolosseum:open-notification-target", () => { dispatched = true; }, { once: true });
 
   await act(async () => {
-    fireEvent.click(screen.getByText("Relationship accepted"));
+    fireEvent.click(screen.getByText("A connected athlete accepted your invitation"));
   });
 
   assert.equal(dispatched, false);
@@ -295,7 +295,7 @@ test("an already-open panel refetches its full content (not just the count) when
     await new Promise((resolve) => setTimeout(resolve, 0));
   });
 
-  await screen.findByText("Relationship accepted");
+  await screen.findByText("A connected athlete accepted your invitation");
   assert.equal(notificationsRequestCount, 1);
 });
 
@@ -305,7 +305,7 @@ test("opening a notification with a real target dispatches the navigation bridge
   await act(async () => {
     fireEvent.click(screen.getByLabelText("Open notifications"));
   });
-  await screen.findByText("Relationship accepted");
+  await screen.findByText("A connected athlete accepted your invitation");
 
   let captured: { route_id?: string; params?: Record<string, unknown>; notification_type?: string } | null = null;
   document.addEventListener("kolosseum:open-notification-target", (event) => {
@@ -313,7 +313,7 @@ test("opening a notification with a real target dispatches the navigation bridge
   }, { once: true });
 
   await act(async () => {
-    fireEvent.click(screen.getByText("Relationship accepted"));
+    fireEvent.click(screen.getByText("A connected athlete accepted your invitation"));
   });
 
   // The type too, so a screen can open the right section (a package payment opens the package).

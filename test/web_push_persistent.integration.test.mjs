@@ -105,7 +105,7 @@ test("a rugby player's phone gets the coach's invite pushed once; a dead phone i
     const config_ = { publicKey: keys.publicKey, privateKey: keys.privateKey, subject: "mailto:push-test@example.com" };
     await runPushSweep(config_, fakeSend);
     const toWing = sent.filter((s) => s.endpoint === wingPhone.endpoint);
-    assert.deepEqual(toWing.map((s) => s.payload.title), ["Relationship invited"]);
+    assert.deepEqual(toWing.map((s) => s.payload.title), ["New coach invitation"]);
     assert.equal(JSON.stringify(toWing[0].payload).includes("Coach"), false, "no names on the lock screen");
 
     sent.length = 0;

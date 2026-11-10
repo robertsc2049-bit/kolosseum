@@ -36,6 +36,27 @@ export function setDose(entry: JsonRecord): string {
   return `${reps} × ${formatNumber(entry.load_value)} ${String(entry.load_unit ?? "kg")}`;
 }
 
+const SKIP_REASONS: Record<string, string> = {
+  equipment_unavailable: "equipment unavailable",
+  time_constraint: "short of time",
+  pain_or_discomfort: "pain or discomfort",
+  fatigue: "fatigue",
+  other: "other reason"
+};
+export const skipReasonText = (code: string) => SKIP_REASONS[code] ?? (code ? titleCase(code).toLowerCase() : "no reason given");
+
+export function painText(area: string): string {
+  if (!area || area === "unspecified" || area === "not_sure") return "Pain reported on this exercise";
+  if (area === "other") return "Pain reported on this exercise (somewhere else)";
+  return `Pain reported on this exercise - ${area.replaceAll("_", " ")}`;
+}
+
+// The CR10 words the athlete chose from (SessionEffortCard.tsx).
+function effortWord(value: number): string {
+  const words = ["rest", "very, very easy", "easy", "moderate", "somewhat hard", "hard", "hard+", "very hard", "very hard+", "near max", "maximal"];
+  return words[Math.max(0, Math.min(10, Math.round(value)))];
+}
+
 // One row per set: an edited set appears once, as its latest log.
 function latestSets(logs: JsonRecord[]): JsonRecord[] {
   const bySet = new Map<number, JsonRecord>();
@@ -73,10 +94,17 @@ export function ReviewSessionWork({ athleteName, work, exerciseNames }: {
     .filter((id, index, all) => all.indexOf(id) === index);
   const added = list(session.extra_exercise_reports);
   const skipped = (Array.isArray(session.skip_reasons) ? (session.skip_reasons as unknown[]) : []).map(String);
+  // Per exercise (newer records): why it was skipped, and where it hurt.
+  const skipsById = new Map(list(session.skips).map((entry) => [String(entry.exercise_id), String(entry.reason_code ?? "")]));
+  const painById = new Map(list(session.pain_reports).map((entry) => [String(entry.exercise_id), String(entry.pain_area ?? "")]));
+  const load = session.session_load && typeof session.session_load === "object" ? (session.session_load as JsonRecord) : null;
 
   return (
     <section className="review-session-work" aria-label={`What ${firstName} did`}>
       {heading}
+      {load ? (
+        <p className="review-session-load">{`${firstName} rated the session ${formatNumber(load.srpe)} out of 10 (${effortWord(Number(load.srpe))}) · ${formatNumber(load.minutes)} min`}</p>
+      ) : null}
       {order.length === 0 ? <p className="muted small">No exercises are recorded for this session.</p> : null}
       <ol className="review-work-list">
         {order.map((exerciseId) => {
@@ -92,6 +120,12 @@ export function ReviewSessionWork({ athleteName, work, exerciseNames }: {
                 {effort.map((text) => <span className="badge neutral" key={text}>{text}</span>)}
               </div>
               {swappedFor ? <p className="muted small">{`Swapped for ${exerciseLabel(swappedFor, exerciseNames)}`}</p> : null}
+              {painById.has(exerciseId) ? (
+                <p className="inline-result" data-tone="warning">{painText(painById.get(exerciseId) ?? "")}</p>
+              ) : null}
+              {skipsById.has(exerciseId) ? (
+                <p className="muted small">{`Skipped - ${skipReasonText(skipsById.get(exerciseId) ?? "")}`}</p>
+              ) : null}
               {sets.length === 0 && extras.length === 0 ? (
                 <p className="muted small">No sets logged</p>
               ) : (
@@ -130,8 +164,9 @@ export function ReviewSessionWork({ athleteName, work, exerciseNames }: {
           </ul>
         </div>
       ) : null}
-      {skipped.length > 0 ? <p className="muted small">{`Skipped: ${skipped.map((reason) => titleCase(reason)).join(", ")}`}</p> : null}
-      {session.pain_reported === true ? <p className="inline-result" data-tone="warning">Pain was reported during this session.</p> : null}
+      {/* Older records only say a skip or pain happened, not on what. */}
+      {skipped.length > 0 && skipsById.size === 0 ? <p className="muted small">{`Skipped: ${skipped.map(skipReasonText).join(", ")}`}</p> : null}
+      {session.pain_reported === true && painById.size === 0 ? <p className="inline-result" data-tone="warning">Pain was reported during this session.</p> : null}
     </section>
   );
 }

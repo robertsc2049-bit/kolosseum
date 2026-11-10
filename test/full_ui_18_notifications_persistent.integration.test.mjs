@@ -607,7 +607,7 @@ test(
       assert.equal(athleteByType.relationship_invited?.length, 1);
       assert.equal(athleteByType.assignment_created?.length, 2, "assignment_created fires once per fresh assignment (the original, and the one that replaced the cancelled one)");
       assert.equal(athleteByType.assignment_created[0].notification_payload.coach_user_id, coach.userId, "notification_payload names which coach assigned the programme");
-      assert.equal(athleteByType.programme_available?.length, 2, "programme_available fires alongside every assignment_created");
+      assert.equal(athleteByType.programme_available, undefined, "one assignment gives one notification - programme_available is no longer sent alongside assignment_created");
       assert.equal(athleteByType.assignment_replaced?.length, 1, "assignment_replaced fires once");
       assert.equal(athleteByType.assignment_cancelled?.length, 1, "assignment_cancelled fires once");
       assert.equal(athleteByType.event_linked?.length, 1, "event_linked fires once despite link/unlink/re-link (distinct source rows would each fire, but link_state='linked' rows collapse to one link record id per (coach,athlete,event) triple across relink)");
