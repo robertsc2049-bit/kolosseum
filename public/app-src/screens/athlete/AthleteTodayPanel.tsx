@@ -70,7 +70,7 @@ const MESSAGE_STATE_COPY: Record<string, { icon: string; heading: string; body: 
 const SELF_COACHED_COPY = {
   icon: "P",
   heading: "Your training",
-  body: "You're training without a coach: your sessions follow the training week you build on Declarations, and Kolosseum's generated programme fills in until you do. Start a session when you're ready to train.",
+  body: "You're training without a coach: your sessions follow the training week you set up in My training (Kolosseum's generated sessions fill in until you do). Start a session when you're ready to train.",
   badgeLabel: "Self-coached",
   badgeClass: "neutral"
 };
@@ -83,6 +83,14 @@ const WAITING_FOR_COACH_COPY = {
   body: "You chose to have a coach set your sessions. When a coach invites you, accept it on your Account page - they then assign your programme and it shows here.",
   badgeLabel: "Waiting for coach",
   badgeClass: "neutral"
+};
+
+const SESSION_IN_PROGRESS_COPY = {
+  icon: "▶",
+  heading: "Session in progress",
+  body: "You've started a session and not finished it yet - carry on where you left off.",
+  badgeLabel: "In progress",
+  badgeClass: "partial"
 };
 
 type CoachState = "coached" | "waiting" | "self";
@@ -175,6 +183,14 @@ function continueToSession() {
   (document.querySelector('[data-view="session"]') as HTMLElement | null)?.click();
 }
 
+// A self-coached athlete's session that's started but not finished (the
+// server reports it as "continue"): carry on with it, never start another
+// on top - that stranded the half-logged one (walkthrough 11).
+function selfCoachedOpenSession(today: JsonRecord | null): boolean {
+  const session = today?.session && typeof today.session === "object" ? (today.session as JsonRecord) : null;
+  return !today?.coach_user_id && today?.state === "no_current_assignment" && session?.action === "continue" && Boolean(session.session_id);
+}
+
 export function AthleteTodayCreateSessionButton() {
   const { today } = useAthleteToday();
   const coachedWithOpenSession = Boolean(today?.coach_user_id) && today?.state === "ok";
@@ -212,7 +228,9 @@ export function AthleteTodayCreateSessionButton() {
   }
   // A coached athlete with today's session open just opens it (the card
   // below); a second session would skip them ahead in their programme.
-  if (coachedWithOpenSession) return null;
+  // Likewise a self-coached session in progress: the card's "Continue
+  // session" carries on with it.
+  if (coachedWithOpenSession || selfCoachedOpenSession(today)) return null;
   return (
     <button className="button primary" type="button" disabled={checking} onClick={() => void start()}>
       {createSessionButtonLabel(today)}
@@ -250,7 +268,8 @@ export function AthleteTodaySessionCard() {
   const coachState = useCoachState(unassigned && (actorType === "" || actorType === "athlete"), today);
   const selfCoached = unassigned && coachState === "self";
   const waitingForCoach = unassigned && coachState === "waiting";
-  const unassignedCopy = selfCoached ? SELF_COACHED_COPY : waitingForCoach ? WAITING_FOR_COACH_COPY : null;
+  const inProgress = unassigned && selfCoachedOpenSession(today);
+  const unassignedCopy = inProgress ? SESSION_IN_PROGRESS_COPY : selfCoached ? SELF_COACHED_COPY : waitingForCoach ? WAITING_FOR_COACH_COPY : null;
   const badge = unassignedCopy ? { label: unassignedCopy.badgeLabel, className: unassignedCopy.badgeClass } : statusBadge(today, sessionState);
 
   if (loading && !today) {
@@ -313,7 +332,9 @@ export function AthleteTodaySessionCard() {
           <div className="empty-icon">{messageCopy.icon}</div>
           <h3>{messageCopy.heading}</h3>
           <p>{messageCopy.body}</p>
-          {selfCoached ? <button className="button secondary" type="button" onClick={openTrainingSetup}>Build your training</button> : null}
+          {inProgress
+            ? <button className="button primary" type="button" onClick={continueToSession}>Continue session</button>
+            : selfCoached ? <button className="button secondary" type="button" onClick={openTrainingSetup}>My training</button> : null}
         </div>
       ) : null}
 

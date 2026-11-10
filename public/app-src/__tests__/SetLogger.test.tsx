@@ -75,3 +75,27 @@ test("set by set: every row starts at its own reps and weight, and the all-out s
   await act(async () => { fireEvent.click(screen.getByText("Log set 2")); });
   assert.deepEqual(calls[0], ["back_squat", 2, 4, { value: 85, unit: "kg" }, null, null]);
 });
+
+// A beginner's first squat with weights built from what they lift: no
+// weight is given yet (walkthrough 11).
+const firstTimeSquat = { exercise_id: "back_squat", sets: 3, reps: 5, intensity: { type: "rpe", value: 8 }, load_guidance: { reps: 5, type: "progression", basis: "first_time" }, resolved_load: null };
+
+test("the weight just logged carries over to the next set, so 'Log set 2' isn't a bodyweight squat", () => {
+  render(<SetLogger exercise={firstTimeSquat} setLogs={[{ set_index: 1, reps: 5, load_value: 60, load_unit: "kg" }]} busy={false} logSet={async () => true} />);
+  assert.equal((screen.getByLabelText("Set 2 load (kg)") as HTMLInputElement).value, "60");
+  assert.equal((screen.getByLabelText("Set 3 load (kg)") as HTMLInputElement).value, "60");
+});
+
+test("a lift whose weights build from what's logged asks for a weight, not bodyweight", async () => {
+  const calls: unknown[][] = [];
+  render(<SetLogger exercise={firstTimeSquat} setLogs={[]} busy={false} logSet={async (...args: unknown[]) => { calls.push(args); return true; }} />);
+  const load = screen.getByLabelText("Set 1 load (kg)") as HTMLInputElement;
+  assert.equal(load.placeholder, "kg");
+  assert.ok(screen.getByText("Enter the weight you lift - it carries over to your next sets, and your next session builds from it."));
+  await act(async () => { fireEvent.click(screen.getByText("Log set 1")); });
+  assert.ok(screen.getByText("Enter the weight you lifted - your next session's weight is worked out from it."));
+  assert.equal(calls.length, 0, "nothing logged without a weight");
+  fireEvent.change(load, { target: { value: "60" } });
+  await act(async () => { fireEvent.click(screen.getByText("Log set 1")); });
+  assert.deepEqual(calls[0].slice(0, 4), ["back_squat", 1, 5, { value: 60, unit: "kg" }]);
+});

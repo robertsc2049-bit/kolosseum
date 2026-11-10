@@ -350,7 +350,7 @@ export function AthleteSessionExecutionPanel() {
           <p className="eyebrow">{activity}</p>
           <h2>{typeof sessionState.session_title === "string" && sessionState.session_title ? sessionState.session_title : `${activity} session`}</h2>
           <p className="muted">{total ? `${total} ${total === 1 ? "exercise" : "exercises"} in this session.` : ""}</p>
-          {cycleSummary ? <p className="session-cycle" data-testid="session-cycle">{cycleSummary}</p> : null}
+          {cycleSummary && cycleSummary !== sessionState.session_title ? <p className="session-cycle" data-testid="session-cycle">{cycleSummary}</p> : null}
           {injuryModified ? <p className="inline-result" data-tone="warning" data-testid="injury-modified-note">{`Training modified for your ${String(injuryModified.injury ?? "injury")}: follow your physio's plan, and stop anything that hurts.`}</p> : null}
             {reentryNote ? <p className="inline-result" data-tone="warning" data-testid="session-reentry">{reentryNote}</p> : null}
         </div>

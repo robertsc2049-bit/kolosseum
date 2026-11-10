@@ -171,6 +171,9 @@ export function PositionSelect({ activityId, value, onChange, label = "Position"
   label?: string;
 }) {
   const options = POSITION_OPTIONS_BY_ACTIVITY[activityId] ?? [];
+  // A sport without positions (powerlifting: only "Athlete") has nothing to
+  // choose - don't ask (walkthrough 11).
+  if (options.length <= 1) return null;
 
   return (
     <label className="field">

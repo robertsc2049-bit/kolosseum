@@ -9,8 +9,7 @@ import { dismissGuide, guideDismissed, GuideChecklist, openAppView, revealSectio
 import { ENTRY_AUTH_SUCCEEDED_EVENT } from "../entry/useEntryAuth";
 
 // An athlete training without a coach, setting up their own training, step
-// by step on Today: build their training week (or run a Kolosseum
-// programme), choose how their weights are set, check their gym and kit,
+// by step on Today: build their training week, choose how their weights are set, check their gym and kit,
 // do their first session. Each step ticks itself off from what they've
 // saved and logged. An athlete with a coach, or who chose to have one,
 // doesn't see it - their coach writes the programme.
@@ -91,7 +90,7 @@ export function AthleteFirstStepsGuide() {
     {
       id: "week",
       title: "Build your training week",
-      body: "Choose your training days and the exercises for each, with sets and reps - or start a Kolosseum programme. Your sessions follow it in order, week after week.",
+      body: "Choose your training days and the exercises for each, with sets and reps. Your sessions follow it in order, week after week.",
       done: progress.week,
       actions: [{ label: "Build my week", primary: true, onClick: () => openSetup("my-training") }]
     },
