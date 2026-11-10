@@ -13,7 +13,19 @@ import { compareProgrammeStrengthRequirements } from "../../../../shared/strengt
 // result line; one missing a strength reference the programme needs is
 // flagged, not assigned.
 
-type Result = { athleteId: string; name: string; ok: boolean; message: string };
+type Result = { athleteId: string; name: string; ok: boolean; message: string; needsMaxes?: boolean };
+
+// The athlete's profile with "Units, bodyweight and maxes" open, for a coach
+// whose % of max programme couldn't be assigned without them.
+function openAthleteMaxes(athleteId: string) {
+  document.dispatchEvent(new CustomEvent("kolosseum:open-athlete-profile-request", { detail: { athlete_user_id: athleteId } }));
+  window.setTimeout(() => {
+    const maxes = document.querySelector<HTMLDetailsElement>("#athleteProfilePanel details.athlete-settings");
+    if (!maxes) return;
+    maxes.open = true;
+    window.scrollTo({ top: Math.max(0, maxes.getBoundingClientRect().top + window.scrollY - 80), behavior: "smooth" });
+  }, 1200);
+}
 
 function newRequestId(kind: string): string {
   const random = typeof crypto !== "undefined" && typeof crypto.randomUUID === "function" ? crypto.randomUUID() : `${Date.now()}_${Math.random().toString(36).slice(2)}`;
@@ -64,7 +76,7 @@ export function GroupAssignSection({ template, relationships, assignments, onAss
         const profile = profileResponse && typeof profileResponse.profile === "object" ? (profileResponse.profile as JsonRecord) : null;
         const comparison = compareProgrammeStrengthRequirements(template, profile) as { missing: string[]; complete: boolean };
         if (!comparison.complete) {
-          out.push({ athleteId, name, ok: false, message: `Not assigned - needs a current max for: ${comparison.missing.join(", ").replaceAll("_", " ")}.` });
+          out.push({ athleteId, name, ok: false, needsMaxes: true, message: `Not assigned - needs a current max for: ${comparison.missing.join(", ").replaceAll("_", " ")}.` });
           continue;
         }
         const payload = {
@@ -129,7 +141,14 @@ export function GroupAssignSection({ template, relationships, assignments, onAss
       )}
       {results.length ? (
         <ul className="group-assign-results" aria-live="polite">
-          {results.map((r) => <li key={r.athleteId} data-tone={r.ok ? "success" : "warning"}>{`${r.name}: ${r.message}`}</li>)}
+          {results.map((r) => (
+            <li key={r.athleteId} data-tone={r.ok ? "success" : "warning"}>
+              {`${r.name}: ${r.message}`}
+              {r.needsMaxes ? (
+                <> <button className="button secondary small" type="button" onClick={() => openAthleteMaxes(r.athleteId)}>{`Add ${r.name}'s maxes`}</button></>
+              ) : null}
+            </li>
+          ))}
         </ul>
       ) : null}
     </article>

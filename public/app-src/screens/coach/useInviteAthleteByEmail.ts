@@ -14,6 +14,9 @@ import { ApiRequestError } from "../../api/transport";
 export function useInviteAthleteByEmail() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // The raw code, so the panel can offer the share link when the athlete
+  // has no account yet (relationship_invitation_athlete_not_found).
+  const [errorCode, setErrorCode] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
 
   const invite = useCallback(async (athleteEmail: string) => {
@@ -22,6 +25,7 @@ export function useInviteAthleteByEmail() {
 
     setSubmitting(true);
     setError(null);
+    setErrorCode(null);
     try {
       const account = await loadAccountDetail();
       const csrfToken = typeof account.csrf_token === "string" ? account.csrf_token : "";
@@ -33,9 +37,10 @@ export function useInviteAthleteByEmail() {
     catch (error) {
       setSubmitting(false);
       setError(error instanceof ApiRequestError ? error.message : "The invitation could not be sent.");
+      setErrorCode(error instanceof ApiRequestError ? error.code : null);
       return false;
     }
   }, []);
 
-  return { submitting, error, notice, invite };
+  return { submitting, error, errorCode, notice, invite };
 }

@@ -4,6 +4,8 @@ import { loadAccountDetail } from "../../api/client";
 import { loadAthleteSessionState, loadAthleteTodaySnapshot } from "../../api/athleteSessionClient";
 import { type JsonRecord } from "../../api/transport";
 import { ENTRY_AUTH_SUCCEEDED_EVENT } from "../entry/useEntryAuth";
+import { RELATIONSHIP_CHANGED_EVENT } from "../account/useAccountCoachInvitations";
+import { NOTIFICATIONS_ARRIVED_EVENT } from "../../utils/liveUpdates";
 
 // DEV NOTE: Today's read-only display (FULL-UI-14C), independently fetched -
 // mirrors app.js's loadAthleteToday()/loadSessionState(), which keep running
@@ -62,9 +64,15 @@ export function useAthleteToday() {
     refresh();
     document.addEventListener(CHANGED_EVENT, refresh);
     document.addEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, refresh);
+    // Accepting a coach, or the coach assigning a programme, changes what
+    // Today shows (self-coached -> waiting for a programme -> session).
+    document.addEventListener(RELATIONSHIP_CHANGED_EVENT, refresh);
+    document.addEventListener(NOTIFICATIONS_ARRIVED_EVENT, refresh);
     return () => {
       document.removeEventListener(CHANGED_EVENT, refresh);
       document.removeEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, refresh);
+      document.removeEventListener(RELATIONSHIP_CHANGED_EVENT, refresh);
+      document.removeEventListener(NOTIFICATIONS_ARRIVED_EVENT, refresh);
     };
   }, [refresh]);
 

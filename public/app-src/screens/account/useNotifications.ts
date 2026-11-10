@@ -12,6 +12,7 @@ import {
 } from "../../api/notificationsClient";
 import { type JsonRecord } from "../../api/transport";
 import { ENTRY_AUTH_SUCCEEDED_EVENT } from "../entry/useEntryAuth";
+import { NOTIFICATION_RECHECK_MS, NOTIFICATIONS_ARRIVED_EVENT } from "../../utils/liveUpdates";
 
 // DEV NOTE: FULL-UI-18 factual in-product notifications (bell + dropdown
 // panel) - ported from public/app/app.js's notification functions (see
@@ -78,10 +79,32 @@ const initialState: NotificationsState = {
 export function useNotifications() {
   const [state, setState] = useState<NotificationsState>(initialState);
 
+  // The last count seen while signed in (null until the first one, and
+  // after a sign-out), so a rise - something new from someone else - can
+  // tell the rest of the app (utils/liveUpdates.ts).
+  const lastCountRef = useRef<number | null>(null);
+  const signedInRef = useRef(true);
+
   const refreshUnreadCount = useCallback(() => {
     loadUnreadNotificationCount()
-      .then((unreadCount) => setState((current) => ({ ...current, unreadCount })))
-      .catch(() => {});
+      .then((unreadCount) => {
+        signedInRef.current = true;
+        const previous = lastCountRef.current;
+        lastCountRef.current = unreadCount;
+        setState((current) => ({ ...current, unreadCount }));
+        if (previous !== null && unreadCount > previous) {
+          document.dispatchEvent(new CustomEvent("kolosseum:data-changed"));
+          document.dispatchEvent(new CustomEvent(NOTIFICATIONS_ARRIVED_EVENT));
+        }
+      })
+      .catch((error: unknown) => {
+        // Signed out: stop re-checking until a sign-in. Anything else (a
+        // dropped connection, a busy server) just waits for the next check.
+        if ((error as { status?: number } | null)?.status === 401) {
+          signedInRef.current = false;
+          lastCountRef.current = null;
+        }
+      });
   }, []);
 
   useEffect(() => {
@@ -91,8 +114,19 @@ export function useNotifications() {
     // same bug class already fixed for useAccountDetail.ts/
     // useCommercialAccount.ts and others.
     document.addEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, refreshUnreadCount);
+    // Re-check every minute while the app is on screen, and as soon as the
+    // tab comes back - other people's actions don't arrive any other way.
+    const recheck = () => {
+      if (signedInRef.current && document.visibilityState === "visible") refreshUnreadCount();
+    };
+    const timer = window.setInterval(recheck, NOTIFICATION_RECHECK_MS);
+    document.addEventListener("visibilitychange", recheck);
+    window.addEventListener("focus", recheck);
     return () => {
       document.removeEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, refreshUnreadCount);
+      window.clearInterval(timer);
+      document.removeEventListener("visibilitychange", recheck);
+      window.removeEventListener("focus", recheck);
     };
   }, [refreshUnreadCount]);
 

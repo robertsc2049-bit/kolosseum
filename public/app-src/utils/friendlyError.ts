@@ -62,7 +62,7 @@ export const FRIENDLY_ERROR_MESSAGES: Record<string, string> = {
   account_role_invalid: "Choose coach or athlete.",
   account_role_already_held: "Your account already has that role - switch to it instead.",
   account_role_not_held: "Your account doesn't have that role yet - add it first.",
-  relationship_invitation_athlete_not_found: "No athlete account exists with that email yet. Ask them to create their Kolosseum account first, then send the invitation.",
+  relationship_invitation_athlete_not_found: "No athlete account exists with that email yet. Send them your share link instead - they sign up and ask you to coach them - or ask them to sign up first, then invite them.",
   relationship_invitation_coach_not_active: "This coach account is not active.",
   relationship_invitation_relationship_already_accepted: "You're already connected with this athlete.",
   coach_note_text_required: "Enter a note before recording it.",

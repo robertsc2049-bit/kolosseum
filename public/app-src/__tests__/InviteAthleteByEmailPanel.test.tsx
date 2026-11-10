@@ -78,9 +78,11 @@ test("inviting an email with no matching athlete account shows a specific, actio
   });
 
   await screen.findByText(
-    "No athlete account exists with that email yet. Ask them to create their Kolosseum account first, then send the invitation."
+    "No athlete account exists with that email yet. Send them your share link instead - they sign up and ask you to coach them - or ask them to sign up first, then invite them."
   );
   assert.equal(input.value, "athlete@example.com");
+  // Someone without an account can still be brought in: the share link.
+  assert.ok(screen.getByRole("button", { name: "Send them my share link instead" }));
 });
 
 test("a validation failure on the email itself shows a factual error and keeps the entered email", async () => {

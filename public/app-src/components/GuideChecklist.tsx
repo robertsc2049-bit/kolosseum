@@ -49,6 +49,14 @@ export function revealSection(selector: string, delayMs = 300): void {
   }, delayMs);
 }
 
+// The coach's share link and QR code (Account -> Find new athletes): the way
+// in for an athlete who hasn't got a Kolosseum account yet - an email
+// invitation needs one.
+export function openShareLink(): void {
+  openAppView("account");
+  revealSection("#coachShareLinkHeading");
+}
+
 export function GuideChecklist({ testId, eyebrow, title, intro, steps, onHide }: {
   testId: string;
   eyebrow: string;

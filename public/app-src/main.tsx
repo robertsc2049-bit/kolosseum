@@ -89,6 +89,7 @@ import { CoachOverviewOpenSessionsPanel, CoachOverviewReviewQueuePanel } from ".
 import { ConnectAthletePanel } from "./screens/coach/ConnectAthletePanel";
 import { InviteAthleteByEmailPanel } from "./screens/coach/InviteAthleteByEmailPanel";
 import { CoachingRequestsPanel } from "./screens/coach/CoachingRequestsPanel";
+import { VerifyEmailPrompt } from "./screens/account/VerifyEmailPrompt";
 import { CoachPaymentsPanel } from "./screens/coach/CoachPaymentsPanel";
 import { CoachLinkRequestCard } from "./screens/athlete/CoachLinkRequestCard";
 import { AthleteFirstStepsGuide } from "./screens/athlete/AthleteFirstStepsGuide";
@@ -114,6 +115,7 @@ function mount(containerId: string, node: React.ReactNode) {
 capturePendingCoachFromUrl();
 
 mount("entry-auth-root", <EntryAuthPanel />);
+mount("verify-email-prompt-root", <VerifyEmailPrompt />);
 mount("barbell-calculator-root", <BarbellCalculatorPanel />);
 mount("account-identity-header-root", <AccountIdentityHeaderCard />);
 mount("account-code-root", <AccountCodeCard />);

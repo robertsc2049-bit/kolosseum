@@ -90,7 +90,7 @@ function TermsForm({ termsVersion, busy, onAccept }: { termsVersion: string; bus
       <div>
         <p className="eyebrow">Coach terms</p>
         <h3>Explicit acceptance</h3>
-        <p className="muted">Current version: {termsVersion || "Unavailable"}</p>
+        {termsVersion ? null : <p className="muted">The terms are unavailable right now - try again shortly.</p>}
         <p className="muted small">
           As a coach you run your own business: you set and collect your own fees, and you are responsible for your coaching
           and for your athletes' data you use outside Kolosseum. The business-user terms are in the Schedule to the{" "}
@@ -131,7 +131,7 @@ function AccessibilityForm({ preferences, busy, onSave }: {
   );
 }
 
-function ReviewPanel({ profile, termsAccepted, acceptedTermsVersion, accessibilityPreferences, busy, onComplete }: {
+function ReviewPanel({ profile, termsAccepted, accessibilityPreferences, busy, onComplete }: {
   profile: JsonRecord;
   termsAccepted: boolean;
   acceptedTermsVersion: string;
@@ -145,7 +145,7 @@ function ReviewPanel({ profile, termsAccepted, acceptedTermsVersion, accessibili
       <h3>Confirm coach onboarding</h3>
       <div className="commercial-fact-grid">
         <div className="commercial-fact"><span>Profile</span><strong>{clean(profile.display_name) || "Not saved"}</strong></div>
-        <div className="commercial-fact"><span>Coach terms</span><strong>{termsAccepted ? acceptedTermsVersion : "Not accepted"}</strong></div>
+        <div className="commercial-fact"><span>Coach terms</span><strong>{termsAccepted ? "Accepted" : "Not accepted"}</strong></div>
         <div className="commercial-fact"><span>Accessibility</span><strong>{accessibilityLabel(accessibilityPreferences)}</strong></div>
         <div className="commercial-fact"><span>Workspace</span><strong>Coach overview</strong></div>
       </div>

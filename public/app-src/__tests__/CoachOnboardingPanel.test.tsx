@@ -181,7 +181,8 @@ test("accepting terms sends the current terms version and moves to the review st
   });
   render(<CoachOnboardingPanel />);
   await screen.findByText("Explicit acceptance", undefined, SETTLE_TIMEOUT);
-  assert.ok(screen.getByText("Current version: terms_v7"));
+  // The internal version id is recorded on acceptance, never shown to the coach.
+  assert.equal(screen.queryByText("Current version: terms_v7"), null);
 
   fireEvent.click(screen.getByLabelText(/I accept the current coach terms/u));
   await act(async () => {
@@ -286,7 +287,9 @@ test("the review stage shows the saved profile, accepted terms and accessibility
   render(<CoachOnboardingPanel />);
   await screen.findByText("Confirm coach onboarding", undefined, SETTLE_TIMEOUT);
   assert.ok(screen.getByText("Coach Review Test"));
-  assert.ok(screen.getByText("terms_v3"));
+  // Accepted, in words - the internal version id isn't shown.
+  assert.ok(screen.getByText("Accepted"));
+  assert.equal(screen.queryByText("terms_v3"), null);
   assert.ok(screen.getByText("reduced motion"));
 
   await act(async () => {
