@@ -630,6 +630,11 @@ test(
     assert.equal(changed.json.current_effective_declaration.fields.competition_event, "squat_only");
     assert.equal(await engineEvent(), "squat_only", "an event change refreshes the engine declaration");
     assertStatus(await prefs({ competition_event: "strongman_medley" }), 422, "unknown event refused in preferences");
+    // A lifter who doesn't compete trains all three lifts: no event reaches the engine.
+    const notCompeting = await prefs({ competition_event: "not_competing" });
+    assertStatus(notCompeting, 200, "not competing");
+    assert.equal(notCompeting.json.current_effective_declaration.fields.competition_event, "not_competing");
+    assert.equal(await engineEvent(), undefined, "not competing builds the base (full power) programme");
 
     // Switching sport drops the event: it only applies to powerlifting.
     const switched = await requestJson(server.baseUrl, "PATCH", "/account/onboarding/activity", {

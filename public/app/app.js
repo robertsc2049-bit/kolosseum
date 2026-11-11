@@ -1,5 +1,6 @@
 import {
   loadAccountDetail as fetchAccountDetail,
+  loadAthleteOnboardingState,
   loadCurrentAthleteDeclaration,
   restoreAccountSession
 } from "./account_ui.js";
@@ -1302,6 +1303,16 @@ document.addEventListener("kolosseum:entry-auth-succeeded", (event) => {
 // useAthleteOnboarding.ts's changeActivity()) never re-runs
 // bootstrapApplication(), so without this the next session was silently
 // built for the previous sport.
+async function declaredCompetitionEvent() {
+  try {
+    const onboarding = await loadAthleteOnboardingState();
+    return onboarding?.current_effective_declaration?.fields?.competition_event ?? null;
+  }
+  catch {
+    return null;
+  }
+}
+
 async function refreshAthleteDeclaration() {
   const current = await loadCurrentAthleteDeclaration();
 
@@ -1359,9 +1370,12 @@ async function createSession(options = {}) {
 
   // Powerlifters also declare their competition event, which selects the
   // programme (full power, bench only, deadlift only, push-pull, squat only).
-  if (state.phase1Input?.activity_id === "powerlifting" && !state.phase1Input?.competition_event) {
+  // "Not competing" is declared but never reaches the engine (they get the
+  // full power programme), so check the declaration itself before refusing.
+  if (state.phase1Input?.activity_id === "powerlifting" && !state.phase1Input?.competition_event &&
+      !(await declaredCompetitionEvent())) {
     showNotice(
-      "Choose your competition event (Full power, Bench only, Deadlift only, Push-pull or Squat only) in Edit preferences before starting a session.",
+      "Choose your competition event (Full power, Bench only, Deadlift only, Push-pull, Squat only or Not competing) in Edit preferences before starting a session.",
       "error"
     );
     document.getElementById("athleteOnboardingNav")?.click();

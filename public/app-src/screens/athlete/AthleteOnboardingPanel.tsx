@@ -192,7 +192,8 @@ const COMPETITION_EVENT_OPTIONS: [string, string, string][] = [
   ["bench_only", "Bench only", "Bench press is your only competition lift."],
   ["deadlift_only", "Deadlift only", "Deadlift is your only competition lift."],
   ["push_pull", "Push-pull", "Bench press and deadlift."],
-  ["squat_only", "Squat only", "Squat is your only competition lift."]
+  ["squat_only", "Squat only", "Squat is your only competition lift."],
+  ["not_competing", "Not competing", "You train the squat, bench press and deadlift but don't compete (yet)."]
 ];
 function competitionEventLabel(event: unknown): string {
   return COMPETITION_EVENT_OPTIONS.find(([value]) => value === event)?.[1] ?? "Not declared";
@@ -302,13 +303,13 @@ function StageFields({ stage, draft, onChange }: { stage: string; draft: JsonRec
         <p>Your programme is set for your level. You can change it later in your preferences.</p>
         {EXPERIENCE_LEVEL_OPTIONS.map(([value, title, detail]) => (
           <label className="onboarding-choice" key={value}>
-            <input type="radio" name="experience_level" value={value} checked={draft.experience_level === value} onChange={() => onChange({ ...draft, experience_level: value })} />
+            <input type="radio" name="experience_level" value={value} checked={draft.experience_level === value} onChange={() => onChange({ ...draft, experience_level: value, ...(draft.activity_id === POWERLIFTING && !draft.competition_event && value === "beginner" ? { competition_event: "not_competing" } : {}) })} />
             <span><strong>{title}</strong><small>{detail}</small></span>
           </label>
         ))}
         {draft.activity_id === POWERLIFTING ? (
           <div role="radiogroup" aria-label="Competition event">
-            <p><strong>Competition event</strong> - which lifts do you compete in? Your programme is built around them.</p>
+            <p><strong>Competition event</strong> - which lifts do you compete in, if any? Your programme is built around them.</p>
             {COMPETITION_EVENT_OPTIONS.map(([value, title, detail]) => (
               <label className="onboarding-choice" key={value}>
                 <input type="radio" name="competition_event" value={value} checked={draft.competition_event === value} onChange={() => onChange({ ...draft, competition_event: value })} />
