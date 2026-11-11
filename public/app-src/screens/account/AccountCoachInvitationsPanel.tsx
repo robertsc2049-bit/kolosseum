@@ -47,3 +47,32 @@ export function AccountCoachInvitationsPanel() {
     </article>
   );
 }
+
+// The same invitations on Today, in the "Waiting for your coach" card - the
+// invitation notification opens Today, so it must be answerable there.
+export function TodayCoachInvitations() {
+  const { loading, invitations, actingId, actionError, accept, decline } = useAccountCoachInvitations();
+  if (loading && invitations.length === 0) return null;
+  if (invitations.length === 0) return null;
+  return (
+    <div className="record-list today-coach-invitations" data-testid="today-coach-invitations">
+      {actionError ? <p role="status" className="muted small error">{actionError}</p> : null}
+      {invitations.map((invitation: JsonRecord) => {
+        const relationshipId = String(invitation.relationship_id ?? "");
+        const busy = actingId === relationshipId;
+        return (
+          <article className="record-row" key={relationshipId}>
+            <div>
+              <strong>{coachLabel(invitation)} invited you to train with them</strong>
+              <p className="muted small">Accept and they can assign your programme.</p>
+            </div>
+            <div className="inline-controls">
+              <button type="button" className="button secondary" disabled={busy} onClick={() => decline(relationshipId)}>Decline</button>
+              <button type="button" className="button primary" disabled={busy} onClick={() => accept(relationshipId)}>Accept</button>
+            </div>
+          </article>
+        );
+      })}
+    </div>
+  );
+}

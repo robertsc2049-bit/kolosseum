@@ -1,8 +1,18 @@
 import React from "react";
 
 import { type JsonRecord } from "../../api/transport";
+import { revealSection } from "../../components/GuideChecklist";
 import { countdownLabel, formatDate, titleCase } from "../../utils/format";
 import { type AssignmentEntry, useAthleteProfileAssignment } from "./useAthleteProfileAssignment";
+
+// The maxes editor sits in the profile's collapsed "Units, bodyweight and
+// maxes" section: open it and bring it into view.
+function openMaxes() {
+  const root = document.getElementById("athlete-profile-editor-root");
+  const details = root?.closest("details");
+  if (details) details.open = true;
+  revealSection("#athlete-profile-editor-root", 50);
+}
 
 // DEV NOTE: ported from index.html's #athleteAssignmentPanel ("Programme
 // assignment / Assign from athlete profile"). See
@@ -74,8 +84,8 @@ export function AthleteProfileAssignmentPanel() {
     const eventName = selectedEvent ? String((selectedEvent.event_plan as JsonRecord | undefined)?.event_name ?? "the event") : "";
 
     const confirmation = currentAssignment
-      ? `Replace ${currentAssignment.templateName} version ${currentAssignment.templateVersion} with ${selectedTemplate.template_name} version ${Number(selectedTemplate.template_version)}${eventName ? ` linked to ${eventName}` : " without an event link"}? Existing compiled sessions remain unchanged.`
-      : `Assign ${selectedTemplate.template_name} version ${Number(selectedTemplate.template_version)}${eventName ? ` and link ${eventName}` : " without an event link"}?`;
+      ? `Replace ${currentAssignment.templateName} version ${currentAssignment.templateVersion} with ${selectedTemplate.template_name} version ${Number(selectedTemplate.template_version)}${eventName ? ` linked to ${eventName}` : ""}? Sessions they've already done stay as they are.`
+      : `Assign ${selectedTemplate.template_name} version ${Number(selectedTemplate.template_version)}${eventName ? ` and link ${eventName}` : ""}?`;
 
     if (!window.confirm(confirmation)) return;
     await assign();
@@ -142,7 +152,12 @@ export function AthleteProfileAssignmentPanel() {
           )}
         </div>
 
-        <div className={`assignment-requirements ${requirements.className}`}>{requirements.message}</div>
+        <div className={`assignment-requirements ${requirements.className}`}>
+          <span>{requirements.message}</span>
+          {(requirements as { needsMaxes?: boolean }).needsMaxes ? (
+            <button className="button secondary" type="button" onClick={openMaxes}>Add maxes</button>
+          ) : null}
+        </div>
 
         <div className="assignment-action-row">
           <button className="button primary" type="submit" disabled={submitting || !requirements.canSubmit}>

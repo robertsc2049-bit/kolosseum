@@ -79,7 +79,7 @@ test("FULL-UI-06 preserves existing sessions and only blocks future creation", (
   assert.doesNotMatch(lifecycle, /DELETE\s+FROM\s+sessions/iu);
   assert.doesNotMatch(lifecycle, /UPDATE\s+sessions/iu);
   assert.match(lifecycle, /cancelled_before_future_session_creation/u);
-  assert.match(assignmentHook, /existing session\$\{preservedCount === 1 \? "" : "s"\} remain attached to the earlier assignment/u);
+  assert.match(assignmentHook, /already done stay\$\{preservedCount === 1 \? "s" : ""\} with the earlier programme\./u);
   assert.match(assignmentHook, /existing session\$\{preserved === 1 \? "" : "s"\} remain preserved/u);
 });
 

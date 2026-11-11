@@ -65,7 +65,7 @@ test("shows the correct copy and badge for every declared message state", async 
     ["missing_strength_reference", "Waiting on a strength reference", "Reference needed"],
     ["programme_complete", "Programme complete", "Complete"],
     ["no_session", "No session is open", "No session"],
-    ["session_already_complete", "Session complete", "Session complete"]
+    ["session_already_complete", "Session done", "Session done"]
   ];
 
   for (const [stateValue, heading, badgeLabel] of cases) {
@@ -407,6 +407,26 @@ test("an athlete who chose a coach and is waiting for one isn't told they train 
   assert.equal(document.querySelector(".badge")?.textContent, "Waiting for coach");
   assert.doesNotMatch(document.body.textContent ?? "", /training without a coach/u);
   assert.equal(screen.queryByRole("button", { name: "My training" }), null);
+});
+
+test("an athlete waiting for a coach can accept the coach's invitation right on Today, where the invitation notification lands (walkthrough 12)", async () => {
+  let accepted = "";
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const path = String(input);
+    if (path === "/coach-workspace/relationships/mine") return jsonResponse({ ok: true, relationships: [] });
+    if (path === "/coach-workspace/relationship-invitations" && (init?.method ?? "GET") === "GET") {
+      return jsonResponse({ ok: true, invitations: accepted ? [] : [{ relationship_id: "rel_1", coach_user_id: "coach_1", coach_display_name: "Casey Coach", coach_email: "casey@example.test" }] });
+    }
+    if (path === "/coach-workspace/relationship-invitations/rel_1/accept") { accepted = "rel_1"; return jsonResponse({ ok: true }); }
+    if (path === "/account/onboarding/") return jsonResponse({ current_effective_declaration: { fields: { execution_scope: "coach_managed" } } });
+    if (path.startsWith("/account/detail")) return jsonResponse({ account: { user_id: ATHLETE_USER_ID }, csrf_token: "csrf" });
+    if (path.startsWith("/sessions/beta-athlete-today")) return jsonResponse({ ok: true, state: "no_current_assignment", assignment: null, session: null, event: null, notes: [] });
+    return jsonResponse({ error: `unhandled_request_${path}` }, false, 404);
+  }) as typeof fetch;
+  render(<AthleteTodaySessionCard />);
+  await waitFor(() => screen.getByText("Casey Coach invited you to train with them"));
+  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Accept" })); });
+  await waitFor(() => assert.equal(accepted, "rel_1"));
 });
 
 test("a self-coached session that's started but not finished is continued, never started again on top (walkthrough 11)", async () => {

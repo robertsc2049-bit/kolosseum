@@ -192,7 +192,7 @@ function computeRequirements(
 
   if (!comparison.complete) {
     const names = comparison.missing.map((exerciseId) => exerciseDisplayName(exercises, exerciseId)).join(", ");
-    return { className: "warning", message: `Missing current strength references: ${names}.`, canSubmit: false };
+    return { className: "warning", message: `This programme sets weights from maxes. Add this athlete's max for: ${names}.`, canSubmit: false, needsMaxes: true };
   }
 
   const eventPlan = coachEventPlan(eventRecord ?? undefined);
@@ -200,7 +200,7 @@ function computeRequirements(
     className: "complete",
     message: eventRecord
       ? `Ready to assign ${String(template.template_name)} and link ${String(eventPlan?.event_name ?? "the event")}.`
-      : `Ready to assign ${String(template.template_name)} without an event link.`,
+      : `Ready to assign ${String(template.template_name)}.`,
     canSubmit: true
   };
 }
@@ -386,10 +386,10 @@ export function useAthleteProfileAssignment() {
       setState((current) => ({
         ...current,
         resultMessage: currentAssignment
-          ? `${templateName} version ${templateVersion} replaced the current assignment. ${preservedCount} existing session${preservedCount === 1 ? "" : "s"} remain attached to the earlier assignment.`
+          ? `${templateName} version ${templateVersion} replaced the current assignment. ${preservedCount === 0 ? "" : `${preservedCount} session${preservedCount === 1 ? " they've" : "s they've"} already done stay${preservedCount === 1 ? "s" : ""} with the earlier programme.`}`.trimEnd()
           : response.event_link
             ? `${templateName} version ${templateVersion} assigned and linked to ${String(eventPlan?.event_name ?? "the event")}.`
-            : `${templateName} version ${templateVersion} assigned without an event link.`
+            : `${templateName} version ${templateVersion} assigned. It shows on their Today screen.`
       }));
       document.dispatchEvent(new CustomEvent("kolosseum:coach-relationship-mutated"));
       return true;

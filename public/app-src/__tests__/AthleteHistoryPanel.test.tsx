@@ -226,9 +226,9 @@ test("opening a session shows its detail: facts, exercises, and a continue-sessi
   assert.ok(screen.getByText("Active"));
   assert.equal(screen.queryByText("assign_1"), null, "the raw internal assignment id must never be shown to the athlete");
   assert.ok(screen.getByText("Regional Meet"));
-  assert.ok(screen.getByText("Yes"));
-  assert.ok(screen.getByLabelText("About split entered"));
-  assert.ok(screen.getByLabelText("About return decision"));
+  assert.ok(screen.getByText("Yes - came back and carried on"));
+  assert.ok(screen.getByLabelText("About stopping part-way"));
+  assert.equal(screen.queryByText("Split entered"), null, "no engine jargon");
 
   let dispatchedSessionId: string | undefined;
   document.addEventListener("kolosseum:continue-history-session", (event) => {

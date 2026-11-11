@@ -7,6 +7,7 @@ import { formatDate, titleCase } from "../../utils/format";
 import { sportLabel } from "../../utils/sportLabel";
 import { useTrainingHistory } from "./useTrainingHistory";
 import { topPersonalRecord } from "../../utils/personalRecords";
+import { finishedEarly } from "../../utils/sessionSummary";
 
 // DEV NOTE: FULL-UI-16C athlete training history - ported from app.js's
 // populateHistoryFilterOptions()/applyHistoryFilters()/
@@ -50,6 +51,15 @@ function renderVideoSubmissionCard(submission: JsonRecord, index: number) {
       ))}
     </div>
   );
+}
+
+// A split (stopping part-way) and what came of it, in plain words.
+function stoppedPartWay(detail: JsonRecord): string {
+  if (!detail.split_entered) return "No";
+  const decision = String(detail.split_return_decision ?? "");
+  if (/continue/iu.test(decision)) return "Yes - came back and carried on";
+  if (/skip/iu.test(decision)) return "Yes - finished there";
+  return "Yes - not finished yet";
 }
 
 function dispatchContinueSession(sessionId: string) {
@@ -263,8 +273,7 @@ export function AthleteHistoryPanel() {
 
               <div className="history-facts">
                 <div><span>Status</span><strong>{titleCase(detail.execution_status)}</strong></div>
-                <div><span>Split entered<InfoTooltip label="About split entered">A split happens when this session was stopped part-way through with "Stop and return later," then resumed or finished afterward.</InfoTooltip></span><strong>{detail.split_entered ? "Yes" : "No"}</strong></div>
-                <div><span>Return decision<InfoTooltip label="About return decision">Records whether you continued the remaining work when you came back, or ended the session there.</InfoTooltip></span><strong>{titleCase(detail.split_return_decision || "None")}</strong></div>
+                <div><span>Stopped part-way<InfoTooltip label="About stopping part-way">Whether this session was stopped before the end - with "Finish session now", or "Stop and return later" - and what happened after.</InfoTooltip></span><strong>{stoppedPartWay(detail)}</strong></div>
                 <div><span>Programme</span><strong>{programme ? `${String(programme.template_name)} (v${String(programme.template_version)})` : "Not recorded"}</strong></div>
                 <div><span>Assignment</span><strong>{assignment?.assignment_status ? titleCase(assignment.assignment_status) : "Not recorded"}</strong></div>
                 <div><span>Event</span><strong>{String(event?.event_name || "No linked event")}</strong></div>
@@ -273,17 +282,23 @@ export function AthleteHistoryPanel() {
               {detailSummary ? (
                 <div className="history-facts">
                   <div><span>Exercises done</span><strong>{String(detailSummary.prescribed_items_completed)}</strong></div>
-                  <div><span>Skipped</span><strong>{String(detailSummary.prescribed_items_skipped)}</strong></div>
+                  <div><span>Skipped or not done</span><strong>{String(detailSummary.prescribed_items_skipped)}</strong></div>
                   <div><span>Not reached</span><strong>{String(detailSummary.prescribed_items_remaining)}</strong></div>
-                  {Number(detailSummary.split_event_count) > 0 ? (
-                    <div><span>Paused</span><strong>{`${String(detailSummary.split_event_count)} time${Number(detailSummary.split_event_count) === 1 ? "" : "s"}`}</strong></div>
-                  ) : null}
-                  {Number(detailSummary.return_continue_count) > 0 ? (
-                    <div><span>Came back and carried on</span><strong>{String(detailSummary.return_continue_count)}</strong></div>
-                  ) : null}
-                  {Number(detailSummary.return_skip_count) > 0 ? (
-                    <div><span>Came back and skipped the rest</span><strong>{String(detailSummary.return_skip_count)}</strong></div>
-                  ) : null}
+                  {finishedEarly(detailSummary) ? (
+                    <div><span>Finished early</span><strong>Yes</strong></div>
+                  ) : (
+                    <>
+                      {Number(detailSummary.split_event_count) > 0 ? (
+                        <div><span>Paused</span><strong>{`${String(detailSummary.split_event_count)} time${Number(detailSummary.split_event_count) === 1 ? "" : "s"}`}</strong></div>
+                      ) : null}
+                      {Number(detailSummary.return_continue_count) > 0 ? (
+                        <div><span>Came back and carried on</span><strong>{String(detailSummary.return_continue_count)}</strong></div>
+                      ) : null}
+                      {Number(detailSummary.return_skip_count) > 0 ? (
+                        <div><span>Came back and skipped the rest</span><strong>{String(detailSummary.return_skip_count)}</strong></div>
+                      ) : null}
+                    </>
+                  )}
                 </div>
               ) : null}
 

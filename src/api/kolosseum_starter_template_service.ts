@@ -335,7 +335,8 @@ export async function createQuickBuildProgramme(coachUserId: string, input: unkn
   return saveCoachProgrammeTemplate({
     coach_user_id: coachUserId,
     template_version: 1,
-    template_name: `${titleCase(activity)} - ${goal.label}, ${LEVEL_LABEL[level]}, ${totalWeeks} weeks`,
+    // Says how weights are set, so a %-of-max and an RPE build don't share a name.
+    template_name: `${titleCase(activity)} - ${goal.label}, ${LEVEL_LABEL[level]}, ${totalWeeks} weeks, ${weights === "rpe" ? "by effort (RPE)" : "% of max"}`,
     description: `Quick build: ${goal.label.toLowerCase()} for ${titleCase(activity)} (${LEVEL_LABEL[level].toLowerCase()}), ${days} day${days === 1 ? "" : "s"} a week, ${equipmentLabel}${minutes ? `, about ${minutes} minutes a session` : ""}, weights by ${weights === "rpe" ? "RPE (no maxes needed)" : "% of max (needs each athlete's maxes)"}. ${phases.length} block${phases.length === 1 ? "" : "s"} of 4 weeks, each ending in a deload.${leftOut.length ? ` Left out - needs equipment that isn't there: ${leftOut.join(", ")}.` : ""} ${METHOD_SOURCES} Change anything before assigning it.`,
     activity_id: activity,
     event_plan: null,
