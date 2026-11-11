@@ -8,6 +8,7 @@ import {
   loadExerciseReferenceMedia,
   newClientRequestId,
   postAthleteSessionEvent,
+  loadSessionSubstitutionOptions,
   requestSessionSubstitution,
   startAthleteSession,
   uploadSessionVideoFeedback,
@@ -140,6 +141,8 @@ export type AthleteSessionExecutionState = {
   substitutionUnavailableEquipment: string[];
   substitutionResult: SubstitutionResultState;
   substitutionChecking: boolean;
+  // The kit the exercise in progress uses, and whether a swap exists for it.
+  substitutionOptions: { exerciseId: string; status: "loading" | "loaded" | "error"; equipment: { equipment_id: string; label: string }[]; hasSubstitutes: boolean; mainLift?: boolean } | null;
   videoUploading: boolean;
   videoError: string | null;
   mutationError: string | null;
@@ -186,6 +189,7 @@ const initialState: AthleteSessionExecutionState = {
   substitutionUnavailableEquipment: [],
   substitutionResult: null,
   substitutionChecking: false,
+  substitutionOptions: null,
   videoUploading: false,
   videoError: null,
   mutationError: null,
@@ -459,8 +463,26 @@ export function useAthleteSessionExecution() {
   }, [runMutation, maybeStartRestTimer, state.sessionState]);
 
   const openActionPanel = useCallback((panel: ActionPanelKind) => {
-    if (!currentExerciseId(state.sessionState)) return;
+    const exerciseId = currentExerciseId(state.sessionState);
+    if (!exerciseId) return;
     setState((current) => ({ ...current, actionPanel: panel }));
+    const sessionId = readActiveSessionId();
+    if (panel !== "substitution" || !sessionId) return;
+    setState((current) => ({ ...current, substitutionUnavailableEquipment: [], substitutionOptions: { exerciseId, status: "loading", equipment: [], hasSubstitutes: false } }));
+    loadSessionSubstitutionOptions(sessionId, exerciseId)
+      .then((options) => {
+        const equipment = Array.isArray(options.equipment)
+          ? (options.equipment as JsonRecord[]).map((entry) => ({ equipment_id: String(entry.equipment_id ?? ""), label: String(entry.label ?? entry.equipment_id ?? "") })).filter((entry) => entry.equipment_id)
+          : [];
+        setState((current) => (current.substitutionOptions?.exerciseId === exerciseId
+          ? { ...current, substitutionOptions: { exerciseId, status: "loaded", equipment, hasSubstitutes: options.has_substitutes === true, mainLift: options.main_lift === true } }
+          : current));
+      })
+      .catch(() => {
+        setState((current) => (current.substitutionOptions?.exerciseId === exerciseId
+          ? { ...current, substitutionOptions: { exerciseId, status: "error", equipment: [], hasSubstitutes: false } }
+          : current));
+      });
   }, [state.sessionState]);
 
   const closeActionPanel = useCallback(() => {

@@ -334,6 +334,44 @@ export function buildV1SubstitutionInput(
   };
 }
 
+// What the session screen offers when an athlete asks for a swap: the kit the
+// exercise needs (so "the cable stack is taken" can be said, not just
+// barbell/dumbbell/kettlebell), and whether any swap is set up for it at all.
+export function substitutionOptions(
+  sourceExerciseId: string,
+  activityId: string
+): { equipment: { equipment_id: string; label: string }[]; has_substitutes: boolean; main_lift?: true } {
+  const sourceId = typeof sourceExerciseId === "string" ? sourceExerciseId.trim() : "";
+  const activity = typeof activityId === "string" ? activityId.trim() : "";
+  const none = { equipment: [], has_substitutes: false };
+  if (!sourceId || !activity) return none;
+  const authority = loadRuntimeAuthority();
+  const source = projectExercise(sourceId, activity, authority);
+  if (!source) {
+    // The registry never swaps the main lifts (squat, bench, deadlift and the
+    // Olympic and strongman event lifts): say that, not "no swap".
+    const row = trainingApplicability(sourceId, activity, authority.applicability);
+    return row?.applicability_state === "allowed" && row.substitution_applicability === "not_eligible"
+      ? { ...none, main_lift: true }
+      : none;
+  }
+  const hasSubstitutes = outgoingEdges(sourceId, activity, authority.substitutions).some((edge) =>
+    typeof edge.substitution_edge_id === "string" && edge.substitution_edge_id.length > 0 &&
+    typeof edge.target_exercise_id === "string" && projectExercise(edge.target_exercise_id, activity, authority) !== null);
+  const equipment = source.equipment_ids
+    .filter((equipmentId) => equipmentId !== "none" && equipmentId !== "bodyweight")
+    .map((equipmentId) => {
+      const label = (authority.equipment[equipmentId] as { display_label?: unknown } | undefined)?.display_label;
+      return { equipment_id: equipmentId, label: typeof label === "string" && label ? label : equipmentId.replace(/_/gu, " ") };
+    });
+  return { equipment, has_substitutes: hasSubstitutes };
+}
+
+export function exerciseDisplayLabel(exerciseId: string): string | null {
+  const row = loadRuntimeAuthority().exercises[exerciseId] as { display_label?: unknown } | undefined;
+  return typeof row?.display_label === "string" && row.display_label ? row.display_label : null;
+}
+
 export function findSubstitutionRegistryEdge(
   edgeId: string,
   sourceExerciseId: string,
