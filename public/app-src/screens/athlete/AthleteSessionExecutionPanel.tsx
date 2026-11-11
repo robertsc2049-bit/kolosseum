@@ -553,39 +553,53 @@ export function AthleteSessionExecutionPanel() {
 
               {session.actionPanel === "substitution" ? (
                 <div className="substitution-panel">
-                  <h3>Request a substitution</h3>
-                  <p>Select any equipment that is unavailable right now.</p>
+                  <h3>Swap this exercise</h3>
+                  {session.substitutionOptions?.exerciseId !== currentId || session.substitutionOptions?.status === "loading" ? (
+                    <p className="muted" role="status">Checking what this exercise needs...</p>
+                  ) : session.substitutionOptions.status === "error" ? (
+                    <p role="status">Couldn't check the swaps for this exercise. Check your connection and try again.</p>
+                  ) : session.substitutionOptions.mainLift ? (
+                    <p role="status" data-testid="main-lift-no-substitute">This is one of your main lifts, so it isn't swapped for something else. If the kit is busy, wait for it - or skip it with a reason so your coach can see why.</p>
+                  ) : !session.substitutionOptions.hasSubstitutes ? (
+                    <p role="status" data-testid="no-substitute">No swap is set up for this exercise. Skip it, or ask your coach what to do instead.</p>
+                  ) : (
+                    <>
+                      <p>What's taken or missing right now?</p>
+                      <div className="button-row substitution-equipment-options">
+                        {session.substitutionOptions.equipment.map(({ equipment_id: equipmentId, label }) => (
+                          <label key={equipmentId}>
+                            <input
+                              type="checkbox"
+                              className="substitution-equipment-option"
+                              checked={session.substitutionUnavailableEquipment.includes(equipmentId)}
+                              onChange={() => session.toggleSubstitutionEquipment(equipmentId)}
+                            />
+                            {" "}{label}
+                          </label>
+                        ))}
+                      </div>
+                    </>
+                  )}
                   <div className="button-row">
-                    {["barbell", "dumbbell", "kettlebell"].map((equipmentId) => (
-                      <label key={equipmentId}>
-                        <input
-                          type="checkbox"
-                          className="substitution-equipment-option"
-                          checked={session.substitutionUnavailableEquipment.includes(equipmentId)}
-                          onChange={() => session.toggleSubstitutionEquipment(equipmentId)}
-                        />
-                        {" "}{titleCase(equipmentId)}
-                      </label>
-                    ))}
-                  </div>
-                  <div className="button-row">
-                    <button id="checkSubstitutionButton" className="button primary" type="button" disabled={session.substitutionChecking} onClick={() => session.checkSubstitution()}>Check for substitute</button>
+                    {session.substitutionOptions?.exerciseId === currentId && session.substitutionOptions.status === "loaded" && session.substitutionOptions.hasSubstitutes ? (
+                      <button id="checkSubstitutionButton" className="button primary" type="button" disabled={session.substitutionChecking || session.substitutionUnavailableEquipment.length === 0} onClick={() => session.checkSubstitution()}>Find a swap</button>
+                    ) : null}
                     <button id="cancelSubstitutionButton" className="button secondary" type="button" onClick={() => session.closeActionPanel()}>Cancel</button>
                   </div>
                   {session.substitutionResult && session.substitutionResult.exerciseId === currentId ? (
                     <div className="substitution-result">
                       {session.substitutionResult.outcome?.ok === true && (session.substitutionResult.outcome.result as JsonRecord | undefined)?.substitution_status === "substitution_applied" ? (
                         <>
-                          <p><strong>Substitute available:</strong> {String(((session.substitutionResult.outcome.result as JsonRecord).substitution_output as JsonRecord).target_exercise_id)}</p>
+                          <p><strong>Do this instead:</strong> {String(session.substitutionResult.outcome.substitute_display_name ?? ((session.substitutionResult.outcome.result as JsonRecord).substitution_output as JsonRecord).target_exercise_id)}</p>
                           <div className="button-row">
                             <button className="button primary" type="button" disabled={session.busy} onClick={() => session.applySubstitution("COMPLETE_EXERCISE")}>Complete with substitute</button>
                             <button className="button secondary" type="button" disabled={session.busy} onClick={() => session.applySubstitution("SKIP_EXERCISE")}>Skip with substitute</button>
                           </div>
                         </>
                       ) : session.substitutionResult.outcome?.ok === true ? (
-                        <p>No substitution is required for the selected equipment.</p>
+                        <p>Nothing you ticked is needed for this exercise, so there's nothing to swap.</p>
                       ) : (
-                        <p>No lawful substitute is available for this exercise.</p>
+                        <p>There's no swap that avoids what you ticked. Skip it, or ask your coach what to do instead.</p>
                       )}
                     </div>
                   ) : null}
@@ -622,7 +636,7 @@ export function AthleteSessionExecutionPanel() {
                   <button id="reportRpeButton" className="button secondary wide" type="button" onClick={() => session.openActionPanel("rpe")}>Report RPE</button>
                   <button id="reportBorgButton" className="button secondary wide" type="button" onClick={() => session.openActionPanel("borg")}>Report Borg</button>
                   <button id="reportCr10Button" className="button secondary wide" type="button" onClick={() => session.openActionPanel("cr10")}>Report CR10</button>
-                  <button id="requestSubstitutionButton" className="button secondary wide" type="button" onClick={() => session.openActionPanel("substitution")}>Request substitution</button>
+                  <button id="requestSubstitutionButton" className="button secondary wide" type="button" onClick={() => session.openActionPanel("substitution")}>Swap exercise</button>
                   <button id="recordVideoFeedbackButton" className="button secondary wide" type="button" onClick={() => session.openActionPanel("video")}>Record form-check video</button>
                   <button id="splitSessionButton" className="button secondary wide" type="button" disabled={session.busy} onClick={() => session.splitSession()}>Stop and return later</button>
                   <button id="finishSessionNowButton" className="button secondary wide" type="button" disabled={session.busy} onClick={() => { session.finishNow().catch(() => {}); }}>Finish session now</button>
