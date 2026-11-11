@@ -35,6 +35,7 @@ import {
   getBetaAthleteHistory,
   getDecisionSummaryByRunId,
   getSessionState,
+  getSessionSubstitutionOptionsHandler,
   listRuntimeEvents,
   planSession,
   postSessionSubstitutionRequest,
@@ -138,6 +139,7 @@ sessionsRouter.post("/:session_id/events", asyncHandler(appendRuntimeEvent));
 sessionsRouter.get("/:session_id/events", asyncHandler(listRuntimeEvents));
 sessionsRouter.get("/:session_id/state", asyncHandler(getSessionState));
 sessionsRouter.post("/:session_id/substitution-request", asyncHandler(postSessionSubstitutionRequest));
+sessionsRouter.get("/:session_id/substitution-options", asyncHandler(getSessionSubstitutionOptionsHandler));
 
 // Deliberately :sessionId (not :session_id, unlike every sibling route above)
 // to match docs/contracts/v1_neutral_session_summary_api_contract.md's pinned

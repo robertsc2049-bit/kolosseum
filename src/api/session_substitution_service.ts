@@ -9,7 +9,7 @@
 import { pool } from "../db/pool.js";
 import { badRequest } from "./http_errors.js";
 import { getSessionStateQuery } from "./session_state_query_service.js";
-import { buildV1SubstitutionInput } from "./session_substitution_registry.js";
+import { buildV1SubstitutionInput, exerciseDisplayLabel, substitutionOptions } from "./session_substitution_registry.js";
 import { getAthleteDeclaredActivityAndPosition } from "./athlete_onboarding_service.js";
 // @ts-ignore - .mjs source, no type declarations
 import { tryBuildV1SubstitutionResult } from "../v1SubstitutionEngineContract.mjs";
@@ -78,5 +78,21 @@ export async function requestSessionSubstitution(
     });
   }
 
-  return tryBuildV1SubstitutionResult(input) as Record<string, unknown>;
+  const outcome = tryBuildV1SubstitutionResult(input) as Record<string, unknown>;
+  // The athlete sees the substitute's name, not its registry id.
+  const targetId = ((outcome?.result as any)?.substitution_output as any)?.target_exercise_id;
+  const name = typeof targetId === "string" ? exerciseDisplayLabel(targetId) : null;
+  return name ? { ...outcome, substitute_display_name: name } : outcome;
+}
+
+// The swap choices for the exercise in progress: its kit, and whether a swap
+// exists for it at all (so the screen can say so instead of failing).
+export async function getSessionSubstitutionOptions(
+  session_id: string,
+  exerciseId: string
+): Promise<Record<string, unknown>> {
+  const id = typeof exerciseId === "string" ? exerciseId.trim() : "";
+  if (!id) throw badRequest("Missing exercise_id");
+  const { activityId } = await loadSessionActivityAndSubjectUserId(session_id);
+  return { ok: true, exercise_id: id, ...substitutionOptions(id, activityId) };
 }

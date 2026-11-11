@@ -42,7 +42,7 @@ import {
   AthleteTodayError,
   loadAthleteTodayView
 } from "./athlete_today_service.js";
-import { requestSessionSubstitution } from "./session_substitution_service.js";
+import { getSessionSubstitutionOptions, requestSessionSubstitution } from "./session_substitution_service.js";
 import {
   buildAthleteHistoryDetailResult,
   buildAthleteHistoryListResult
@@ -428,6 +428,13 @@ export async function postSessionSubstitutionRequest(req: Request, res: Response
 
   const outcome = await requestSessionSubstitution(session_id, exerciseId, unavailableEquipmentIds);
   return res.status(200).json(outcome);
+}
+
+export async function getSessionSubstitutionOptionsHandler(req: Request, res: Response) {
+  const session_id = asString(req.params?.session_id);
+  if (!session_id) throw badRequest("Missing session_id");
+  const exerciseId = asString((req.query as any)?.exercise_id) ?? "";
+  return res.status(200).json(await getSessionSubstitutionOptions(session_id, exerciseId));
 }
 
 export async function listRuntimeEvents(req: Request, res: Response) {

@@ -4200,6 +4200,7 @@
           ],
           "route_id": "athlete_session",
           "api_routes": [
+            "/sessions/:id/substitution-options",
             "/sessions/:id/substitution-request",
             "/sessions/:id/events"
           ],
@@ -9328,6 +9329,12 @@
       "path": "/sessions/:session_id/state",
       "source": "src/api/sessions.routes.ts",
       "tracked_by_area": "product_journey"
+    },
+    {
+      "method": "GET",
+      "path": "/sessions/:session_id/substitution-options",
+      "source": "src/api/sessions.routes.ts",
+      "tracked_by_area": "session_execution"
     },
     {
       "method": "POST",

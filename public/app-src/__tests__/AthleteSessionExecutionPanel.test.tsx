@@ -57,8 +57,10 @@ function installMocks(options: {
   addExerciseIsPr?: boolean;
   // Completing a step leaves another exercise to do (default: the session ends).
   completeLeavesWork?: boolean;
+  // The exercise in progress has no swap set up.
+  noSubstitutes?: boolean | "main_lift";
 }) {
-  const { sessionState = baseSessionState(), sessionFails = false, onEvent, extraSetIsPr, addExerciseIsPr, completeLeavesWork } = options;
+  const { sessionState = baseSessionState(), sessionFails = false, onEvent, extraSetIsPr, addExerciseIsPr, completeLeavesWork, noSubstitutes } = options;
   let currentSessionState = sessionState;
 
   globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -108,9 +110,14 @@ function installMocks(options: {
       }
       return jsonResponse({ ok: true });
     }
+    if (/\/sessions\/[^/]+\/substitution-options/u.test(path)) {
+      if (noSubstitutes) return jsonResponse({ ok: true, equipment: [], has_substitutes: false, ...(noSubstitutes === "main_lift" ? { main_lift: true } : {}) });
+      return jsonResponse({ ok: true, equipment: [{ equipment_id: "barbell", label: "Barbell" }, { equipment_id: "squat_rack", label: "Squat rack" }], has_substitutes: true });
+    }
     if (/\/sessions\/[^/]+\/substitution-request$/u.test(path)) {
       return jsonResponse({
         ok: true,
+        substitute_display_name: "Front squat",
         result: {
           substitution_status: "substitution_applied",
           substitution_output: { target_exercise_id: "front_squat", substitution_edge_id: "edge_1" }
@@ -339,7 +346,7 @@ test("starting a session reveals the full action button set", async () => {
   assert.ok(screen.getByText("Report RPE"));
   assert.ok(screen.getByText("Report Borg"));
   assert.ok(screen.getByText("Report CR10"));
-  assert.ok(screen.getByText("Request substitution"));
+  assert.ok(screen.getByText("Swap exercise"));
   assert.ok(screen.getByText("Record form-check video"));
   assert.ok(screen.getByText("Stop and return later"));
 });
@@ -690,23 +697,31 @@ test("adding a brand-new exercise not on the prescribed plan posts EXTRA_EXERCIS
 test("substitution check offers a lawful substitute which can be completed", async () => {
   seedActiveSession("session_1");
   let lastEventBody: unknown = null;
+  let substitutionBody: { unavailable_equipment_ids?: string[] } | undefined;
   installMocks({
     sessionState: baseSessionState({ started: true }),
     onEvent: (path, method, body) => {
       if (path.endsWith("/events") && method === "POST") lastEventBody = body;
+      if (path.endsWith("/substitution-request")) substitutionBody = body as { unavailable_equipment_ids?: string[] };
     }
   });
   render(<AthleteSessionExecutionPanel />);
   await waitFor(() => screen.getByText("Mark exercise complete"));
 
-  fireEvent.click(screen.getByText("Request substitution"));
-  await waitFor(() => screen.getByText("Request a substitution"));
+  fireEvent.click(screen.getByText("Swap exercise"));
+  await waitFor(() => screen.getByText("Squat rack"));
+  assert.equal(screen.queryByText("Kettlebell"), null, "only the kit this exercise uses is offered");
+  assert.equal((document.getElementById("checkSubstitutionButton") as HTMLButtonElement).disabled, true, "nothing ticked yet");
 
   await act(async () => {
-    fireEvent.click(screen.getByText("Check for substitute"));
+    fireEvent.click(screen.getByLabelText(/Squat rack/u));
+  });
+  await act(async () => {
+    fireEvent.click(screen.getByText("Find a swap"));
   });
 
-  await waitFor(() => screen.getByText(/Substitute available/u));
+  await waitFor(() => screen.getByText("Front squat"));
+  assert.deepEqual(substitutionBody?.unavailable_equipment_ids, ["squat_rack"]);
 
   await act(async () => {
     fireEvent.click(screen.getByText("Complete with substitute"));
@@ -714,6 +729,26 @@ test("substitution check offers a lawful substitute which can be completed", asy
 
   await waitFor(() => assert.equal((lastEventBody as { type?: string } | null)?.type, "COMPLETE_EXERCISE"));
   assert.equal((lastEventBody as { substituted_exercise_id?: string } | null)?.substituted_exercise_id, "front_squat");
+});
+
+test("an exercise with no swap set up says so straight away, instead of asking about kit", async () => {
+  seedActiveSession("session_1");
+  installMocks({ sessionState: baseSessionState({ started: true }), noSubstitutes: true });
+  render(<AthleteSessionExecutionPanel />);
+  await waitFor(() => screen.getByText("Mark exercise complete"));
+  fireEvent.click(screen.getByText("Swap exercise"));
+  await waitFor(() => screen.getByTestId("no-substitute"));
+  assert.equal(document.getElementById("checkSubstitutionButton"), null);
+});
+
+test("a main lift (squat, bench, deadlift) is never swapped, and the athlete is told why", async () => {
+  seedActiveSession("session_1");
+  installMocks({ sessionState: baseSessionState({ started: true }), noSubstitutes: "main_lift" });
+  render(<AthleteSessionExecutionPanel />);
+  await waitFor(() => screen.getByText("Mark exercise complete"));
+  fireEvent.click(screen.getByText("Swap exercise"));
+  await waitFor(() => screen.getByTestId("main-lift-no-substitute"));
+  assert.equal(screen.queryByTestId("no-substitute"), null);
 });
 
 test("video upload shows a factual validation error before any request when no file is chosen", async () => {
