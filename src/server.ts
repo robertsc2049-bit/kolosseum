@@ -9,6 +9,7 @@ import path from "node:path";
 
 import { sessionsRouter } from "./api/sessions.routes.js";
 import { sessionsAccessGate } from "./api/sessions_access_gate.js";
+import { blocksAccessGate, coachIdentityGate } from "./api/coach_and_blocks_access_gate.js";
 import { beta17CoachNoteWriteRouter } from "./api/beta17_coach_note_write.routes.js";
 import { blocksRouter } from "./api/blocks.routes.js";
 import { templatesRouter } from "./api/templates.routes.js";
@@ -213,6 +214,8 @@ app.use("/pain-flags", painFlagsRouter);
 app.use("/stand-down", standDownRouter);
 app.use("/attendance-events", attendanceEventRouter);
 app.use("/templates", templatesRouter);
+// The coach named in a review or assignment request must be the signed-in coach.
+app.use("/coach-workspace", coachIdentityGate);
 app.use("/coach-workspace", coachWorkspaceRouter);
 app.use("/coach-workspace", coachOrgMembershipRouter);
 app.use("/coach-workspace", productAssignmentRouter);
@@ -222,6 +225,8 @@ app.use("/coach-workspace", videoFeedbackCoachRouter);
 app.use("/sessions", sessionsAccessGate);
 app.use("/sessions", sessionsRouter);
 app.use("/sessions", beta17CoachNoteWriteRouter);
+// Compiling for an athlete, or reading their block, needs that athlete signed in.
+app.use("/blocks", blocksAccessGate);
 app.use("/blocks", blocksRouter);
 
 app.use(apiErrorMiddleware);
