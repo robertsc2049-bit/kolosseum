@@ -71,6 +71,6 @@
     "test/beta_e2e_01_product_record_store.integration.test.mjs": "5a6a7d506c4c692b47d5a8111a9220bc99882fbf2fbae9e68fb7dd54aa9e2edc",
     "test/beta_e2e_01_stored_journey_composition.integration.test.mjs": "cc077b1cd4f9334028ef8fb149ef4baa65eef673938a04ab9332e5626c743df5",
     "test/beta_e2e_01_persistent_http_product_journey_restart.integration.test.mjs": "5d5be50297aeb1f69b79b8fc4096e5cf8e3574fee1f300fe5e8a18221ca882e2",
-    "ci/contracts/test_ci_integration_vertical_slice_cluster_manifest.json": "ea465bcdb2d517b6d29491d8082c3aa474047ce15dcd007cf373710091a956e7"
+    "ci/contracts/test_ci_integration_vertical_slice_cluster_manifest.json": "f43df6c692389a202472cee51fec87a5a7afefc59ac7582a3da7741f21750e97"
   }
 }
