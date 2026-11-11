@@ -68,9 +68,9 @@
     "src/api/sessions.handlers.ts": "d3e03aa1f6cb36b48933962753a4117535ebf986705e4c891ae70719f87b7f66",
     "src/api/sessions.routes.ts": "c50eb21227781d9fd031785033c65ca2175183ee727416a72e9f3c38b4e04713",
     "src/api/session_state_query_service.ts": "dea4ef52ddee419d3baa5664550bac3d2f9c6988c17d6d8c519de2e161619228",
-    "test/beta_e2e_01_product_record_store.integration.test.mjs": "2a7d9e800b6f28a995d93049547c9103495b32e1b6bcea7ae6c047f4e943405a",
-    "test/beta_e2e_01_stored_journey_composition.integration.test.mjs": "e4f6f8710164200663e42e3a68065fb1c53e6fda3a0b6728ce73a84f5ba1d89c",
-    "test/beta_e2e_01_persistent_http_product_journey_restart.integration.test.mjs": "e6ccb7d4296afc1a5a3b832a4705e7317c5b8ed432b0b3825aa1aaf107ee3693",
-    "ci/contracts/test_ci_integration_vertical_slice_cluster_manifest.json": "aec7934ccfbe2297a8ed36c8f753d4e88ef5d141459f47342bb7f5cba935d15c"
+    "test/beta_e2e_01_product_record_store.integration.test.mjs": "5a6a7d506c4c692b47d5a8111a9220bc99882fbf2fbae9e68fb7dd54aa9e2edc",
+    "test/beta_e2e_01_stored_journey_composition.integration.test.mjs": "cc077b1cd4f9334028ef8fb149ef4baa65eef673938a04ab9332e5626c743df5",
+    "test/beta_e2e_01_persistent_http_product_journey_restart.integration.test.mjs": "5d5be50297aeb1f69b79b8fc4096e5cf8e3574fee1f300fe5e8a18221ca882e2",
+    "ci/contracts/test_ci_integration_vertical_slice_cluster_manifest.json": "ea465bcdb2d517b6d29491d8082c3aa474047ce15dcd007cf373710091a956e7"
   }
 }

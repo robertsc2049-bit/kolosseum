@@ -40,7 +40,8 @@ export function useConnectAthlete() {
     athleteUserId: string;
     displayName: string;
     activityId: string;
-    relationshipState: "accepted" | "invited";
+    // Invite only - the athlete accepts in their own signed-in app.
+    relationshipState: "invited";
     expiryDate: string;
   }) => {
     setState({ submitting: true, error: null });
@@ -49,7 +50,7 @@ export function useConnectAthlete() {
       const coachUserId = String((account.account as JsonRecord | undefined)?.user_id ?? "");
       const csrfToken = typeof account.csrf_token === "string" ? account.csrf_token : "";
       const timestamp = new Date().toISOString();
-      const expiresAt = input.relationshipState === "invited" && input.expiryDate
+      const expiresAt = input.expiryDate
         ? new Date(`${input.expiryDate}T23:59:59.999Z`).toISOString()
         : null;
 
@@ -58,9 +59,9 @@ export function useConnectAthlete() {
           relationship_id: createRelationshipId(),
           coach_user_id: coachUserId,
           athlete_user_id: input.athleteUserId,
-          relationship_state: input.relationshipState,
+          relationship_state: "invited",
           relationship_scope: "individual_coach_athlete",
-          accepted_at_iso8601: input.relationshipState === "accepted" ? timestamp : null,
+          accepted_at_iso8601: null,
           created_at_iso8601: timestamp,
           updated_at_iso8601: timestamp,
           revoked_at_iso8601: null,

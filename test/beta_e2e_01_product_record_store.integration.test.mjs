@@ -20,6 +20,12 @@ import {
   loadLatestBeta17StoredAssignment
 } from "../dist/src/api/beta_product_record_store.js";
 
+
+// These journey tests drive the early beta harness routes and call routes
+// without an account cookie; sessions_access_gate.ts allows that only with
+// this switch, and never in production.
+process.env.KOLOSSEUM_SESSIONS_TEST_HARNESS = "1";
+
 async function listen() {
   return await new Promise(
     (resolve, reject) => {

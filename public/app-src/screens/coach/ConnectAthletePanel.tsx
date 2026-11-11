@@ -13,12 +13,12 @@ export function ConnectAthletePanel() {
   const [displayName, setDisplayName] = useState("");
   const [athleteUserId, setAthleteUserId] = useState("");
   const [activityId, setActivityId] = useState<string>("powerlifting");
-  const [relationshipState, setRelationshipState] = useState<"accepted" | "invited">("accepted");
   const [expiryDate, setExpiryDate] = useState("");
   const [consent, setConsent] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
 
-  const invited = relationshipState === "invited";
+  // Invite only: the athlete accepts it themselves, signed in to their own
+  // account. A coach can never record a connection as already accepted.
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -28,16 +28,15 @@ export function ConnectAthletePanel() {
       athleteUserId: athleteUserId.trim(),
       displayName: displayName.trim(),
       activityId,
-      relationshipState,
+      relationshipState: "invited",
       expiryDate
     });
 
     if (ok) {
-      setNotice(invited ? `Invitation for ${displayName.trim()} recorded.` : `${displayName.trim()} connected.`);
+      setNotice(`Invitation sent to ${displayName.trim()}. You're connected once they accept it in their app.`);
       setDisplayName("");
       setAthleteUserId("");
       setActivityId("powerlifting");
-      setRelationshipState("accepted");
       setExpiryDate("");
       setConsent(false);
     }
@@ -47,7 +46,7 @@ export function ConnectAthletePanel() {
     <form className="panel form-panel" onSubmit={(event) => { handleSubmit(event).catch(() => {}); }}>
       <div>
         <p className="eyebrow">Account code</p>
-        <h3>Add an athlete by account code</h3>
+        <h3>Invite an athlete by account code</h3>
       </div>
 
       <label className="field">
@@ -73,36 +72,21 @@ export function ConnectAthletePanel() {
       <ActivityCategoryFilter value={activityId} onChange={setActivityId} sportLabel="Activity" />
 
       <label className="field">
-        <span>Relationship state</span>
-        <select
-          value={relationshipState}
-          onChange={(event) => setRelationshipState(event.target.value === "invited" ? "invited" : "accepted")}
-        >
-          <option value="accepted">Accepted connection</option>
-          <option value="invited">Pending invitation</option>
-        </select>
+        <span>Invitation expiry (optional)</span>
+        <input type="date" value={expiryDate} onChange={(event) => setExpiryDate(event.target.value)} />
       </label>
-
-      {invited ? (
-        <label className="field">
-          <span>Invitation expiry</span>
-          <input type="date" value={expiryDate} onChange={(event) => setExpiryDate(event.target.value)} />
-        </label>
-      ) : null}
 
       <label className="check-line">
         <input type="checkbox" required checked={consent} onChange={(event) => setConsent(event.target.checked)} />
         <span>
-          {invited
-            ? "The athlete supplied this code or authorised this pending invitation."
-            : "The athlete supplied this code and accepted this connection."}
+The athlete gave me this code and expects my invitation.
         </span>
       </label>
 
       {error ? <p role="status" className="muted small error">{error}</p> : null}
       {notice ? <p role="status" className="muted small">{notice}</p> : null}
 
-      <button className="button primary" type="submit" disabled={submitting}>Record relationship</button>
+      <button className="button primary" type="submit" disabled={submitting}>Send invitation</button>
     </form>
   );
 }

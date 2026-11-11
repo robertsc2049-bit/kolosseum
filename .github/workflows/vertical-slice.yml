@@ -54,6 +54,9 @@ jobs:
       KOLOSSEUM_GREEN_ENTRYPOINT: "ci"
       SMOKE_NO_DB: "1"
       PORT: "3000"
+      # /sessions/plan is an early test-harness route: sessions_access_gate.ts
+      # serves it only with this switch, never in production.
+      KOLOSSEUM_SESSIONS_TEST_HARNESS: "1"
     steps:
       - name: Checkout
         uses: actions/checkout@v5

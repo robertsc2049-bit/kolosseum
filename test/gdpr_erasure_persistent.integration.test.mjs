@@ -15,6 +15,12 @@ import { STORAGE_ROOT as MESSAGE_ROOT } from "../dist/src/api/message_attachment
 import { STORAGE_ROOT as PHOTO_ROOT } from "../dist/src/api/progress_photo_storage.js";
 import { STORAGE_ROOT as DEMO_ROOT } from "../dist/src/api/exercise_demo_video_storage.js";
 
+
+// Seeds coach profiles and relationships through the early beta harness
+// routes without an account cookie; sessions_access_gate.ts allows that only
+// with this switch, and never in production.
+process.env.KOLOSSEUM_SESSIONS_TEST_HARNESS = "1";
+
 async function request(baseUrl, method, route, body, options = {}) {
   const headers = {};
   if (body !== undefined) headers["content-type"] = "application/json";

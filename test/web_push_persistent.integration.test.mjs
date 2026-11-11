@@ -9,6 +9,12 @@ import test from "node:test";
 
 import { generateVapidKeys } from "../dist/src/api/web_push.js";
 
+
+// Seeds coach profiles and relationships through the early beta harness
+// routes without an account cookie; sessions_access_gate.ts allows that only
+// with this switch, and never in production.
+process.env.KOLOSSEUM_SESSIONS_TEST_HARNESS = "1";
+
 const keys = generateVapidKeys();
 process.env.VAPID_PUBLIC_KEY = keys.publicKey;
 process.env.VAPID_PRIVATE_KEY = keys.privateKey;

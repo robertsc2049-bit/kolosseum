@@ -19,6 +19,12 @@ import { app } from "../dist/src/server.js";
 import { pool } from "../dist/src/db/pool.js";
 import { STORAGE_ROOT } from "../dist/src/api/progress_photo_storage.js";
 
+
+// Seeds coach profiles and relationships through the early beta harness
+// routes without an account cookie; sessions_access_gate.ts allows that only
+// with this switch, and never in production.
+process.env.KOLOSSEUM_SESSIONS_TEST_HARNESS = "1";
+
 function repoRoot() {
   return path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 }

@@ -57,6 +57,7 @@ test("package.json test:ci:integration is single-owner and resolves from determi
     "node test/deletion_request_deadlines_persistent.integration.test.mjs",
     "node test/admin_two_step_persistent.integration.test.mjs",
     "node test/server_error_alerts_persistent.integration.test.mjs",
+    "node test/sessions_access_gate_persistent.integration.test.mjs",
     "node test/readiness_lightening_coach_persistent.integration.test.mjs",
     "node test/pain_carry_forward_persistent_http.integration.test.mjs",
     "node test/pain_carry_forward_coach_persistent.integration.test.mjs",
