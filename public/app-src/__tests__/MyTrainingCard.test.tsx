@@ -76,3 +76,51 @@ test("Cancel puts the saved week back", async () => {
   assert.ok(screen.getByText("Back squat 3x5"));
   assert.equal(screen.queryByText("Day 3"), null);
 });
+
+test("a starter week fills the days in to change before saving - nothing is saved until Save (walkthrough 11)", async () => {
+  const puts = installMocks({ week: null, next: null, exercise_options: options });
+  const requested: string[] = [];
+  const base = globalThis.fetch;
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const path = String(input);
+    if (path.startsWith("/account/onboarding/training-week/starter")) {
+      requested.push(path);
+      return jsonResponse({ ok: true, days: [
+        { items: [{ exercise_id: "back_squat", sets: 4, reps: 5 }, { exercise_id: "bench_press", sets: 3, reps: 5 }] },
+        { items: [{ exercise_id: "deadlift", sets: 3, reps: 5 }] }
+      ] });
+    }
+    return base(input, init);
+  }) as typeof fetch;
+  let confirmed = 0;
+  const originalConfirm = window.confirm;
+  window.confirm = () => { confirmed += 1; return true; };
+  try {
+    render(<MyTrainingCard />);
+    await screen.findByText("Build your training");
+    fireEvent.click(screen.getByText("Build my training"));
+    fireEvent.change(screen.getByLabelText("Training days a week"), { target: { value: "2" } });
+    await act(async () => { fireEvent.click(screen.getByText("Fill in a starter week")); });
+    assert.deepEqual(requested, ["/account/onboarding/training-week/starter?days=2"]);
+    assert.equal(confirmed, 0, "nothing chosen yet, so nothing to replace");
+    assert.equal((screen.getByLabelText("Day 1 exercise 1") as HTMLSelectElement).value, "back_squat");
+    assert.equal((screen.getByLabelText("Day 1 exercise 2") as HTMLSelectElement).value, "bench_press");
+    assert.equal((screen.getByLabelText("Day 2 exercise 1") as HTMLSelectElement).value, "deadlift");
+    assert.ok(screen.getByText("Starter week filled in for your sport and level. Change anything you like, then Save."));
+    assert.equal(puts.length, 0, "not saved yet");
+
+    // Asking again over chosen exercises checks first.
+    await act(async () => { fireEvent.click(screen.getByText("Fill in a starter week")); });
+    assert.equal(confirmed, 1);
+
+    await act(async () => { fireEvent.click(screen.getByText("Save my training")); });
+    await waitFor(() => assert.equal(puts.length, 1));
+    assert.deepEqual(puts[0].days, [
+      { items: [{ exercise_id: "back_squat", sets: 4, reps: 5 }, { exercise_id: "bench_press", sets: 3, reps: 5 }] },
+      { items: [{ exercise_id: "deadlift", sets: 3, reps: 5 }] }
+    ]);
+  }
+  finally {
+    window.confirm = originalConfirm;
+  }
+});

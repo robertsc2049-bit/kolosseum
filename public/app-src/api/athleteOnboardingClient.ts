@@ -192,3 +192,9 @@ export function startProgrammeGrant(grantId: string, csrfToken: string): Promise
 export function declineProgrammeGrant(grantId: string, csrfToken: string): Promise<JsonRecord> {
   return request("POST", `/account/onboarding/programme-grants/${encodeURIComponent(grantId)}/decline`, {}, csrfToken);
 }
+
+// A starter week to edit in My training - quick build's exercises for the
+// athlete's sport, level and equipment. Nothing is saved.
+export function loadStarterTrainingWeek(days: number): Promise<JsonRecord> {
+  return request("GET", `/account/onboarding/training-week/starter?days=${encodeURIComponent(String(days))}`);
+}

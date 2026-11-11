@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-import { loadTrainingWeek, saveTrainingWeek } from "../../api/athleteOnboardingClient";
+import { loadStarterTrainingWeek, loadTrainingWeek, saveTrainingWeek } from "../../api/athleteOnboardingClient";
 import { loadAccountDetail } from "../../api/client";
 import { type JsonRecord } from "../../api/transport";
 import { type DayItem, type ExerciseOption, TrainingDayEditor, newDayItem, toExerciseOption } from "../../components/TrainingDayEditor";
@@ -25,6 +25,7 @@ export function MyTrainingCard() {
   const [lighter, setLighter] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [starterNote, setStarterNote] = useState<string | null>(null);
 
   function apply(result: JsonRecord) {
     setData(result);
@@ -50,6 +51,34 @@ export function MyTrainingCard() {
 
   function setDayCount(count: number) {
     setDays((current) => Array.from({ length: count }, (_, i) => current[i] ?? { items: [newDayItem()] }));
+  }
+
+  // A starting point instead of choosing every exercise from the whole
+  // library (walkthrough 11): fills the days in; they change anything, then Save.
+  async function fillStarter() {
+    const picked = days.some((day) => day.items.some((item) => item.exercise_id));
+    if (picked && !window.confirm("Replace the exercises you've chosen with a starter week?")) return;
+    setBusy(true);
+    setError(null);
+    setStarterNote(null);
+    try {
+      const result = await loadStarterTrainingWeek(days.length);
+      const starter = asDays(result.days);
+      if (!starter.length) {
+        setError("There isn't a starter week for your sport and equipment - choose your exercises below.");
+        return;
+      }
+      setDays(starter);
+      setStarterNote(starter.length < days.length
+        ? `Filled in ${starter.length} day${starter.length === 1 ? "" : "s"} - there isn't enough for more with your equipment. Change anything, then Save.`
+        : "Starter week filled in for your sport and level. Change anything you like, then Save.");
+    }
+    catch {
+      setError("A starter week couldn't be made just now. Try again, or choose your exercises below.");
+    }
+    finally {
+      setBusy(false);
+    }
   }
 
   async function save() {
@@ -108,6 +137,10 @@ export function MyTrainingCard() {
               {Array.from({ length: MAX_DAYS }, (_, i) => i + 1).map((n) => <option key={n} value={n}>{n}</option>)}
             </select>
           </label>
+          <div className="my-training-starter">
+            <button className="button secondary" type="button" disabled={busy} onClick={() => void fillStarter()}>Fill in a starter week</button>
+            <p className="muted small">{starterNote ?? "Exercises, sets and reps for your sport and level, using your equipment - a starting point you can change."}</p>
+          </div>
           {days.map((day, d) => (
             <TrainingDayEditor key={d} label={`Day ${d + 1}`} items={day.items} options={options} onChange={(items) => setDays((current) => current.map((x, i) => (i === d ? { items } : x)))} />
           ))}
@@ -118,7 +151,7 @@ export function MyTrainingCard() {
           {week ? <p className="muted small">Changing your days or exercises starts your training again at Day 1.</p> : null}
           <div className="button-row">
             <button className="button primary" type="button" disabled={busy} onClick={() => void save()}>{busy ? "Saving…" : "Save my training"}</button>
-            <button className="button secondary" type="button" onClick={() => { if (data) apply(data); setError(null); setEditing(false); }}>Cancel</button>
+            <button className="button secondary" type="button" onClick={() => { if (data) apply(data); setError(null); setStarterNote(null); setEditing(false); }}>Cancel</button>
           </div>
         </>
       )}

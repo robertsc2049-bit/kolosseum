@@ -343,3 +343,45 @@ export async function createQuickBuildProgramme(coachUserId: string, input: unkn
     updated_at_iso8601: new Date().toISOString()
   }) as Promise<Readonly<Json>>;
 }
+
+// A self-coached athlete's starter week (My training, walkthrough 11): the
+// exercises, sets and reps quick build would give each training day of the
+// sport's first building phase (off-season / volume / base), week 1, within
+// the athlete's equipment. Only rep-based exercises, one of each a day, at
+// most `maxPerDay`; days the equipment leaves empty are left out. The
+// athlete edits it before saving; weights still follow how they set them.
+export function starterWeekDays(
+  activity: string,
+  level: string,
+  daysPerWeek: number,
+  availableEquipment: string[] | null,
+  maxPerDay: number
+): { items: { exercise_id: string; sets: number; reps: number }[] }[] {
+  const model = cycleModelFor(activity);
+  if (!model || !LEVELS.has(level) || !Number.isInteger(daysPerWeek) || daysPerWeek < 1 || daysPerWeek > 6) return [];
+  const phase = MACRO_PHASES_BY_MODEL[model][0];
+  const constraints: SlotConstraints = availableEquipment ? { available_equipment: availableEquipment } : {};
+  const { selections, standIns } = selectionsWithinEquipment(activity, level, daysPerWeek, constraints);
+  const days: { items: { exercise_id: string; sets: number; reps: number }[] }[] = [];
+  for (let slot = 0; slot < sessionsPerWeek(phase, daysPerWeek); slot += 1) {
+    const result = phase4AssembleProgram(
+      { activity_id: activity, experience_level: level, training_cycle: { macro_phase: phase, meso_week: 1, days_per_week: daysPerWeek, session_slot: slot }, exercise_selections: selections },
+      { constraints: { constraints_version: "1.0.0" } } as never
+    ) as unknown as Json;
+    const program = isRecord(result.program) ? result.program : null;
+    if (result.ok !== true || !program) continue;
+    const seen = new Set<string>();
+    const items = (Array.isArray(program.planned_items) ? program.planned_items.filter(isRecord) : [])
+      .filter((item) => {
+        const id = String(item.exercise_id ?? "");
+        const timedOrDistance = Number(item.distance_value ?? item.distance_m) > 0 || Number(item.duration_seconds) > 0;
+        if (!id || standIns.has(id) || /__r\d+$/u.test(id) || timedOrDistance || seen.has(id)) return false;
+        seen.add(id);
+        return true;
+      })
+      .map((item) => ({ exercise_id: String(item.exercise_id), sets: Math.max(1, Math.round(Number(item.sets ?? 3))), reps: Math.max(1, Math.round(Number(item.reps ?? 8))) }))
+      .slice(0, maxPerDay);
+    if (items.length) days.push({ items });
+  }
+  return days;
+}

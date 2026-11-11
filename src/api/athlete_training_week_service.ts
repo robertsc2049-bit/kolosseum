@@ -18,7 +18,9 @@ import crypto from "node:crypto";
 import { pool } from "../db/pool.js";
 import { getAthleteTrainingProfile } from "./athlete_onboarding_service.js";
 import { getCurrentProgrammeRun } from "./programme_catalogue_service.js";
-import { type TrainingWeek, TrainingWeekError, exerciseOptionsFor, ownTrainingStamp, validateTrainingWeek } from "./athlete_training_week.js";
+import { MAX_EXERCISES_A_DAY, type TrainingWeek, TrainingWeekError, exerciseOptionsFor, ownTrainingStamp, validateTrainingWeek } from "./athlete_training_week.js";
+import { getAthleteEquipment } from "./athlete_equipment_service.js";
+import { starterWeekDays } from "./kolosseum_starter_template_service.js";
 
 export { type OwnTrainingStamp, type TrainingWeek, TrainingWeekError, ownTrainingProgram, ownTrainingStamp, todaysSession } from "./athlete_training_week.js";
 
@@ -75,4 +77,21 @@ export async function saveAthleteTrainingWeek(userId: string, input: unknown): P
     [`account_event_${crypto.randomUUID().replace(/-/gu, "")}`, userId, WEEK_EVENT, JSON.stringify(payload)]
   );
   return getAthleteTrainingWeek(userId);
+}
+
+// A starting point for an athlete's own week (walkthrough 11): what quick
+// build would give each training day for their sport and level, within their
+// equipment, limited to exercises they can choose in My training. Nothing is
+// saved - they edit it and press Save as usual.
+export async function starterTrainingWeek(userId: string, daysInput: unknown): Promise<Readonly<Json>> {
+  const days = Number(daysInput);
+  if (!Number.isInteger(days) || days < 1 || days > 6) throw new TrainingWeekError("training_week_days_invalid", 422, { days: "Choose 1 to 6 training days a week." });
+  const profile = await getAthleteTrainingProfile(userId);
+  if (!profile.activity_id) throw new TrainingWeekError("training_week_sport_required", 409);
+  const options = new Set(exerciseOptionsFor(profile.activity_id).map((option) => option.exercise_id));
+  const equipment = await getAthleteEquipment(userId);
+  const built = starterWeekDays(profile.activity_id, profile.experience_level ?? "beginner", days, equipment, MAX_EXERCISES_A_DAY)
+    .map((day) => ({ items: day.items.filter((item) => options.has(item.exercise_id)) }))
+    .filter((day) => day.items.length > 0);
+  return Object.freeze({ ok: true, days: built });
 }
