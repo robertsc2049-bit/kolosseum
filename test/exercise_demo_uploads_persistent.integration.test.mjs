@@ -12,6 +12,12 @@ import { app } from "../dist/src/server.js";
 import { pool } from "../dist/src/db/pool.js";
 import { STORAGE_ROOT } from "../dist/src/api/exercise_demo_video_storage.js";
 
+
+// Seeds coach profiles and relationships through the early beta harness
+// routes without an account cookie; sessions_access_gate.ts allows that only
+// with this switch, and never in production.
+process.env.KOLOSSEUM_SESSIONS_TEST_HARNESS = "1";
+
 async function request(baseUrl, method, route, body, options = {}) {
   const headers = { ...(options.headers ?? {}) };
   if (body !== undefined && !(body instanceof FormData)) headers["content-type"] = "application/json";

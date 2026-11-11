@@ -20,6 +20,12 @@ import { fileURLToPath } from "node:url";
 import { app } from "../dist/src/server.js";
 import { pool } from "../dist/src/db/pool.js";
 
+
+// Seeds coach profiles and relationships through the early beta harness
+// routes without an account cookie; sessions_access_gate.ts allows that only
+// with this switch, and never in production.
+process.env.KOLOSSEUM_SESSIONS_TEST_HARNESS = "1";
+
 // DEV NOTE: both tests below share the one module-level `pool` singleton -
 // pool.end() is closed exactly once here, after every test in this file has
 // finished, rather than per-test (which would close it out from under the

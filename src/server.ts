@@ -8,6 +8,7 @@ import express from "express";
 import path from "node:path";
 
 import { sessionsRouter } from "./api/sessions.routes.js";
+import { sessionsAccessGate } from "./api/sessions_access_gate.js";
 import { beta17CoachNoteWriteRouter } from "./api/beta17_coach_note_write.routes.js";
 import { blocksRouter } from "./api/blocks.routes.js";
 import { templatesRouter } from "./api/templates.routes.js";
@@ -217,6 +218,8 @@ app.use("/coach-workspace", coachOrgMembershipRouter);
 app.use("/coach-workspace", productAssignmentRouter);
 app.use("/coach-workspace", productReviewRouter);
 app.use("/coach-workspace", videoFeedbackCoachRouter);
+// Signed-in owner (or their coach) only - see sessions_access_gate.ts.
+app.use("/sessions", sessionsAccessGate);
 app.use("/sessions", sessionsRouter);
 app.use("/sessions", beta17CoachNoteWriteRouter);
 app.use("/blocks", blocksRouter);

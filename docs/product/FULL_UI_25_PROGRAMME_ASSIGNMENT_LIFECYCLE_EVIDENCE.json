@@ -1,15 +1,15 @@
 {
   "schema_version": "kolosseum.full_ui_25.programme_assignment_lifecycle.v1.0.0",
   "slice_id": "FULL-UI-25",
-  "recorded_at_iso8601": "2026-10-08T11:07:25.379Z",
-  "nonce": "865094cc13e043ff",
+  "recorded_at_iso8601": "2026-11-11T14:26:06.286Z",
+  "nonce": "75a27fa69a064efe",
   "steps": [
     {
       "id": "programme_immutable_active",
       "label": "Active template cannot be edited in place",
       "result": "PASS",
       "detail": {
-        "template_id": "coach_template_f869408d92144fc0af364c97c7f5416e_v1",
+        "template_id": "coach_template_397486139fb44d14ae18d9f4d07e9ff6_v1",
         "rejected_status": 400
       }
     },
@@ -18,8 +18,8 @@
       "label": "Coach duplicates an active programme into a new draft version",
       "result": "PASS",
       "detail": {
-        "original_template_id": "coach_template_f869408d92144fc0af364c97c7f5416e_v1",
-        "duplicate_template_id": "coach_template_f869408d92144fc0af364c97c7f5416e_v2"
+        "original_template_id": "coach_template_397486139fb44d14ae18d9f4d07e9ff6_v1",
+        "duplicate_template_id": "coach_template_397486139fb44d14ae18d9f4d07e9ff6_v2"
       }
     },
     {
@@ -27,7 +27,7 @@
       "label": "The duplicate and original share a template family but carry distinct version metadata",
       "result": "PASS",
       "detail": {
-        "family_id": "coach_template_f869408d92144fc0af364c97c7f5416e"
+        "family_id": "coach_template_397486139fb44d14ae18d9f4d07e9ff6"
       }
     },
     {
@@ -35,8 +35,8 @@
       "label": "Coach replaces an assignment with a new programme version",
       "result": "PASS",
       "detail": {
-        "original_assignment_id": "beta17_assignment_2fc9a0b154eef53cd2f329e8",
-        "replacement_assignment_id": "beta17_assignment_1747fddf74f63cbb3faa08d9"
+        "original_assignment_id": "beta17_assignment_7b4d1f515e1e53730c66019d",
+        "replacement_assignment_id": "beta17_assignment_ecccb94dad90fd740f22e08c"
       }
     },
     {
@@ -44,7 +44,7 @@
       "label": "The original (now-superseded) assignment remains visible in the coach's assignment history",
       "result": "PASS",
       "detail": {
-        "assignment_id": "beta17_assignment_2fc9a0b154eef53cd2f329e8"
+        "assignment_id": "beta17_assignment_7b4d1f515e1e53730c66019d"
       }
     },
     {
@@ -52,7 +52,7 @@
       "label": "A session compiled under the original assignment remains in the athlete's history after replacement",
       "result": "PASS",
       "detail": {
-        "session_id": "s_bd788d1e84af416a94f58ca66158eee5"
+        "session_id": "s_db3d0fe296ab4d2799d6768d19e1171e"
       }
     },
     {
@@ -60,7 +60,7 @@
       "label": "Coach cancels a future assignment and the athlete no longer sees it as current",
       "result": "PASS",
       "detail": {
-        "cancelled_assignment_id": "beta17_assignment_1747fddf74f63cbb3faa08d9"
+        "cancelled_assignment_id": "beta17_assignment_ecccb94dad90fd740f22e08c"
       }
     },
     {
@@ -74,7 +74,7 @@
       "label": "Coach can see assignment usage for a programme before archiving it",
       "result": "PASS",
       "detail": {
-        "template_id": "coach_template_f869408d92144fc0af364c97c7f5416e_v1"
+        "template_id": "coach_template_397486139fb44d14ae18d9f4d07e9ff6_v1"
       }
     },
     {
@@ -82,7 +82,7 @@
       "label": "Coach archives a programme; it remains queryable, and archived programmes remain immutable",
       "result": "PASS",
       "detail": {
-        "template_id": "coach_template_f869408d92144fc0af364c97c7f5416e_v1"
+        "template_id": "coach_template_397486139fb44d14ae18d9f4d07e9ff6_v1"
       }
     },
     {
@@ -99,12 +99,12 @@
       "label": "A fresh operating-system process reconstructs the same programme and assignment lifecycle state",
       "result": "PASS",
       "detail": {
-        "first_pid": 76212,
-        "restarted_pid": 37292
+        "first_pid": 45228,
+        "restarted_pid": 42012
       }
     }
   ],
   "status": "PASS",
-  "coach_user_id": "coach_36e622be421c4275b41790997764a13d",
-  "athlete_user_id": "athlete_11c8232663fb46d99d83209dc37e6781"
+  "coach_user_id": "coach_5ce425e0e476407f9a78cb9fd6f04e5a",
+  "athlete_user_id": "athlete_862f64fab10747b184c535c7dc916507"
 }

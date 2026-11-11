@@ -542,6 +542,10 @@
     },
     {
       "kind": "command",
+      "value": "node test/sessions_access_gate_surface.test.mjs"
+    },
+    {
+      "kind": "command",
       "value": "node test/admin_console_layout_surface.test.mjs"
     },
     {
