@@ -269,7 +269,7 @@ test("a powerlifter chooses a competition event on the training-level stage, sav
   render(<AthleteOnboardingPanel />);
   await screen.findByText("Training level");
   assert.ok(screen.getByRole("radiogroup", { name: "Competition event" }));
-  for (const label of ["Full power", "Bench only", "Deadlift only", "Push-pull", "Squat only"]) assert.ok(screen.getByText(label));
+  for (const label of ["Full power", "Bench only", "Deadlift only", "Push-pull", "Squat only", "Not competing"]) assert.ok(screen.getByText(label));
 
   await act(async () => {
     fireEvent.click(screen.getByLabelText(/^Amateur/));
@@ -282,6 +282,24 @@ test("a powerlifter chooses a competition event on the training-level stage, sav
   await screen.findByText("Draft saved");
   assert.equal((savedFields ?? {}).experience_level, "amateur");
   assert.equal((savedFields ?? {}).competition_event, "bench_only");
+});
+
+test("a beginner powerlifter who doesn't compete isn't made to pick an event: Not competing is chosen for them", async () => {
+  let savedFields: Record<string, unknown> | null = null;
+  installMocks({
+    initialState: draftState({ current_stage: "experience_level", draft: { fields: { activity_id: "powerlifting" } } }),
+    onDraftSave: (body) => {
+      savedFields = body.fields as Record<string, unknown>;
+      return draftState({ current_stage: body.current_stage, draft: { fields: body.fields }, saved_draft_state: true, saved_draft_at_iso8601: "2026-09-25T00:00:00.000Z" });
+    }
+  });
+  render(<AthleteOnboardingPanel />);
+  await screen.findByText("Training level");
+  await act(async () => { fireEvent.click(screen.getByLabelText(/^Beginner/)); });
+  assert.equal((screen.getByLabelText(/^Not competing/) as HTMLInputElement).checked, true);
+  await act(async () => { fireEvent.click(screen.getByText("Save and continue")); });
+  await screen.findByText("Draft saved");
+  assert.equal((savedFields ?? {}).competition_event, "not_competing");
 });
 
 test("athletes in other sports are never asked for a competition event", async () => {

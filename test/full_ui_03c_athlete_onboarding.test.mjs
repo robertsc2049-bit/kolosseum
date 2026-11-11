@@ -225,7 +225,7 @@ test("FULL-UI-03C validates progression review and inference boundaries", () => 
     () => service.validateAthleteOnboardingDraftInput({ current_stage: "execution_scope", fields: powerlifter }),
     /athlete_onboarding_validation_failed/u
   );
-  for (const event of ["full_power", "bench_only", "deadlift_only", "push_pull", "squat_only"]) {
+  for (const event of ["full_power", "bench_only", "deadlift_only", "push_pull", "squat_only", "not_competing"]) {
     assert.equal(
       service.validateAthleteOnboardingDraftInput({ current_stage: "review", fields: { ...powerlifter, competition_event: event } }).fields.competition_event,
       event
@@ -446,4 +446,12 @@ test("FULL-UI-03C manifest and closure contain no partial or missing onboarding 
   assert.equal(closure.route.state, "implemented");
   assert.equal(closure.functions.length, 9);
   assert.equal(Object.values(closure.coverage).every((value) => value === "covered"), true);
+});
+
+test("a powerlifter who isn't competing can start a session: the guard checks the declaration, not the engine input", () => {
+  const app = fs.readFileSync("public/app/app.js", "utf8");
+  assert.match(app, /state\.phase1Input\?\.activity_id === "powerlifting" && !state\.phase1Input\?\.competition_event &&\s*!\(await declaredCompetitionEvent\(\)\)\) \{/u);
+  assert.match(app, /onboarding\?\.current_effective_declaration\?\.fields\?\.competition_event/u);
+  const service = fs.readFileSync("src/api/athlete_onboarding_service.ts", "utf8");
+  assert.match(service, /declared\.competition_event === NOT_COMPETING\) return undefined;/u, "not_competing never reaches the engine");
 });

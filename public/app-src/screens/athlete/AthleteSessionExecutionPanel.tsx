@@ -370,8 +370,10 @@ export function AthleteSessionExecutionPanel() {
             {!step ? (
               <div className="exercise-focus">
                 <p className="eyebrow">{classification.label}</p>
-                <h3>Session record complete</h3>
-                <p className="muted">No further exercise is currently recorded.</p>
+                <h3>Session finished</h3>
+                <p className="muted">{counts.dropped.length > 0
+                  ? "Everything you logged is saved. Exercises you didn't get to are marked not done."
+                  : "Everything you logged is saved."}</p>
               </div>
             ) : step.type === "RETURN_DECISION" ? null : step.type === "GROUP_WORKOUT" ? (
               <GroupWorkoutFocus step={step} />
@@ -610,6 +612,7 @@ export function AthleteSessionExecutionPanel() {
                 <>
                   <GroupWorkoutActions step={step} session={session} />
                   <button id="splitSessionButton" className="button secondary wide" type="button" disabled={session.busy} onClick={() => session.splitSession()}>Stop and return later</button>
+                  <button id="finishSessionNowButton" className="button secondary wide" type="button" disabled={session.busy} onClick={() => { session.finishNow().catch(() => {}); }}>Finish session now</button>
                 </>
               ) : (
                 <>
@@ -622,6 +625,7 @@ export function AthleteSessionExecutionPanel() {
                   <button id="requestSubstitutionButton" className="button secondary wide" type="button" onClick={() => session.openActionPanel("substitution")}>Request substitution</button>
                   <button id="recordVideoFeedbackButton" className="button secondary wide" type="button" onClick={() => session.openActionPanel("video")}>Record form-check video</button>
                   <button id="splitSessionButton" className="button secondary wide" type="button" disabled={session.busy} onClick={() => session.splitSession()}>Stop and return later</button>
+                  <button id="finishSessionNowButton" className="button secondary wide" type="button" disabled={session.busy} onClick={() => { session.finishNow().catch(() => {}); }}>Finish session now</button>
                 </>
               )}
             </div>

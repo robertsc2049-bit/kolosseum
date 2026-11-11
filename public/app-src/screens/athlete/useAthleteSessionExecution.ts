@@ -858,6 +858,18 @@ export function useAthleteSessionExecution() {
     }, true);
   }, [runMutation]);
 
+  // Out of time or done for the day: keep what was logged and record the rest
+  // as not done, in one step. The same events as "Stop and return later"
+  // then "Finish without remaining work" - if the second fails, the session
+  // waits at that return choice, so nothing is lost.
+  const finishNow = useCallback(async () => {
+    if (!window.confirm("Finish this session now? What you've logged is kept and the remaining exercises are recorded as not done.")) return false;
+    return runMutation(async (sessionId, csrfToken) => {
+      await postAthleteSessionEvent(sessionId, { type: "SPLIT_SESSION" }, csrfToken);
+      await postAthleteSessionEvent(sessionId, { type: "RETURN_SKIP" }, csrfToken);
+    }, true);
+  }, [runMutation]);
+
   const returnContinue = useCallback(async () => {
     return runMutation(async (sessionId, csrfToken) => {
       await postAthleteSessionEvent(sessionId, { type: "RETURN_CONTINUE" }, csrfToken);
@@ -946,6 +958,7 @@ export function useAthleteSessionExecution() {
     applySubstitution,
     uploadVideo,
     splitSession,
+    finishNow,
     returnContinue,
     returnSkip,
     stopRestTimer,

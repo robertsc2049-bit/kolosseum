@@ -106,6 +106,15 @@ export async function loadCurrentAthleteDeclaration() {
 // signOutAccount()) - was only ever consumed by app.js's now-removed
 // clearLocalSession().
 
+// The athlete's declared onboarding answers - some (a powerlifter who isn't
+// competing) never reach the engine input, so ask for what was declared.
+export function loadAthleteOnboardingState() {
+  return request(
+    "GET",
+    "/account/onboarding/"
+  );
+}
+
 export function loadAccountDetail() {
   return request(
     "GET",

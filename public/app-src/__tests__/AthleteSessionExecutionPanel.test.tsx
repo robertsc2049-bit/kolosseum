@@ -461,6 +461,34 @@ test("skipping an exercise requires a reason and posts SKIP_EXERCISE", async () 
   assert.equal((lastEventBody as { reason_code?: string } | null)?.reason_code, "pain_or_discomfort");
 });
 
+test("out of time, Finish session now keeps what was logged and records the rest as not done in one step", async () => {
+  seedActiveSession("session_1");
+  const posted: string[] = [];
+  installMocks({
+    sessionState: baseSessionState({ started: true }),
+    onEvent: (path, method, body) => {
+      if (path.endsWith("/events") && method === "POST") posted.push(String((body as { type?: string } | undefined)?.type));
+    }
+  });
+  const originalConfirm = window.confirm;
+  let asked = "";
+  window.confirm = (message?: string) => { asked = String(message); return false; };
+  try {
+    render(<AthleteSessionExecutionPanel />);
+    await waitFor(() => screen.getByText("Finish session now"));
+    await act(async () => { fireEvent.click(screen.getByText("Finish session now")); });
+    assert.match(asked, /remaining exercises are recorded as not done/);
+    assert.deepEqual(posted, [], "cancelling the confirm sends nothing");
+
+    window.confirm = () => true;
+    await act(async () => { fireEvent.click(screen.getByText("Finish session now")); });
+    await waitFor(() => assert.deepEqual(posted, ["SPLIT_SESSION", "RETURN_SKIP"]));
+  }
+  finally {
+    window.confirm = originalConfirm;
+  }
+});
+
 test("reporting pain posts a pain_reported flag with no free text", async () => {
   seedActiveSession("session_1");
   let lastEventBody: unknown = null;

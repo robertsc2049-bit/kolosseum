@@ -298,7 +298,14 @@ export function validateAthleteExperienceLevel(value: unknown): string {
   return enumValue(value, ATHLETE_EXPERIENCE_LEVELS, "experience_level", "Choose your training level.");
 }
 // Powerlifting's competition divisions; each selects its own programme.
-export const ATHLETE_COMPETITION_EVENTS = Object.freeze(["full_power", "bench_only", "deadlift_only", "push_pull", "squat_only"] as const);
+// "not_competing" is a lifter who doesn't compete (yet): they train all three
+// lifts, so the engine gets no event and builds the base programme.
+export const ATHLETE_COMPETITION_EVENTS = Object.freeze(["full_power", "bench_only", "deadlift_only", "push_pull", "squat_only", "not_competing"] as const);
+export const NOT_COMPETING = "not_competing";
+function engineCompetitionEvent(declared: { activity_id?: string; competition_event?: string }): string | undefined {
+  if (declared.activity_id !== COMPETITION_EVENT_ACTIVITY || !declared.competition_event || declared.competition_event === NOT_COMPETING) return undefined;
+  return declared.competition_event;
+}
 export const COMPETITION_EVENT_ACTIVITY = "powerlifting";
 export const TRAINING_PLAN_KEYS: readonly string[] = Object.freeze([
   "training_days_per_week", "season_start_date", "season_end_date", "competition_date", "no_fixed_date"
@@ -674,9 +681,8 @@ async function effectiveBetaDeclaration(client: QueryClient, userId: string, dec
   if (sportRoleId) phase1.sport_role_id = sportRoleId;
   else delete phase1.sport_role_id;
   // The engine admits an event only with activity_id powerlifting.
-  if (declared.competition_event && declared.activity_id === COMPETITION_EVENT_ACTIVITY) {
-    phase1.competition_event = declared.competition_event;
-  }
+  const engineEvent = engineCompetitionEvent(declared);
+  if (engineEvent) phase1.competition_event = engineEvent;
   else delete phase1.competition_event;
   const acknowledgement = createBeta16AcknowledgementRecord({
     acknowledgement_id: id("beta16_ack"), user_id: userId, beta_id: BETA_VERSION,
@@ -1101,7 +1107,7 @@ function programmeSlotsFor(declared: Fields, selections: Record<string, string> 
     ...(trainingCycle ? { training_cycle: trainingCycle } : {}),
     activity_id: declared.activity_id,
     experience_level: declared.experience_level,
-    competition_event: declared.activity_id === COMPETITION_EVENT_ACTIVITY ? declared.competition_event : undefined,
+    competition_event: engineCompetitionEvent(declared),
     sport_role_id: sportRoleIdFor(declared.activity_id, declared.position),
     days_per_week: declared.training_days_per_week,
     selections,
