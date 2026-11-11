@@ -68,7 +68,7 @@ function isRecord(value: unknown): value is JsonRecord {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
-async function signedInUserId(request: Request, mutation: boolean): Promise<string> {
+export async function signedInUserId(request: Request, mutation: boolean): Promise<string> {
   const rawToken = cookieValue(request, PRODUCT_SESSION_COOKIE);
   if (!rawToken) {
     throw unauthorized("ACCOUNT_SESSION_REQUIRED", { failure_token: "account_session_missing" });
