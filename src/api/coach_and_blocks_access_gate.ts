@@ -15,15 +15,28 @@
 // seed through these without a cookie keep doing so.
 
 import type { NextFunction, Request, Response } from "express";
+import { rateLimit } from "express-rate-limit";
 
 import { pool } from "../db/pool.js";
 import { asyncHandler } from "./async_handler.js";
 import { cookieValue } from "./coach_session_auth.js";
 import { forbidden } from "./http_errors.js";
 import { PRODUCT_SESSION_COOKIE } from "./product_account_service.js";
+import { accountRateLimitKey } from "./rate_limit_key.js";
 import { sessionsTestHarnessEnabled, signedInUserId } from "./sessions_access_gate.js";
 
 type JsonRecord = Record<string, unknown>;
+
+// The gates read the database (the sign-in, a block's owners), so they are
+// rate-limited per account (per address when signed out), generously enough
+// for a coach's review screens and an athlete's sessions.
+export const accessGateRateLimit = rateLimit({
+  keyGenerator: accountRateLimitKey,
+  windowMs: 15 * 60 * 1000,
+  limit: 600,
+  standardHeaders: true,
+  legacyHeaders: false
+});
 
 function isRecord(value: unknown): value is JsonRecord {
   return value !== null && typeof value === "object" && !Array.isArray(value);

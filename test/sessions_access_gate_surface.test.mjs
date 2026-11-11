@@ -33,11 +33,11 @@ test("a coach can only invite or revoke, on the server and in the panel", () => 
 
 test("compile, blocks, reviews and assignment changes are gated before their routers", () => {
   const server = read("src/server.ts");
-  const coachGate = server.indexOf('app.use("/coach-workspace", coachIdentityGate);');
+  const coachGate = server.indexOf('app.use("/coach-workspace", accessGateRateLimit, coachIdentityGate);');
   assert.ok(coachGate > 0 && coachGate < server.indexOf('app.use("/coach-workspace", coachWorkspaceRouter);'));
   assert.ok(coachGate < server.indexOf('app.use("/coach-workspace", productAssignmentRouter);'));
   assert.ok(coachGate < server.indexOf('app.use("/coach-workspace", productReviewRouter);'));
-  const blocksGate = server.indexOf('app.use("/blocks", blocksAccessGate);');
+  const blocksGate = server.indexOf('app.use("/blocks", accessGateRateLimit, blocksAccessGate);');
   assert.ok(blocksGate > 0 && blocksGate < server.indexOf('app.use("/blocks", blocksRouter);'));
   const gate = read("src/api/coach_and_blocks_access_gate.ts");
   assert.ok(gate.includes("reviews|session-review") && gate.includes("athlete-assignment") && gate.includes("(?:replace|cancel)"), "reviews, session review and assignment replace/cancel are covered");
