@@ -149,10 +149,24 @@ export type DerivedNotification = Readonly<{
   occurredAtIso8601: string;
 }>;
 
+// During one derivation run, the recipient's notifications already stored:
+// every source record derives on every read (each bell check, every 60s), so
+// without this a coach with 50 athletes re-attempted ~600 inserts per check -
+// ~200ms, growing with every session (walkthrough 16). Now only new ones are
+// written; ON CONFLICT DO NOTHING still guards a concurrent run.
+const storedKeysByClient = new WeakMap<object, Set<string>>();
+function storedKey(recipientUserId: string, notificationType: string, sourceRecordId: string): string {
+  return JSON.stringify([recipientUserId, notificationType, sourceRecordId]);
+}
+
 export async function insertDerivedNotification(
   client: QueryClient,
   derived: DerivedNotification
 ): Promise<void> {
+  const stored = storedKeysByClient.get(client as object);
+  const key = storedKey(derived.recipientUserId, derived.notificationType, derived.sourceRecordId);
+  if (stored?.has(key)) return;
+  stored?.add(key);
   const id = notificationId(
     derived.recipientUserId,
     derived.notificationType,
@@ -2001,43 +2015,53 @@ async function deriveNotificationsForRecipient(
   client: QueryClient,
   recipientUserId: string
 ): Promise<void> {
-  await deriveRelationshipNotifications(client, recipientUserId);
-  await deriveRelationshipEndedByAthleteNotifications(client, recipientUserId);
-  await deriveActivityChangeNotifications(client, recipientUserId);
-  await deriveActivityChangeDeclinedNotifications(client, recipientUserId);
-  await deriveAthletePositionOverrideNotifications(client, recipientUserId);
-  await deriveAttendanceRsvpDeclinedNotifications(client, recipientUserId);
-  await deriveAssignmentNotifications(client, recipientUserId);
-  await deriveEventLinkNotifications(client, recipientUserId);
-  await deriveEventCancelledNotifications(client, recipientUserId);
-  await deriveAttendanceEventInvitedNotifications(client, recipientUserId);
-  await deriveAttendanceEventCancelledNotifications(client, recipientUserId);
-  await deriveAttendanceEventOccurrenceChangedNotifications(client, recipientUserId);
-  await deriveSessionCompletedNotifications(client, recipientUserId);
-  await deriveAthletePainReportedNotifications(client, recipientUserId);
-  await derivePainFlagClearedNotifications(client, recipientUserId);
-  await deriveOrgMembershipInvitedNotifications(client, recipientUserId);
-  await deriveAthleteStrengthReferenceMissingNotifications(client, recipientUserId);
-  await deriveAthleteBlockCompletedNotifications(client, recipientUserId);
-  await deriveAthleteVisibleNoteNotifications(client, recipientUserId, DEEP_LINK_ROUTE_IDS.athleteToday);
-  await deriveBillingNotifications(client, recipientUserId);
-  await deriveMarketplaceReleaseNotifications(client, recipientUserId);
-  await deriveWeeklyCheckinNotifications(client, recipientUserId);
-  await deriveVideoFeedbackNotifications(client, recipientUserId);
-  await deriveAthleteGoalAchievedNotifications(client, recipientUserId);
-  await deriveVideoSubmittedNotifications(client, recipientUserId);
-  await deriveMarketplaceTemplateSoldNotifications(client, recipientUserId);
-  await deriveCoachAthleteMessageNotifications(client, recipientUserId);
-  await deriveOrgOwnerMessageNotifications(client, recipientUserId);
-  await deriveMessageNotificationsForOrgOwner(client, recipientUserId);
-  await deriveGymCoachLinkRequestedNotifications(client, recipientUserId);
-  await deriveCoachGymNotifications(client, recipientUserId);
-  await deriveCoachingRequestedNotifications(client, recipientUserId);
-  await deriveCoachingRequestDeclinedNotifications(client, recipientUserId);
-  await deriveCheckinNotifications(client, recipientUserId);
-  await derivePackagePaymentNotifications(client, recipientUserId);
-  await derivePackagePaymentRecordedNotifications(client, recipientUserId);
-  await deriveMessageSafetyNotifications(client, recipientUserId);
+  const existing = await client.query(
+    `SELECT notification_type, source_record_id FROM product_notifications WHERE recipient_user_id = $1`,
+    [recipientUserId]
+  );
+  storedKeysByClient.set(client as object, new Set(existing.rows.map((row) => storedKey(recipientUserId, String(row.notification_type), String(row.source_record_id)))));
+  try {
+    await deriveRelationshipNotifications(client, recipientUserId);
+    await deriveRelationshipEndedByAthleteNotifications(client, recipientUserId);
+    await deriveActivityChangeNotifications(client, recipientUserId);
+    await deriveActivityChangeDeclinedNotifications(client, recipientUserId);
+    await deriveAthletePositionOverrideNotifications(client, recipientUserId);
+    await deriveAttendanceRsvpDeclinedNotifications(client, recipientUserId);
+    await deriveAssignmentNotifications(client, recipientUserId);
+    await deriveEventLinkNotifications(client, recipientUserId);
+    await deriveEventCancelledNotifications(client, recipientUserId);
+    await deriveAttendanceEventInvitedNotifications(client, recipientUserId);
+    await deriveAttendanceEventCancelledNotifications(client, recipientUserId);
+    await deriveAttendanceEventOccurrenceChangedNotifications(client, recipientUserId);
+    await deriveSessionCompletedNotifications(client, recipientUserId);
+    await deriveAthletePainReportedNotifications(client, recipientUserId);
+    await derivePainFlagClearedNotifications(client, recipientUserId);
+    await deriveOrgMembershipInvitedNotifications(client, recipientUserId);
+    await deriveAthleteStrengthReferenceMissingNotifications(client, recipientUserId);
+    await deriveAthleteBlockCompletedNotifications(client, recipientUserId);
+    await deriveAthleteVisibleNoteNotifications(client, recipientUserId, DEEP_LINK_ROUTE_IDS.athleteToday);
+    await deriveBillingNotifications(client, recipientUserId);
+    await deriveMarketplaceReleaseNotifications(client, recipientUserId);
+    await deriveWeeklyCheckinNotifications(client, recipientUserId);
+    await deriveVideoFeedbackNotifications(client, recipientUserId);
+    await deriveAthleteGoalAchievedNotifications(client, recipientUserId);
+    await deriveVideoSubmittedNotifications(client, recipientUserId);
+    await deriveMarketplaceTemplateSoldNotifications(client, recipientUserId);
+    await deriveCoachAthleteMessageNotifications(client, recipientUserId);
+    await deriveOrgOwnerMessageNotifications(client, recipientUserId);
+    await deriveMessageNotificationsForOrgOwner(client, recipientUserId);
+    await deriveGymCoachLinkRequestedNotifications(client, recipientUserId);
+    await deriveCoachGymNotifications(client, recipientUserId);
+    await deriveCoachingRequestedNotifications(client, recipientUserId);
+    await deriveCoachingRequestDeclinedNotifications(client, recipientUserId);
+    await deriveCheckinNotifications(client, recipientUserId);
+    await derivePackagePaymentNotifications(client, recipientUserId);
+    await derivePackagePaymentRecordedNotifications(client, recipientUserId);
+    await deriveMessageSafetyNotifications(client, recipientUserId);
+  }
+  finally {
+    storedKeysByClient.delete(client as object);
+  }
 }
 
 // --- Target availability -----------------------------------------------------

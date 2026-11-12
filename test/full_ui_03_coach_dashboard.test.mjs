@@ -112,7 +112,6 @@ test("FULL-UI-03 loads server-authoritative coach records", () => {
     "refreshCoachAssignments",
     "refreshCoachEvents",
     "refreshTemplates",
-    "/sessions/beta-coach-artefacts",
     "Promise.all(refreshers)",
     "state.coachDashboardFailures"
   ];
@@ -130,9 +129,9 @@ test("FULL-UI-03 loads server-authoritative coach records", () => {
   // itself removed now that the metric strip is React (see
   // CoachOverviewMetricsPanel.tsx/useCoachOverviewMetrics.ts, which
   // fetches GET /coach-workspace/reviews directly for the same counts).
-  // The artefact fan-out above is kept - its per-athlete failure tracking
-  // still feeds the still-legacy dashboard status line
-  // (state.coachDashboardFailures).
+  // The per-athlete artefact fan-out is gone too (walkthrough 16: 149
+  // requests for a coach with 50 athletes, only to count failures for the
+  // status line) - each Overview panel shows its own load error.
   assert.ok(!application.includes("state.coachDashboardArtefacts"), "state.coachDashboardArtefacts should be fully retired from app.js");
   assert.ok(!application.includes("state.coachReviewRecords"), "state.coachReviewRecords should be fully retired from app.js");
   assert.ok(!application.includes("function refreshCoachReviewQueue"), "refreshCoachReviewQueue() should be fully retired from app.js");

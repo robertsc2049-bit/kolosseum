@@ -2767,66 +2767,13 @@ async function refreshCoachDashboard(
 
     await Promise.all(refreshers);
 
-    const results =
-      await Promise.all(
-        state.coachAthletes.map(
-          async (athlete) => {
-            try {
-              const response =
-                await api(
-                  "POST",
-                  "/sessions/beta-coach-artefacts",
-                  {
-                    coach_user_id:
-                      state.profile.coachUserId,
-                    athlete_user_id:
-                      athlete.userId
-                  }
-                );
-
-              const artefacts =
-                Array.isArray(
-                  response.artefact_view
-                    ?.artefacts
-                )
-                  ? response.artefact_view
-                      .artefacts
-                  : [];
-
-              return {
-                athlete,
-                artefacts,
-                failure: null
-              };
-            }
-            catch (error) {
-              // A connected athlete with no programme assigned yet has no
-              // coach-visible sessions - that's nothing to show, not an
-              // unavailable record.
-              if (error?.payload?.reason === "stored_relationship_or_assignment_access_denied") {
-                return {
-                  athlete,
-                  artefacts: [],
-                  failure: null
-                };
-              }
-              return {
-                athlete,
-                artefacts: [],
-                failure:
-                  athlete.userId
-              };
-            }
-          }
-        )
-      );
-
-    state.coachDashboardFailures =
-      results
-        .map((result) =>
-          result.failure
-        )
-        .filter(Boolean);
+    // No per-athlete fan-out: this used to POST /sessions/beta-coach-artefacts
+    // once per connected athlete (about 3 times per page load) only to count
+    // "unavailable" records for this status line - 149 requests and ~11s of
+    // server time for a coach with 50 athletes (walkthrough 16). Each
+    // Overview panel fetches its own data in one request and shows its own
+    // error, so the line just says when the dashboard was refreshed.
+    state.coachDashboardFailures = [];
 
     state.coachDashboardUpdatedAt =
       nowIso();
