@@ -48,7 +48,7 @@ export function CommercialPanel() {
     <section id="accountCommercialPanel" className="panel commercial-panel" aria-labelledby="commercialHeading">
       <div className="commercial-heading">
         <div>
-          <p className="eyebrow">Controlled-launch commercial access</p>
+          <p className="eyebrow">Your plan</p>
           <h3 id="commercialHeading">Subscription and billing</h3>
           <p className="muted">This shows your product access and billing records. It doesn't affect how training is calculated.</p>
         </div>

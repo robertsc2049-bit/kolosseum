@@ -117,6 +117,15 @@ test("shows a factual empty state when there are no matching review records", as
   await waitFor(() => screen.getByText("No matching review records"));
 });
 
+test("once everything is reviewed, the coach is told they're up to date - not that no records exist", async () => {
+  installMocks({ records: [baseRecord({ review_status: "reviewed" })] });
+  render(<CoachReviewPanel />);
+  await waitFor(() => screen.getByText("You're up to date"));
+  assert.equal(screen.queryByText("No matching review records"), null);
+  await act(async () => { fireEvent.click(screen.getByText("Show all sessions")); });
+  await waitFor(() => assert.deepEqual(cardTitles(), ["Upper body strength"]));
+});
+
 test("refetches once a same-tab sign-in completes", async () => {
   installMocks({ records: [] });
   render(<CoachReviewPanel />);

@@ -59,7 +59,7 @@ test("programme management supports nested block, week and session authoring", (
 test("programme assignment checks all percentage reference requirements", () => {
   assert.match(html, /id="athlete-profile-assignment-root"/u);
   assert.match(assignmentHook, /compareProgrammeStrengthRequirements/u);
-  assert.match(assignmentHook, /Missing current strength references/u);
+  assert.match(assignmentHook, /This programme sets weights from maxes. Add this athlete's max for: /u);
   assert.match(assignmentPanel, /disabled=\{submitting \|\| !requirements\.canSubmit\}/u);
   assert.match(assignmentHook, /Ready to assign/u);
 });

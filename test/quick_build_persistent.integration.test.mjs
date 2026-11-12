@@ -96,7 +96,7 @@ test("quick build makes a whole periodised draft from one short form", { timeout
   // Powerlifting, 12 weeks, peaking: volume, intensity, then peak - each block 4 weeks ending in a deload.
   const peak = expect(await build(good), 201, "powerlifting peak").template;
   assert.equal(peak.template_status, "draft");
-  assert.equal(peak.template_name, "Powerlifting - Peak for a competition, Amateur, 12 weeks");
+  assert.equal(peak.template_name, "Powerlifting - Peak for a competition, Amateur, 12 weeks, % of max");
   const blocks = peak.template_structure.blocks;
   assert.deepEqual(blocks.map((b) => b.name), ["Block 1 - Volume", "Block 2 - Intensity", "Block 3 - Peak"]);
   assert.ok(blocks.every((b) => b.weeks.length === 4));

@@ -7,6 +7,7 @@ import { PhoneDisclosure } from "../../components/PhoneDisclosure";
 import { formatDate, titleCase } from "../../utils/format";
 import { ReviewSessionWork, type SessionWorkState } from "./ReviewSessionWork";
 import { type ReviewRecord, useCoachReview } from "./useCoachReview";
+import { finishedEarly } from "../../utils/sessionSummary";
 
 // DEV NOTE: FULL-UI-17 coach review queue - ported from app.js's
 // reviewRecordCard()/renderCoachReviewDetail()/reviewNoteList()/
@@ -188,17 +189,23 @@ function ReviewDetail({
       {summary ? (
         <dl className="review-fact-grid">
           <div><dt>Exercises done</dt><dd>{Number(summary.prescribed_items_completed ?? 0)}</dd></div>
-          <div><dt>Skipped</dt><dd>{Number(summary.prescribed_items_skipped ?? 0)}</dd></div>
+          <div><dt>Skipped or not done</dt><dd>{Number(summary.prescribed_items_skipped ?? 0)}</dd></div>
           <div><dt>Not reached</dt><dd>{Number(summary.prescribed_items_remaining ?? 0)}</dd></div>
-          {Number(summary.split_event_count ?? 0) > 0 ? (
-            <div><dt>Paused</dt><dd>{`${Number(summary.split_event_count)} time${Number(summary.split_event_count) === 1 ? "" : "s"}`}</dd></div>
-          ) : null}
-          {Number(summary.return_continue_count ?? 0) > 0 ? (
-            <div><dt>Came back and carried on</dt><dd>{Number(summary.return_continue_count)}</dd></div>
-          ) : null}
-          {Number(summary.return_skip_count ?? 0) > 0 ? (
-            <div><dt>Came back and skipped the rest</dt><dd>{Number(summary.return_skip_count)}</dd></div>
-          ) : null}
+          {finishedEarly(summary) ? (
+            <div><dt>Finished early</dt><dd>Yes</dd></div>
+          ) : (
+            <>
+              {Number(summary.split_event_count ?? 0) > 0 ? (
+                <div><dt>Paused</dt><dd>{`${Number(summary.split_event_count)} time${Number(summary.split_event_count) === 1 ? "" : "s"}`}</dd></div>
+              ) : null}
+              {Number(summary.return_continue_count ?? 0) > 0 ? (
+                <div><dt>Came back and carried on</dt><dd>{Number(summary.return_continue_count)}</dd></div>
+              ) : null}
+              {Number(summary.return_skip_count ?? 0) > 0 ? (
+                <div><dt>Came back and skipped the rest</dt><dd>{Number(summary.return_skip_count)}</dd></div>
+              ) : null}
+            </>
+          )}
         </dl>
       ) : null}
 
@@ -458,11 +465,20 @@ export function CoachReviewPanel() {
         <div>
           <div className="record-list">
             {filtered.length === 0 ? (
-              <div className="panel empty-state">
-                <div className="empty-icon">R</div>
-                <h3>No matching review records</h3>
-                <p>Completed sessions awaiting review, reviewed records and open read-only sessions will appear here.</p>
-              </div>
+              statusFilter === "awaiting" && reviews.length > 0 ? (
+                <div className="panel empty-state" data-testid="review-all-caught-up">
+                  <div className="empty-icon">✓</div>
+                  <h3>You're up to date</h3>
+                  <p>Nothing is waiting for your review.</p>
+                  <button className="button secondary" type="button" onClick={() => setStatusFilter("all")}>Show all sessions</button>
+                </div>
+              ) : (
+                <div className="panel empty-state">
+                  <div className="empty-icon">R</div>
+                  <h3>No matching review records</h3>
+                  <p>Completed sessions awaiting review, reviewed records and open read-only sessions will appear here.</p>
+                </div>
+              )
             ) : (
               filtered.map((record) => (
                 <ReviewCard

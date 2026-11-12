@@ -159,7 +159,7 @@ test("assignment requires an active owned programme and the required factual ref
   assert.match(journey, /stored_template_activity_mismatch/u);
   assert.match(assignmentHook, /compareProgrammeStrengthRequirements/u);
   assert.match(assignmentHook, /function computeRequirements\(/u);
-  assert.match(assignmentHook, /Missing current strength references/u);
+  assert.match(assignmentHook, /This programme sets weights from maxes. Add this athlete's max for: /u);
 });
 
 test("assigned programme materialises the next deterministic session across blocks", () => {

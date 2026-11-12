@@ -159,7 +159,7 @@ test("a programme with no percentage-based exercises shows the ready-to-assign s
     fireEvent.change(screen.getByText("Programme").closest("label")!.querySelector("select")!, { target: { value: "tpl_empty" } });
   });
 
-  await screen.findByText("Ready to assign Base Strength without an event link.");
+  await screen.findByText("Ready to assign Base Strength.");
   assert.equal(screen.getByText("Assign programme").hasAttribute("disabled"), false);
 });
 
@@ -172,7 +172,8 @@ test("a missing strength reference blocks submission with a factual message", as
     fireEvent.change(screen.getByText("Programme").closest("label")!.querySelector("select")!, { target: { value: "tpl_squat" } });
   });
 
-  await screen.findByText("Missing current strength references: Back Squat.");
+  await screen.findByText("This programme sets weights from maxes. Add this athlete's max for: Back Squat.");
+  assert.ok(screen.getByText("Add maxes"), "a way to the maxes editor");
   assert.equal(screen.getByText("Assign programme").hasAttribute("disabled"), true);
 });
 
@@ -185,7 +186,7 @@ test("a satisfied strength reference allows submission", async () => {
     fireEvent.change(screen.getByText("Programme").closest("label")!.querySelector("select")!, { target: { value: "tpl_squat" } });
   });
 
-  await screen.findByText("Ready to assign Peaking Block without an event link.");
+  await screen.findByText("Ready to assign Peaking Block.");
 });
 
 test("assigning a programme posts the CSRF-guarded request, dispatches the mutation event, and shows a confirmation", async () => {
@@ -200,13 +201,13 @@ test("assigning a programme posts the CSRF-guarded request, dispatches the mutat
   await act(async () => {
     fireEvent.change(screen.getByText("Programme").closest("label")!.querySelector("select")!, { target: { value: "tpl_empty" } });
   });
-  await screen.findByText("Ready to assign Base Strength without an event link.");
+  await screen.findByText("Ready to assign Base Strength.");
 
   await act(async () => {
     fireEvent.click(screen.getByText("Assign programme"));
   });
 
-  await screen.findByText("Base Strength version 1 assigned without an event link.");
+  await screen.findByText("Base Strength version 1 assigned. It shows on their Today screen.");
   assert.equal(mutated, true);
 
   const assignCall = calls.find((entry) => entry.path === "/coach-workspace/athlete-assignment");
@@ -226,7 +227,7 @@ test("declining the confirmation does not submit the assignment", async () => {
   await act(async () => {
     fireEvent.change(screen.getByText("Programme").closest("label")!.querySelector("select")!, { target: { value: "tpl_empty" } });
   });
-  await screen.findByText("Ready to assign Base Strength without an event link.");
+  await screen.findByText("Ready to assign Base Strength.");
 
   fireEvent.click(screen.getByText("Assign programme"));
 

@@ -61,7 +61,7 @@ function errorMessage(error: unknown): string {
   const messages: Record<string, string> = {
     account_session_missing: "Sign in to view commercial account state.",
     account_session_invalid: "The sign-in session has expired.",
-    commercial_configuration_missing: `Controlled-launch checkout is not configured on this server.${missingSuffix}`,
+    commercial_configuration_missing: `Paying in the app isn't switched on yet.${missingSuffix}`,
     commercial_coach_account_required: "Commercial controls are available to coach accounts only.",
     commercial_seat_limit_reached: "The current seat allowance is fully used.",
     commercial_checkout_record_missing: "No checkout request exists for this account.",

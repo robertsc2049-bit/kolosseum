@@ -8,6 +8,7 @@ import { InstallAppPrompt } from "../../components/InstallAppPrompt";
 import { type DayItem, type ExerciseOption, TrainingDayEditor, newDayItem, toExerciseOption } from "../../components/TrainingDayEditor";
 import { countdownLabel, formatDate, titleCase } from "../../utils/format";
 import { useAthleteToday } from "./useAthleteToday";
+import { TodayCoachInvitations } from "../account/AccountCoachInvitationsPanel";
 
 // DEV NOTE: FULL-UI-14C Today screen - ported from app.js's renderToday()/
 // renderTodayProgramme()/renderTodayResolvedLoad()/renderTodayNotes()/
@@ -57,9 +58,9 @@ const MESSAGE_STATE_COPY: Record<string, { icon: string; heading: string; body: 
   },
   session_already_complete: {
     icon: "✓",
-    heading: "Session complete",
-    body: "You already completed this session. Start the next one from this programme when you're ready.",
-    badgeLabel: "Session complete",
+    heading: "Session done",
+    body: "You've finished your last session. Start the next one from this programme when you're ready.",
+    badgeLabel: "Session done",
     badgeClass: "complete"
   }
 };
@@ -80,7 +81,7 @@ const SELF_COACHED_COPY = {
 const WAITING_FOR_COACH_COPY = {
   icon: "C",
   heading: "Waiting for your coach",
-  body: "You chose to have a coach set your sessions. When a coach invites you, accept it on your Account page - they then assign your programme and it shows here.",
+  body: "You chose to have a coach set your sessions. When a coach invites you, the invitation shows here - accept it and they assign your programme.",
   badgeLabel: "Waiting for coach",
   badgeClass: "neutral"
 };
@@ -335,6 +336,7 @@ export function AthleteTodaySessionCard() {
           {inProgress
             ? <button className="button primary" type="button" onClick={continueToSession}>Continue session</button>
             : selfCoached ? <button className="button secondary" type="button" onClick={openTrainingSetup}>My training</button> : null}
+          {waitingForCoach && !inProgress ? <TodayCoachInvitations /> : null}
         </div>
       ) : null}
 
