@@ -727,7 +727,11 @@ export async function compileBlock(req: Request, res: Response) {
     if (!pain.ok) {
       throw badRequest("Pain check-in required before this session", { failure_token: pain.failure_token, details: pain.details });
     }
-    planned_session_from_engine = { ...named_session, exercises: pain.exercises as any };
+    planned_session_from_engine = {
+      ...named_session,
+      exercises: pain.exercises as any,
+      ...(pain.left_out.length ? { pain_left_out: pain.left_out } : {})
+    } as any;
   }
   if (create_session && pain_subject_user_id) {
     // The first week back after a head injury holds back jumps, sprints,

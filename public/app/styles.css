@@ -1694,7 +1694,10 @@ button:focus-visible,
     flex-direction: column;
   }
 
-  .session-heading { flex-direction: row; align-items: flex-end; }
+  .session-heading { flex-direction: row; flex-wrap: wrap; align-items: flex-end; }
+  /* The title and its notes (welcome back, pain, injury) get the full width;
+     the badges wrap underneath instead of squeezing them into a column. */
+  .session-heading > div:first-child { flex: 1 1 100%; }
   .metric-row { grid-template-columns: 1fr; }
   .metric-cards { grid-template-columns: 1fr; }
   .session-actions { grid-template-columns: 1fr; }

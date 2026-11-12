@@ -217,6 +217,19 @@ function painSwapNote(swap: JsonRecord): string {
   return area ? `Swapped from ${from} - your ${area} is still sore.` : `Swapped from ${from} - it is still sore.`;
 }
 
+// Exercises left out because a pain flag is still sore - said once, at the
+// top, so a shorter session never looks like something went missing.
+function painLeftOutNote(leftOut: JsonRecord[]): string | null {
+  if (!leftOut.length) return null;
+  const names = [...new Set(leftOut.map((entry) => String(entry.from_display_name ?? entry.from_exercise_id ?? "")).filter(Boolean))];
+  const area = PAIN_AREA_OPTIONS.find(([key]) => key === leftOut[0].area)?.[1]?.toLowerCase();
+  const asked = leftOut.every((entry) => entry.plan === "skip");
+  const why = area ? `your ${area} is still sore` : "it is still sore";
+  return asked
+    ? `Left out today because ${why}: ${names.join(", ")}.`
+    : `Left out today because ${why} and there's nothing that trains the same without loading it: ${names.join(", ")}.`;
+}
+
 export function AthleteSessionExecutionPanel() {
   const session = useAthleteSessionExecution();
   const [painArea, setPainArea] = useState("");
@@ -317,7 +330,11 @@ export function AthleteSessionExecutionPanel() {
   const injuryModified = isRecord(sessionState.injury_modified) ? (sessionState.injury_modified as JsonRecord) : null;
   // Back after a break: a lighter re-entry week, then blocks restart at week 1
   // - or, on a Kolosseum programme, the programme carries on where it left off.
-  const runReentry = isRecord(programmeRun?.reentry) ? (programmeRun?.reentry as JsonRecord) : isRecord(ownTraining?.reentry) ? (ownTraining?.reentry as JsonRecord) : null;
+  // (A coach's programme carries on where it left off too, a set fewer and lighter.)
+  const runReentry = isRecord(programmeRun?.reentry) ? (programmeRun?.reentry as JsonRecord)
+    : isRecord(ownTraining?.reentry) ? (ownTraining?.reentry as JsonRecord)
+    : isRecord(sessionState.coach_programme_reentry) ? (sessionState.coach_programme_reentry as JsonRecord)
+    : null;
   const reentry = runReentry ?? (isRecord(cycle?.reentry) ? (cycle?.reentry as JsonRecord) : null);
   const reentryNote = reentry && reentry.reentry_week === true
     ? reentry.after_head_injury === true
@@ -351,6 +368,9 @@ export function AthleteSessionExecutionPanel() {
           <h2>{typeof sessionState.session_title === "string" && sessionState.session_title ? sessionState.session_title : `${activity} session`}</h2>
           <p className="muted">{total ? `${total} ${total === 1 ? "exercise" : "exercises"} in this session.` : ""}</p>
           {cycleSummary && cycleSummary !== sessionState.session_title ? <p className="session-cycle" data-testid="session-cycle">{cycleSummary}</p> : null}
+          {painLeftOutNote(Array.isArray(sessionState.pain_left_out) ? (sessionState.pain_left_out as JsonRecord[]) : []) ? (
+            <p className="inline-result" data-tone="warning" data-testid="pain-left-out-note">{painLeftOutNote(sessionState.pain_left_out as JsonRecord[])}</p>
+          ) : null}
           {injuryModified ? <p className="inline-result" data-tone="warning" data-testid="injury-modified-note">{`Training modified for your ${String(injuryModified.injury ?? "injury")}: follow your physio's plan, and stop anything that hurts.`}</p> : null}
             {reentryNote ? <p className="inline-result" data-tone="warning" data-testid="session-reentry">{reentryNote}</p> : null}
         </div>

@@ -105,3 +105,24 @@ test("a check-in that can't be saved says so", async () => {
   await screen.findByText("Your check-in could not be saved. Try again.");
   assert.ok(screen.getByText("Pain in your elbow"), "the flag stays open");
 });
+
+test("on Today it shows only while a check-in is due, so she answers before pressing Start rather than after a refusal (walkthrough 13)", async () => {
+  installMocks({ flags: [elbowFlag({ check_in_due: false, latest_check_in: { status: "still_sore", plan: "swap" } })] });
+  const { unmount } = render(<PainCheckInCard dueOnly />);
+  await act(async () => { await new Promise((resolve) => setTimeout(resolve, 0)); });
+  assert.equal(screen.queryByTestId("pain-check-in"), null, "already answered for the next session");
+  unmount();
+
+  installMocks({ flags: [elbowFlag()] });
+  render(<PainCheckInCard dueOnly />);
+  await screen.findByText("Pain in your elbow");
+});
+
+test("a check-in saved on one screen refreshes the other copy", async () => {
+  installMocks({ flags: [elbowFlag()] });
+  render(<PainCheckInCard dueOnly />);
+  await screen.findByText("Pain in your elbow");
+  installMocks({ flags: [] });
+  await act(async () => { document.dispatchEvent(new CustomEvent("kolosseum:pain-check-in-saved")); });
+  await waitFor(() => assert.equal(screen.queryByTestId("pain-check-in"), null));
+});

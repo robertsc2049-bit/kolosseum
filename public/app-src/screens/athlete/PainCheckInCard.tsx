@@ -1,9 +1,12 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 
 import { loadPainFlags, savePainCheckIn } from "../../api/athleteOnboardingClient";
 import { loadAccountDetail } from "../../api/client";
 import { type JsonRecord } from "../../api/transport";
+import { ENTRY_AUTH_SUCCEEDED_EVENT } from "../entry/useEntryAuth";
 
+// useAthleteSessionExecution.ts's notifyMutated() event (a pain report included).
+const SESSION_MUTATED_EVENT = "kolosseum:athlete-session-mutated";
 // Pain carry-forward: every open pain flag, and the "how is it now?" check-in
 // the athlete answers before their next session that loads the same area.
 // Pain-free closes the flag; still sore swaps the affected exercises for ones
@@ -22,13 +25,21 @@ function checkInSummary(checkIn: JsonRecord | null | undefined): string | null {
     : "Still sore - your next session leaves those exercises out.";
 }
 
-export function PainCheckInCard() {
+// Saved on one screen (Today or Training details): the other copy refreshes.
+export const PAIN_CHECK_IN_SAVED_EVENT = "kolosseum:pain-check-in-saved";
+
+// dueOnly (Today): shown only while a check-in is due before the next session.
+export function PainCheckInCard({ dueOnly = false }: { dueOnly?: boolean } = {}) {
   const [flags, setFlags] = useState<JsonRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [soreFor, setSoreFor] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [saved, setSaved] = useState<string | null>(null);
+
+  // Which copy saved: the other copy refreshes; this one already has the
+  // server's answer.
+  const selfRef = useRef(Symbol("pain-check-in"));
 
   const refresh = useCallback(async () => {
     try {
@@ -44,7 +55,18 @@ export function PainCheckInCard() {
     }
   }, []);
 
-  useEffect(() => { void refresh(); }, [refresh]);
+  useEffect(() => {
+    void refresh();
+    const onSaved = (event: Event) => {
+      if ((event as CustomEvent).detail?.source === selfRef.current) return;
+      void refresh();
+    };
+    // Always mounted: refetch after sign-in and after a session records new
+    // pain, not only on first load.
+    const events = [PAIN_CHECK_IN_SAVED_EVENT, ENTRY_AUTH_SUCCEEDED_EVENT, SESSION_MUTATED_EVENT];
+    for (const name of events) document.addEventListener(name, onSaved);
+    return () => { for (const name of events) document.removeEventListener(name, onSaved); };
+  }, [refresh]);
 
   async function answer(flagKey: string, status: "pain_free" | "still_sore", plan?: "swap" | "skip") {
     setBusy(true);
@@ -57,6 +79,7 @@ export function PainCheckInCard() {
       setFlags(Array.isArray(result.flags) ? (result.flags as JsonRecord[]) : []);
       setSoreFor(null);
       setSaved(status === "pain_free" ? "Glad it's better - your sessions are back to normal." : "Thanks - your next session is adjusted.");
+      document.dispatchEvent(new CustomEvent(PAIN_CHECK_IN_SAVED_EVENT, { detail: { source: selfRef.current } }));
     }
     catch {
       setError("Your check-in could not be saved. Try again.");
@@ -67,6 +90,7 @@ export function PainCheckInCard() {
   }
 
   if (loading || (!flags.length && !saved && !error)) return null;
+  if (dueOnly && !saved && !flags.some((flag) => flag.check_in_due !== false)) return null;
 
   return (
     <article className="onboarding-card pain-check-in" data-testid="pain-check-in">
