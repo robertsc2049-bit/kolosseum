@@ -53,15 +53,12 @@ function errorMessage(error: unknown): string {
   const record = payload as JsonRecord | undefined;
   const code = typeof record?.error === "string" ? record.error : (error instanceof Error ? error.message : "commercial_request_failed");
 
-  const missing = (record?.details as JsonRecord | undefined)?.missing_configuration;
-  const missingSuffix = Array.isArray(missing) && missing.length > 0
-    ? ` Missing: ${missing.map((entry) => clean(entry)).join(", ")}.`
-    : "";
-
+  // Which server setting is missing is for the operator (the server log and
+  // admin console), never shown to a coach.
   const messages: Record<string, string> = {
     account_session_missing: "Sign in to view commercial account state.",
     account_session_invalid: "The sign-in session has expired.",
-    commercial_configuration_missing: `Paying in the app isn't switched on yet.${missingSuffix}`,
+    commercial_configuration_missing: "Paying in the app isn't switched on yet.",
     commercial_coach_account_required: "Commercial controls are available to coach accounts only.",
     commercial_seat_limit_reached: "The current seat allowance is fully used.",
     commercial_checkout_record_missing: "No checkout request exists for this account.",

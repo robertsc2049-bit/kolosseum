@@ -188,6 +188,27 @@ export function useAthleteOnboarding() {
     }
   }, [state.busy, state.draft, currentStage]);
 
+  // Straight back to an earlier stage (e.g. the review's "Choose your
+  // position" goes to the sport stage), keeping the saved answers.
+  const jumpBackTo = useCallback(async (target: string) => {
+    if (state.busy || !STAGES.includes(target as typeof STAGES[number])) return;
+    if (STAGES.indexOf(target as typeof STAGES[number]) >= STAGES.indexOf(currentStage())) return;
+    setState((current) => ({ ...current, busy: true, validationError: null }));
+    try {
+      const token = await csrfToken();
+      const serverState = await saveAthleteOnboardingDraft({ current_stage: target, fields: state.draft }, token);
+      const draft = (serverState.draft as JsonRecord | undefined)?.fields ?? state.draft;
+      setState((current) => ({ ...current, busy: false, serverState, draft: { ...draft } }));
+    }
+    catch (error) {
+      setState((current) => ({
+        ...current,
+        busy: false,
+        validationError: error instanceof ApiRequestError ? error : new ApiRequestError("athlete_onboarding_request_failed", 0, null)
+      }));
+    }
+  }, [state.busy, state.draft, currentStage]);
+
   const confirm = useCallback(async (): Promise<boolean> => {
     if (state.busy) return false;
     setState((current) => ({ ...current, busy: true, validationError: null }));
@@ -323,7 +344,7 @@ export function useAthleteOnboarding() {
   }, [state.activityChangeBusy]);
 
   return {
-    ...state, currentStage: currentStage(), refresh, move, confirm, startEditing, cancelEditing, savePreferences,
+    ...state, currentStage: currentStage(), refresh, move, jumpBackTo, confirm, startEditing, cancelEditing, savePreferences,
     changeActivity, respondToProposal, cancelPendingActivityChange
   };
 }

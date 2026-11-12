@@ -194,7 +194,7 @@ test("shows a mapped error with the missing configuration list when checkout is 
     fireEvent.click(screen.getByText("Prepare checkout"));
   });
 
-  await waitFor(() => screen.getByText("Paying in the app isn't switched on yet. Missing: STRIPE_SECRET_KEY."));
+  await waitFor(() => screen.getByText("Paying in the app isn't switched on yet."));
 });
 
 test("an entitlement error is shown as a factual notice, distinct from the general result message", async () => {

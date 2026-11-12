@@ -285,7 +285,7 @@ test("a display name and email containing markup are rendered as inert text, nev
 test("refetches when kolosseum:athlete-directory-changed fires", async () => {
   installMocks({ relationships: [] });
   render(<AthleteDirectoryPanel />);
-  await waitFor(() => screen.getByText("No matching relationships"));
+  await waitFor(() => screen.getByText("No athletes yet"));
 
   installMocks({
     relationships: [
@@ -303,7 +303,7 @@ test("refetches when kolosseum:athlete-directory-changed fires", async () => {
 test("refetches once a same-tab sign-in completes", async () => {
   installMocks({ relationships: [] });
   render(<AthleteDirectoryPanel />);
-  await waitFor(() => screen.getByText("No matching relationships"));
+  await waitFor(() => screen.getByText("No athletes yet"));
 
   installMocks({
     relationships: [
@@ -348,4 +348,13 @@ test("an athlete who says they've paid shows that instead of payment due", async
   const card = within(screen.getByText("Jordan Lee").closest("article") as HTMLElement);
   assert.ok(card.getByText("Says they've paid"));
   assert.equal(card.queryByText("Payment due"), null);
+});
+
+test("a coach with no athletes yet is pointed to inviting one or sharing their link, not told to change a filter", async () => {
+  installMocks({ relationships: [] });
+  render(<AthleteDirectoryPanel />);
+  await waitFor(() => screen.getByText("No athletes yet"));
+  assert.ok(screen.getByRole("button", { name: "Invite an athlete" }));
+  assert.ok(screen.getByRole("button", { name: "Share your link" }));
+  assert.equal(screen.queryByText("No matching relationships"), null);
 });
