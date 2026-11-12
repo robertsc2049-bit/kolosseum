@@ -6,6 +6,7 @@ import {
   enqueueSessionEvent,
   flushSessionEvents,
   isNetworkError,
+  isRetryableSendError,
   pendingSessionEvents,
   withPendingSetLogs
 } from "../api/offlineSessionQueue";
@@ -40,6 +41,26 @@ test("an event the server refuses (e.g. the session has ended) is dropped, not r
   });
   assert.deepEqual(result, { sent: 1, dropped: 1, waiting: 0 });
   assert.deepEqual(pendingSessionEvents(), []);
+});
+
+test("back online mid-deploy: a 502 from the proxy keeps every queued set for the next try - never drops a logged set (walkthrough 15)", async () => {
+  enqueueSessionEvent(setLog(1, 5, "a"));
+  enqueueSessionEvent(setLog(2, 5, "b"));
+  const result = await flushSessionEvents(async (item) => {
+    if (item.client_request_id === "a") throw new ApiRequestError("bad_gateway", 502, null);
+  });
+  assert.deepEqual(result, { sent: 0, dropped: 0, waiting: 2 });
+  assert.deepEqual(pendingSessionEvents("s1").map((i) => i.client_request_id), ["a", "b"], "both still on the phone, in order");
+});
+
+test("a server error, rate limit, or a sign-in that went stale while offline is retried later; only a definite refusal drops", () => {
+  for (const status of [0, 401, 403, 408, 429, 500, 502, 503, 504]) {
+    assert.equal(isRetryableSendError(new ApiRequestError("x", status, null)), true, `HTTP ${status} is retried`);
+  }
+  for (const status of [400, 404, 409, 410, 422]) {
+    assert.equal(isRetryableSendError(new ApiRequestError("x", status, null)), false, `HTTP ${status} is dropped`);
+  }
+  assert.equal(isRetryableSendError(new TypeError("Failed to fetch")), true);
 });
 
 test("only a request that got no response counts as offline", () => {

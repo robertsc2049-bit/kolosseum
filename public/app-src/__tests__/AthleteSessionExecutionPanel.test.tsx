@@ -1333,6 +1333,27 @@ test("no signal in the gym basement: a logged set is saved on the phone and sent
   __resetOfflineQueueForTests();
 });
 
+test("reloaded upstairs, then no signal at all downstairs: the first set is still saved on the phone, not lost behind a 'saved' message (walkthrough 15)", async () => {
+  const { __resetOfflineQueueForTests } = await import("../api/offlineSessionQueue");
+  const { __forgetSessionCsrfForTests } = await import("../screens/athlete/useAthleteSessionExecution");
+  __resetOfflineQueueForTests();
+  __forgetSessionCsrfForTests();
+  seedActiveSession("session_1");
+  installMocks({ sessionState: squatSession() });
+  render(<AthleteSessionExecutionPanel />);
+  await waitFor(() => screen.getByText("Sets logged: 0 of 4"));
+  // Now nothing reaches the server - not even the account details the CSRF token comes from.
+  globalThis.fetch = (async () => { throw new TypeError("Failed to fetch"); }) as typeof fetch;
+  await act(async () => {
+    fireEvent.click(screen.getByText("Log set 1"));
+  });
+  await screen.findByText("5 reps × 144 kg · saved on this phone");
+  const queued = JSON.parse(window.localStorage.getItem("kolosseum.offlineSessionEvents.v1") ?? "[]");
+  assert.equal(queued.length, 1, "the set is kept");
+  assert.equal(screen.queryByText(/finish this step when you're back online/), null, "no step-failed message for a set that was saved");
+  __resetOfflineQueueForTests();
+});
+
 test("the day before a match, the session says it is a primer with no heavy leg work", async () => {
   seedActiveSession("session_1");
   const primer = baseExercise({ exercise_id: "countermovement_jump", display_name: "Countermovement jump", sets: 2, match_week: { role: "day_before", match_date: "2026-10-03", label: "Match day" } });

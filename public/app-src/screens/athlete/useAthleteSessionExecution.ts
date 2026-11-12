@@ -29,6 +29,8 @@ import {
 // network round trip.
 const QUEUED = Symbol("queued");
 let lastCsrfToken = "";
+// For tests: a page that has just loaded, with no token remembered yet.
+export function __forgetSessionCsrfForTests(): void { lastCsrfToken = ""; }
 async function csrfTokenOrCached(): Promise<string> {
   try {
     const account = await loadAccountDetail();
@@ -148,6 +150,8 @@ export type AthleteSessionExecutionState = {
   mutationError: string | null;
   // Set logs and ratings saved on the phone, waiting for a connection.
   offlinePending: number;
+  // Entries the server definitely refused when they were sent from the queue.
+  offlineDropped: number;
   restRemainingSeconds: number | null;
   restDone: boolean;
   howto: HowtoState;
@@ -194,6 +198,7 @@ const initialState: AthleteSessionExecutionState = {
   videoError: null,
   mutationError: null,
   offlinePending: 0,
+  offlineDropped: 0,
   restRemainingSeconds: null,
   restDone: false,
   howto: null,
@@ -404,7 +409,7 @@ export function useAthleteSessionExecution() {
     try {
       const csrfToken = await csrfTokenOrCached();
       const result = await flushSessionEvents((item) => postAthleteSessionEvent(item.session_id, item.event, csrfToken, item.client_request_id));
-      setState((current) => ({ ...current, offlinePending: result.waiting }));
+      setState((current) => ({ ...current, offlinePending: result.waiting, offlineDropped: current.offlineDropped + result.dropped }));
       if (result.sent) await refresh();
     }
     catch {
@@ -415,8 +420,16 @@ export function useAthleteSessionExecution() {
   useEffect(() => {
     setState((current) => ({ ...current, offlinePending: pendingSessionEvents().length }));
     const onOnline = () => { void flushOffline(); };
+    // The "online" event doesn't always fire (wifi with no internet, a phone
+    // waking up): also try on opening the screen and on coming back to it.
+    const onVisible = () => { if (document.visibilityState === "visible") void flushOffline(); };
     window.addEventListener("online", onOnline);
-    return () => window.removeEventListener("online", onOnline);
+    document.addEventListener("visibilitychange", onVisible);
+    void flushOffline();
+    return () => {
+      window.removeEventListener("online", onOnline);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
   }, [flushOffline]);
 
   const runMutation = useCallback(async (perform: (sessionId: string, csrfToken: string) => Promise<unknown>, refreshHistory: boolean) => {
@@ -426,7 +439,13 @@ export function useAthleteSessionExecution() {
     setState((current) => ({ ...current, busy: true, mutationError: null }));
     try {
       await flushOffline();
-      const csrfToken = await csrfTokenOrCached();
+      // Offline with no token cached yet (the page was reloaded before going
+      // down to a basement gym): a set can still be saved on the phone - it
+      // needs no token until the queue is sent, which fetches a fresh one.
+      // Walkthrough 15: this used to fail the set and still say it was saved.
+      let csrfToken = "";
+      try { csrfToken = await csrfTokenOrCached(); }
+      catch (error) { if (!isNetworkError(error)) throw error; }
       const outcome = await perform(sessionId, csrfToken);
       if (outcome === QUEUED) {
         setState((current) => ({ ...current, busy: false, offlinePending: pendingSessionEvents().length }));
@@ -457,10 +476,13 @@ export function useAthleteSessionExecution() {
 
   const completeStep = useCallback(async () => {
     maybeStartRestTimer(state.sessionState);
-    return runMutation(async (sessionId, csrfToken) => {
+    const ok = await runMutation(async (sessionId, csrfToken) => {
       await postAthleteSessionEvent(sessionId, { type: "COMPLETE_STEP" }, csrfToken);
     }, true);
-  }, [runMutation, maybeStartRestTimer, state.sessionState]);
+    // Didn't move on (no connection): no rest countdown for a step not done.
+    if (!ok) stopRestTimer();
+    return ok;
+  }, [runMutation, maybeStartRestTimer, stopRestTimer, state.sessionState]);
 
   const openActionPanel = useCallback((panel: ActionPanelKind) => {
     const exerciseId = currentExerciseId(state.sessionState);

@@ -671,6 +671,11 @@ export function AthleteSessionExecutionPanel() {
               {`${session.offlinePending} ${session.offlinePending === 1 ? "entry" : "entries"} saved on this phone - ${session.offlinePending === 1 ? "it" : "they"} will send when you are back online.`}
             </p>
           ) : null}
+          {session.offlineDropped > 0 ? (
+            <p className="inline-result" data-tone="warning" role="alert" data-testid="offline-dropped">
+              {`${session.offlineDropped} ${session.offlineDropped === 1 ? "entry" : "entries"} saved on this phone couldn't be recorded - check this session's sets and log ${session.offlineDropped === 1 ? "it" : "them"} again if needed.`}
+            </p>
+          ) : null}
         </article>
 
         <aside className="panel session-summary">
