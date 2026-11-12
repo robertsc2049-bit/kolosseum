@@ -550,6 +550,10 @@
     },
     {
       "kind": "command",
+      "value": "node test/walkthrough16_busy_coach_surface.test.mjs"
+    },
+    {
+      "kind": "command",
       "value": "node test/session_substitution_options.test.mjs"
     },
     {

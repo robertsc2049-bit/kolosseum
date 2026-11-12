@@ -23,9 +23,8 @@ test("a new programme, session or added exercise starts with no exercise chosen 
   assert.doesNotMatch(body, /templateExercises\[/u, "never picks an exercise by its position in the library");
 });
 
-test("a connected athlete with no programme assigned yet isn't counted as an unavailable dashboard record", () => {
-  const start = app.indexOf('"/sessions/beta-coach-artefacts"');
-  const block = app.slice(start, start + 1600);
-  assert.match(block, /error\?\.payload\?\.reason === "stored_relationship_or_assignment_access_denied"/u);
-  assert.match(block, /failure: null/u);
+test("refreshing the coach dashboard never fans out one request per athlete (walkthrough 16 - and so never counts an athlete with no programme yet as unavailable)", () => {
+  const body = fnBody("refreshCoachDashboard");
+  assert.ok(!body.includes('"/sessions/beta-coach-artefacts"'), "no request to it");
+  assert.doesNotMatch(body, /coachAthletes\.map\(/u);
 });
