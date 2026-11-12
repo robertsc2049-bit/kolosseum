@@ -71,6 +71,8 @@ export const NOTIFICATION_TYPES = Object.freeze([
   "athlete_strength_reference_missing",
   "athlete_block_completed",
   "gym_coach_link_requested",
+  "org_membership_invited",
+  "pain_flag_cleared",
   "coach_gym_confirmed",
   "coach_gym_declined",
   "coach_gym_now_listed",
@@ -888,6 +890,66 @@ async function deriveCoachGymNotifications(
       deepLinkRouteId: DEEP_LINK_ROUTE_IDS.sharedAccount,
       notificationPayload: { org_id: cleanString(row.org_id), org_name: cleanString(row.display_name) },
       occurredAtIso8601: toIso(row.reviewed_at ?? row.updated_at)
+    });
+  }
+}
+
+// The coach: a gym or club owner invited them onto its roster (org console
+// "Invite coach"). Accepting lives on the coach's Account page, so the
+// notification opens it - before this, nothing told the coach at all.
+async function deriveOrgMembershipInvitedNotifications(
+  client: QueryClient,
+  recipientUserId: string
+): Promise<void> {
+  const result = await client.query(
+    `
+    SELECT m.membership_id, m.org_id, m.invited_at, o.org_name
+    FROM product_org_coach_memberships m
+    JOIN product_organisations o ON o.org_id = m.org_id
+    WHERE m.coach_user_id = $1 AND m.membership_status = 'invited'
+    `,
+    [recipientUserId]
+  );
+  for (const row of result.rows) {
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "org_membership_invited",
+      sourceRecordType: "product_org_coach_memberships",
+      sourceRecordId: `${cleanString(row.membership_id)}:${new Date(String(row.invited_at)).getTime()}`,
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.sharedAccount,
+      notificationPayload: { org_id: cleanString(row.org_id), org_name: cleanString(row.org_name) },
+      occurredAtIso8601: toIso(row.invited_at)
+    });
+  }
+}
+
+// The athlete: their coach cleared a pain flag (pain_flag_service.ts), so
+// the exercises it was swapping or leaving out are back - say so.
+async function derivePainFlagClearedNotifications(
+  client: QueryClient,
+  recipientUserId: string
+): Promise<void> {
+  const result = await client.query(
+    `
+    SELECT e.event_id, e.event_payload, e.occurred_at, a.display_name AS coach_display_name
+    FROM product_account_events e
+    LEFT JOIN product_accounts a ON a.user_id = e.event_payload->>'cleared_by_user_id'
+    WHERE e.user_id = $1 AND e.event_type = 'athlete_pain_flag_cleared'
+    `,
+    [recipientUserId]
+  );
+  for (const row of result.rows) {
+    const payload = row.event_payload && typeof row.event_payload === "object" ? row.event_payload : {};
+    const flagKey = cleanString(payload.flag_key);
+    const area = flagKey.startsWith("area:") ? flagKey.slice(5) : "";
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "pain_flag_cleared",
+      sourceRecordType: "product_account_events",
+      sourceRecordId: cleanString(row.event_id),
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.athleteToday,
+      notificationPayload: { flag_key: flagKey, area, coach_display_name: cleanString(row.coach_display_name) || "Your coach" },
+      occurredAtIso8601: toIso(row.occurred_at)
     });
   }
 }
@@ -1953,6 +2015,8 @@ async function deriveNotificationsForRecipient(
   await deriveAttendanceEventOccurrenceChangedNotifications(client, recipientUserId);
   await deriveSessionCompletedNotifications(client, recipientUserId);
   await deriveAthletePainReportedNotifications(client, recipientUserId);
+  await derivePainFlagClearedNotifications(client, recipientUserId);
+  await deriveOrgMembershipInvitedNotifications(client, recipientUserId);
   await deriveAthleteStrengthReferenceMissingNotifications(client, recipientUserId);
   await deriveAthleteBlockCompletedNotifications(client, recipientUserId);
   await deriveAthleteVisibleNoteNotifications(client, recipientUserId, DEEP_LINK_ROUTE_IDS.athleteToday);

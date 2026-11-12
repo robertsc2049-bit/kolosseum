@@ -2989,13 +2989,25 @@ async function closeAccount(event) {
   }
 }
 
+// A reload or a reopened tab: ask the server whether the owner is still
+// signed in (GET /org/session hands back the owner and a CSRF token, like the
+// admin console since #1389) before showing the sign-in form.
+async function restoreSession() {
+  el("orgSignInSection").hidden = true;
+  el("orgRegisterSection").hidden = true;
+  try {
+    const result = await api("GET", "/org/session");
+    if (!result?.org_owner || !result.csrf_token) throw new Error("org_owner_session_incomplete");
+    state.csrfToken = result.csrf_token;
+    state.ownerUserId = result.org_owner.user_id;
+    await showWorkspace(result.org_owner.display_name);
+  }
+  catch {
+    showSignedOut();
+  }
+}
+
 function boot() {
-  // No session-resume-on-load, matching public/admin/admin.js's own
-  // precedent exactly - GET /org/session only confirms the cookie
-  // resolves to a real user_id, it carries no display_name or
-  // csrf_token, so a hard refresh always asks the owner to sign in again
-  // rather than showing a half-populated workspace.
-  showSignedOut();
 
   el("orgSignInForm").addEventListener("submit", (event) => signIn(event).catch(console.error));
   el("orgRegisterForm").addEventListener("submit", (event) => register(event).catch(console.error));
@@ -3045,6 +3057,7 @@ function boot() {
   el("orgSupportReportButton").addEventListener("click", () => openOrgSupportReportForm());
   el("orgSupportCancelButton").addEventListener("click", () => closeOrgSupportReportForm());
   el("orgSupportReportForm").addEventListener("submit", (event) => submitOrgSupportReport(event).catch(console.error));
+  restoreSession().catch(() => showSignedOut());
 }
 
 boot();

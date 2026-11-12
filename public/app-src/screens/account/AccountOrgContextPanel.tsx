@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 
 import { loadAccountDetail } from "../../api/client";
 import { type JsonRecord } from "../../api/transport";
+import { revealSection } from "../../components/GuideChecklist";
 import { formatDate } from "../../utils/format";
 import { useRole } from "../../utils/role";
 import { useAccountOrgContext } from "./useAccountOrgContext";
@@ -19,6 +20,16 @@ export function AccountOrgContextPanel() {
   const { loading, error, entries, actingId, actionError, accept, leave } = useAccountOrgContext();
   const [ownCoachUserId, setOwnCoachUserId] = useState<string | null>(null);
 
+  // The "gym invited you" notification opens Account: bring this into view.
+  useEffect(() => {
+    const onOpenTarget = (event: Event) => {
+      const type = String(((event as CustomEvent).detail as JsonRecord | undefined)?.notification_type ?? "");
+      if (type === "org_membership_invited") revealSection('[data-testid="account-org-context"]');
+    };
+    document.addEventListener("kolosseum:open-notification-target", onOpenTarget);
+    return () => document.removeEventListener("kolosseum:open-notification-target", onOpenTarget);
+  }, []);
+
   useEffect(() => {
     loadAccountDetail()
       .then((account) => setOwnCoachUserId(String((account.account as JsonRecord | undefined)?.user_id ?? "")))
@@ -31,7 +42,7 @@ export function AccountOrgContextPanel() {
   if (entries.length === 0) return null;
 
   return (
-    <article className="panel">
+    <article className="panel" data-testid="account-org-context">
       <p className="eyebrow">Organisations</p>
       <h3>Your organisations</h3>
       {actionError ? <p role="status" className="muted small error">{actionError}</p> : null}

@@ -59,7 +59,9 @@ export const NOTIFICATION_TYPE_LABELS: Record<string, string> = {
   package_payment_claim_declined: "Your coach hasn't received your payment yet",
   package_payment_recorded: "Your coach recorded your payment",
   message_report_outcome: "We've looked at the message you reported",
-  message_removed: "A message you sent was removed"
+  message_removed: "A message you sent was removed",
+  org_membership_invited: "A gym invited you onto its roster",
+  pain_flag_cleared: "Your coach cleared your pain flag"
 };
 
 // With a name to put first, these read as one sentence: "Sam Walker
@@ -128,6 +130,18 @@ export function notificationTypeLabel(notification: JsonRecord): string {
     return payload.outcome === "removed"
       ? "The message you reported was removed - thank you for reporting it"
       : "We looked at the message you reported and found it didn't break our terms";
+  }
+  // A gym's invitation names the gym; accepting is on the Account page.
+  if (type === "org_membership_invited") {
+    const payload = (notification.notification_payload ?? {}) as JsonRecord;
+    const name = typeof payload.org_name === "string" ? payload.org_name.trim() : "";
+    return name ? `${name} invited you onto its coach roster - accept it in Account` : "A gym invited you onto its coach roster - accept it in Account";
+  }
+  // The coach cleared a pain flag: those exercises are back in the sessions.
+  if (type === "pain_flag_cleared") {
+    const payload = (notification.notification_payload ?? {}) as JsonRecord;
+    const area = typeof payload.area === "string" && payload.area && payload.area !== "other" ? payload.area.replace("lumbar_low", "lower back") : "";
+    return area ? `Your coach cleared your ${area} pain flag - those exercises are back in your sessions` : "Your coach cleared your pain flag - those exercises are back in your sessions";
   }
   if (type === "message_removed") {
     const payload = (notification.notification_payload ?? {}) as JsonRecord;

@@ -45,6 +45,7 @@ async function request(baseUrl, method, route, body, options = {}) {
   if (body !== undefined) headers["content-type"] = "application/json";
   if (options.cookie) headers.cookie = options.cookie;
   if (options.csrf) headers["x-kolosseum-csrf"] = options.csrf;
+  Object.assign(headers, options.headers ?? {});
 
   const response = await fetch(`${baseUrl}${route}`, {
     method,
@@ -249,6 +250,13 @@ test(
     const sessionCheck = await request(baseUrl, "GET", "/org/session", undefined, { cookie: orgOwnerCookie });
     assertStatus(sessionCheck, 200, "org owner session check");
     assert.equal(sessionCheck.json?.user_id, orgOwnerUserId);
+    // A reload restores the console (walkthrough 14): the owner and a CSRF
+    // token, never cached, never to another site's page.
+    assert.equal(sessionCheck.json?.org_owner?.user_id, orgOwnerUserId);
+    assert.ok(typeof sessionCheck.json?.csrf_token === "string" && sessionCheck.json.csrf_token.length > 10);
+    assert.equal(sessionCheck.response.headers.get("cache-control"), "no-store");
+    const crossSite = await request(baseUrl, "GET", "/org/session", undefined, { cookie: orgOwnerCookie, headers: { "sec-fetch-site": "cross-site" } });
+    assertStatus(crossSite, 403, "another site's page can't read the session");
 
     const noCookieSessionCheck = await request(baseUrl, "GET", "/org/session");
     assertStatus(noCookieSessionCheck, 401, "session check without a cookie must be rejected");

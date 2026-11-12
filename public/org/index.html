@@ -86,87 +86,6 @@
       </div>
     </section>
 
-    <section id="orgAccountSection" class="panel" hidden>
-      <p class="eyebrow">Account</p>
-      <h2>Data rights &amp; account closure</h2>
-
-      <h3>Data export</h3>
-      <p class="muted small">Download a copy of everything we keep about you: your account, gyms and listings, coaches, conversations, notifications, packages and payments, seller details, reports and requests.</p>
-      <div class="button-row">
-        <button id="orgAccountExportRequestButton" class="button secondary" type="button">Request data export</button>
-      </div>
-      <p id="orgAccountExportResult" class="muted small" hidden></p>
-      <div id="orgAccountExportList" class="record-list"></div>
-      <p id="orgAccountExportError" class="muted small" hidden></p>
-
-      <h3>Delete my data</h3>
-      <div class="button-row">
-        <button id="orgAccountDeletionReviewButton" class="button secondary" type="button">Review deletion consequences</button>
-      </div>
-      <div id="orgAccountDeletionReview" hidden>
-        <p id="orgAccountDeletionNotice" class="muted small"></p>
-        <div id="orgAccountDeletionRetentionList" class="record-list"></div>
-        <form id="orgAccountDeletionConfirmForm">
-          <label class="field">
-            <span>Type DELETE to confirm</span>
-            <input id="orgAccountDeletionConfirmText" type="text" autocomplete="off" required />
-          </label>
-          <div class="button-row">
-            <button class="button danger" type="submit">Request deletion</button>
-          </div>
-        </form>
-      </div>
-      <p id="orgAccountDeletionResult" class="muted small" hidden></p>
-      <div id="orgAccountDeletionList" class="record-list"></div>
-      <p id="orgAccountDeletionError" class="muted small" hidden></p>
-
-      <h3>Blocked people</h3>
-      <p class="muted small">Their messages don't reach your gyms or organisations. Unblocking lets new messages through again.</p>
-      <div id="orgBlockedPeopleList" class="record-list"></div>
-      <p id="orgBlockedPeopleError" class="field-error" role="alert" hidden></p>
-
-      <h3>Close account</h3>
-      <p class="muted small">This closes your own owner account. Organisations you own are not deleted or handed off automatically.</p>
-      <form id="orgAccountClosureForm">
-        <label class="field">
-          <span>Type CLOSE to confirm</span>
-          <input id="orgAccountClosureConfirmText" type="text" autocomplete="off" required />
-        </label>
-        <div class="button-row">
-          <button class="button danger" type="submit">Close account</button>
-        </div>
-      </form>
-      <p id="orgAccountClosureError" class="muted small" hidden></p>
-    </section>
-
-    <section id="orgSupportSection" class="panel" hidden>
-      <p class="eyebrow">Support</p>
-      <h2>Report a problem</h2>
-      <p class="muted small">Opens a form that shows exactly what route, timestamp, browser context and correlation ID will be attached before you submit a description.</p>
-      <div class="button-row">
-        <button id="orgSupportReportButton" class="button primary" type="button">Report a problem</button>
-      </div>
-
-      <div id="orgSupportReportPanel" hidden>
-        <div id="orgSupportReportContext" class="record-list"></div>
-        <form id="orgSupportReportForm">
-          <label class="field">
-            <span>What happened?</span>
-            <textarea id="orgSupportDescription" required maxlength="4000" rows="4"></textarea>
-          </label>
-          <div class="button-row">
-            <button class="button secondary" type="button" id="orgSupportCancelButton">Cancel</button>
-            <button class="button primary" type="submit">Submit report</button>
-          </div>
-        </form>
-        <p id="orgSupportResult" class="muted small" hidden></p>
-      </div>
-      <p id="orgSupportError" class="muted small" hidden></p>
-
-      <h3>Your submitted reports</h3>
-      <div id="orgSupportHistoryList" class="record-list"></div>
-    </section>
-
     <section id="orgListSection" class="panel" hidden>
       <p class="eyebrow">Organisations</p>
       <h2>Your organisations</h2>
@@ -185,12 +104,38 @@
           <span>Sport</span>
           <select id="orgCreateActivityId" required>
             <option value="" selected disabled>Choose</option>
-            <option value="powerlifting">Powerlifting</option>
-            <option value="general_strength">General strength</option>
-            <option value="rugby_union">Rugby union</option>
-            <option value="strongman">Strongman</option>
-            <option value="hyrox">Hyrox</option>
+            <option value="american_football">American football</option>
+            <option value="athletics">Athletics</option>
+            <option value="basketball">Basketball</option>
+            <option value="boxing">Boxing</option>
+            <option value="brazilian_jiu_jitsu">Brazilian jiu-jitsu</option>
+            <option value="cricket">Cricket</option>
             <option value="crossfit">CrossFit</option>
+            <option value="cycling">Cycling</option>
+            <option value="field_hockey">Field hockey</option>
+            <option value="football_soccer">Football</option>
+            <option value="general_strength">General strength</option>
+            <option value="grip_sport">Grip sport</option>
+            <option value="hyrox">Hyrox</option>
+            <option value="ice_hockey">Ice hockey</option>
+            <option value="judo">Judo</option>
+            <option value="kayaking">Kayaking</option>
+            <option value="mma">MMA</option>
+            <option value="muay_thai">Muay Thai</option>
+            <option value="netball">Netball</option>
+            <option value="olympic_weightlifting">Olympic weightlifting</option>
+            <option value="powerlifting">Powerlifting</option>
+            <option value="rowing">Rowing</option>
+            <option value="rugby_league">Rugby league</option>
+            <option value="rugby_sevens">Rugby sevens</option>
+            <option value="rugby_union">Rugby union</option>
+            <option value="street_lifting">Street lifting</option>
+            <option value="strongman">Strongman</option>
+            <option value="swimming">Swimming</option>
+            <option value="tennis">Tennis</option>
+            <option value="triathlon">Triathlon</option>
+            <option value="volleyball">Volleyball</option>
+            <option value="wrestling">Wrestling</option>
           </select>
           <span class="muted small">Purely informational - this doesn't restrict any athlete's own declared sport or position.</span>
         </label>
@@ -608,6 +553,89 @@
       </form>
       <p id="orgThreadReplyError" class="muted small" hidden></p>
     </section>
+    <!-- Help and the account (data rights, closure) come after the gyms and
+         teams: a new owner's first job is "Create an organisation". -->
+    <section id="orgAccountSection" class="panel" hidden>
+      <p class="eyebrow">Account</p>
+      <h2>Data rights &amp; account closure</h2>
+
+      <h3>Data export</h3>
+      <p class="muted small">Download a copy of everything we keep about you: your account, gyms and listings, coaches, conversations, notifications, packages and payments, seller details, reports and requests.</p>
+      <div class="button-row">
+        <button id="orgAccountExportRequestButton" class="button secondary" type="button">Request data export</button>
+      </div>
+      <p id="orgAccountExportResult" class="muted small" hidden></p>
+      <div id="orgAccountExportList" class="record-list"></div>
+      <p id="orgAccountExportError" class="muted small" hidden></p>
+
+      <h3>Delete my data</h3>
+      <div class="button-row">
+        <button id="orgAccountDeletionReviewButton" class="button secondary" type="button">Review deletion consequences</button>
+      </div>
+      <div id="orgAccountDeletionReview" hidden>
+        <p id="orgAccountDeletionNotice" class="muted small"></p>
+        <div id="orgAccountDeletionRetentionList" class="record-list"></div>
+        <form id="orgAccountDeletionConfirmForm">
+          <label class="field">
+            <span>Type DELETE to confirm</span>
+            <input id="orgAccountDeletionConfirmText" type="text" autocomplete="off" required />
+          </label>
+          <div class="button-row">
+            <button class="button danger" type="submit">Request deletion</button>
+          </div>
+        </form>
+      </div>
+      <p id="orgAccountDeletionResult" class="muted small" hidden></p>
+      <div id="orgAccountDeletionList" class="record-list"></div>
+      <p id="orgAccountDeletionError" class="muted small" hidden></p>
+
+      <h3>Blocked people</h3>
+      <p class="muted small">Their messages don't reach your gyms or organisations. Unblocking lets new messages through again.</p>
+      <div id="orgBlockedPeopleList" class="record-list"></div>
+      <p id="orgBlockedPeopleError" class="field-error" role="alert" hidden></p>
+
+      <h3>Close account</h3>
+      <p class="muted small">This closes your own owner account. Organisations you own are not deleted or handed off automatically.</p>
+      <form id="orgAccountClosureForm">
+        <label class="field">
+          <span>Type CLOSE to confirm</span>
+          <input id="orgAccountClosureConfirmText" type="text" autocomplete="off" required />
+        </label>
+        <div class="button-row">
+          <button class="button danger" type="submit">Close account</button>
+        </div>
+      </form>
+      <p id="orgAccountClosureError" class="muted small" hidden></p>
+    </section>
+
+    <section id="orgSupportSection" class="panel" hidden>
+      <p class="eyebrow">Support</p>
+      <h2>Report a problem</h2>
+      <p class="muted small">Opens a form that shows exactly what route, timestamp, browser context and correlation ID will be attached before you submit a description.</p>
+      <div class="button-row">
+        <button id="orgSupportReportButton" class="button primary" type="button">Report a problem</button>
+      </div>
+
+      <div id="orgSupportReportPanel" hidden>
+        <div id="orgSupportReportContext" class="record-list"></div>
+        <form id="orgSupportReportForm">
+          <label class="field">
+            <span>What happened?</span>
+            <textarea id="orgSupportDescription" required maxlength="4000" rows="4"></textarea>
+          </label>
+          <div class="button-row">
+            <button class="button secondary" type="button" id="orgSupportCancelButton">Cancel</button>
+            <button class="button primary" type="submit">Submit report</button>
+          </div>
+        </form>
+        <p id="orgSupportResult" class="muted small" hidden></p>
+      </div>
+      <p id="orgSupportError" class="muted small" hidden></p>
+
+      <h3>Your submitted reports</h3>
+      <div id="orgSupportHistoryList" class="record-list"></div>
+    </section>
+
   </main>
 
   <script type="module" src="/org/org.js"></script>

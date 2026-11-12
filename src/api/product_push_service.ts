@@ -73,7 +73,9 @@ export const PUSH_TITLES: Readonly<Record<string, string>> = Object.freeze({
   package_payment_claim_declined: "Your coach hasn't received your payment yet",
   package_payment_recorded: "Your coach recorded your payment",
   message_report_outcome: "We've looked at the message you reported",
-  message_removed: "A message you sent was removed"
+  message_removed: "A message you sent was removed",
+  org_membership_invited: "A gym invited you onto its roster",
+  pain_flag_cleared: "Your coach cleared your pain flag"
 });
 
 export function pushPayloadFor(notificationType: string): Readonly<Record<string, string>> {

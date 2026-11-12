@@ -546,6 +546,10 @@
     },
     {
       "kind": "command",
+      "value": "node test/org_console_first_week_surface.test.mjs"
+    },
+    {
+      "kind": "command",
       "value": "node test/session_substitution_options.test.mjs"
     },
     {

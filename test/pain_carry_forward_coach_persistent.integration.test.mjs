@@ -390,6 +390,11 @@ test(
     const athleteView = await request(baseUrl, "GET", "/account/onboarding/pain-flags", undefined, { cookie: athlete.cookie });
     assertStatus(athleteView, 200, "athlete flags");
     assert.deepEqual(athleteView.json.flags, []);
+    // She's told her coach cleared it (walkthrough 14).
+    const athleteBell = await request(baseUrl, "GET", "/account/notifications", undefined, { cookie: athlete.cookie });
+    const clearedNotice = (athleteBell.json?.notifications ?? []).find((n) => n.notification_type === "pain_flag_cleared");
+    assert.ok(clearedNotice, JSON.stringify(athleteBell.json));
+    assert.equal(clearedNotice.notification_payload.area, "knee");
     const after = await compileCoachSession(baseUrl, coach, athlete);
     assertStatus(after, 201, "coach session after clearing");
     sessionIds.push(after.json.session_id);
