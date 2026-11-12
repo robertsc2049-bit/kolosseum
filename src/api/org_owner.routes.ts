@@ -20,7 +20,9 @@ import {
   ORG_OWNER_SESSION_COOKIE,
   ORG_OWNER_SESSION_MAX_AGE_SECONDS,
   OrgOwnerAuthError,
+  orgOwnerCsrfTokenForSession,
   registerAndSignInOrgOwnerAccount,
+  resolveOrgOwnerSession,
   requestOrgOwnerAccountClosure,
   signInOrgOwnerAccount,
   signOutOrgOwnerSession
@@ -89,7 +91,7 @@ import {
   sendAttachmentFile,
   validateStagedUpload
 } from "./message_attachment_storage.js";
-import { badRequest } from "./http_errors.js";
+import { badRequest, forbidden } from "./http_errors.js";
 import {
   AttendanceEventError,
   buildAttendanceEventsCalendar,
@@ -187,11 +189,27 @@ orgOwnerRouter.post(
   })
 );
 
+// A reload or a reopened tab restores the signed-in console (like the admin
+// console's GET /admin/session, #1389) instead of asking for the password
+// every time. It hands back the CSRF token, so: never cached, and refused
+// to another site's page.
 orgOwnerRouter.get(
   "/session",
+  rateLimit({ windowMs: 15 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false }),
   asyncHandler(async (request, response) => {
-    const { user_id } = await authenticatedOrgOwner(request, false);
-    return response.status(200).json({ ok: true, user_id });
+    response.set("Cache-Control", "no-store");
+    const site = request.get("sec-fetch-site");
+    if (site && site !== "same-origin") {
+      throw forbidden("ORG_OWNER_SESSION_CROSS_SITE", { failure_token: "org_owner_session_cross_site" });
+    }
+    const { user_id, raw_session_token } = await authenticatedOrgOwner(request, false);
+    const session = await resolveOrgOwnerSession(raw_session_token);
+    return response.status(200).json({
+      ok: true,
+      user_id,
+      org_owner: session.org_owner,
+      csrf_token: orgOwnerCsrfTokenForSession(raw_session_token)
+    });
   })
 );
 
