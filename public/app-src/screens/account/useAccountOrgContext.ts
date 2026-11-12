@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { loadAccountDetail } from "../../api/client";
 import { loadCoachOrgMemberships, loadCoachOrgRoster, resolveCoachOrgMembershipAction } from "../../api/accountRelationshipsClient";
 import { type JsonRecord } from "../../api/transport";
+import { NOTIFICATIONS_ARRIVED_EVENT } from "../../utils/liveUpdates";
 
 // DEV NOTE: Part O.7 - coach-side org/team context, the mirror of O.6's
 // athlete-side panel (AccountOrgMessagesPanel.tsx). Read-only besides the
@@ -74,8 +75,11 @@ export function useAccountOrgContext() {
     // A same-tab sign-in/register never fires "storage", so the panel's
     // role gate can flip coach-on without this hook ever re-fetching -
     // see utils/role.ts's useRole().
-    document.addEventListener("kolosseum:account-role-known", refresh);
-    return () => document.removeEventListener("kolosseum:account-role-known", refresh);
+    // ...and a gym's invitation arriving (the bell's re-check) shows up
+    // without a reload (walkthrough 14).
+    const events = ["kolosseum:account-role-known", NOTIFICATIONS_ARRIVED_EVENT];
+    for (const name of events) document.addEventListener(name, refresh);
+    return () => { for (const name of events) document.removeEventListener(name, refresh); };
   }, [refresh]);
 
   const resolveAction = useCallback(async (membershipId: string, action: "accept" | "leave") => {

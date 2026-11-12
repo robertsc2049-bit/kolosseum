@@ -2365,6 +2365,78 @@ ALTER TABLE product_notifications
         'message_report_outcome',
         'message_removed'
       )
+    ) NOT VALID;
+
+-- product_notifications_org_invite_pain_cleared_type_migration
+-- Additive: a coach is told a gym invited them onto its roster, and an
+-- athlete is told their coach cleared a pain flag (walkthrough 14).
+-- Same DROP/ADD pattern as every migration above.
+ALTER TABLE product_notifications
+  DROP CONSTRAINT IF EXISTS product_notifications_notification_type_check;
+
+ALTER TABLE product_notifications
+  ADD CONSTRAINT product_notifications_notification_type_check
+    CHECK (
+      notification_type IN (
+        'relationship_invited',
+        'relationship_accepted',
+        'relationship_declined',
+        'relationship_revoked',
+        'assignment_created',
+        'assignment_replaced',
+        'assignment_cancelled',
+        'event_linked',
+        'event_unlinked',
+        'event_cancelled',
+        'programme_available',
+        'session_completed',
+        'coach_note_visible',
+        'billing_action_required',
+        'marketplace_template_released',
+        'weekly_checkin_submitted',
+        'video_feedback_received',
+        'athlete_goal_achieved',
+        'video_submitted',
+        'marketplace_template_sold',
+        'attendance_event_invited',
+        'attendance_event_cancelled',
+        'attendance_event_occurrence_changed',
+        'activity_change_proposed',
+        'activity_change_applied',
+        'athlete_position_overridden',
+        'attendance_rsvp_declined',
+        'activity_change_declined',
+        'relationship_ended_by_athlete',
+        'coach_athlete_message_received',
+        'org_owner_message_received',
+        'owner_message_received_from_coach',
+        'owner_message_received_from_athlete',
+        'athlete_pain_reported',
+        'athlete_strength_reference_missing',
+        'athlete_block_completed',
+        'gym_coach_link_requested',
+        'coach_gym_confirmed',
+        'coach_gym_declined',
+        'coach_gym_now_listed',
+        'coaching_requested',
+        'coaching_request_declined',
+        'checkin_scheduled',
+        'checkin_cancelled',
+        'checkin_confirmed',
+        'checkin_move_requested',
+        'checkin_booked',
+        'checkin_cancelled_by_athlete',
+        'package_payment_upcoming',
+        'package_payment_due',
+        'athlete_package_payment_due',
+        'athlete_package_payment_claimed',
+        'package_payment_claim_declined',
+        'package_payment_recorded',
+        'message_report_outcome',
+        'message_removed',
+        'org_membership_invited',
+        'pain_flag_cleared'
+      )
     );
 
 -- FULL-UI-20 factual status, support and error-reporting.

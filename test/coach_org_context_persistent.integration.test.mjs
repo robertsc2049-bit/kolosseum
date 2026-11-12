@@ -290,6 +290,11 @@ test(
       { coach_email: coachA.email, request_id: `invite_${nonce}_a` }, { cookie: owner.cookie, csrf: owner.csrf }
     );
     assertStatus(inviteA, 201, "invite coachA to shared org");
+    // The coach is told about the invitation, and it opens their Account page (walkthrough 14).
+    const coachBell = await request(baseUrl, "GET", "/account/notifications", undefined, { cookie: coachA.cookie });
+    const inviteNotice = (coachBell.json?.notifications ?? []).find((n) => n.notification_type === "org_membership_invited");
+    assert.ok(inviteNotice, JSON.stringify(coachBell.json));
+    assert.equal(inviteNotice.deep_link.route_id, "shared_account");
     await acceptOrgInvite(baseUrl, coachA, inviteA.json?.membership?.membership_id, `accept_${nonce}_a`);
 
     const inviteB = await request(
