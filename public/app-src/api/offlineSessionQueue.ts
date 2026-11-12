@@ -53,9 +53,25 @@ export function pendingSessionEvents(sessionId?: string): QueuedSessionEvent[] {
   return sessionId ? queue.filter((item) => item.session_id === sessionId) : queue;
 }
 
-// Send queued events in order. Stops at the first network failure (still
-// offline); an event the server refuses is dropped and counted. Returns what
-// was sent, dropped and still waiting.
+// Worth trying again later, never a reason to throw a logged set away: no
+// response, the server restarting or overloaded (a 502 from the proxy during
+// a deploy, 503, 504, 500), rate-limited, timed out, or the sign-in/CSRF
+// token gone stale while offline (401/403 - the next try fetches a fresh
+// one). Only a definite "this event is wrong" (400, 404, 409, 410, 422)
+// drops it. Walkthrough 15: a single 502 on reconnect used to lose a set.
+export function isRetryableSendError(error: unknown): boolean {
+  if (isNetworkError(error)) return true;
+  if (error instanceof ApiRequestError) {
+    const status = error.status;
+    return status === 401 || status === 403 || status === 408 || status === 425 || status === 429 || status >= 500;
+  }
+  return true;
+}
+
+// Send queued events in order. Stops at the first failure worth retrying
+// (still offline, or the server not ready) and keeps the rest; only an event
+// the server definitely refuses is dropped and counted. Returns what was
+// sent, dropped and still waiting.
 export async function flushSessionEvents(
   post: (item: QueuedSessionEvent) => Promise<unknown>
 ): Promise<{ sent: number; dropped: number; waiting: number }> {
@@ -69,7 +85,7 @@ export async function flushSessionEvents(
       sent += 1;
     }
     catch (error) {
-      if (isNetworkError(error)) break;
+      if (isRetryableSendError(error)) break;
       dropped += 1;
     }
     queue = rest;
