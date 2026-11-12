@@ -32,6 +32,7 @@ import { AthleteSelfWeeklyCheckinsPanel } from "./screens/athlete/AthleteSelfWee
 import { AthleteSessionExecutionPanel } from "./screens/athlete/AthleteSessionExecutionPanel";
 import { AthleteTodayHistoryCountBadge, AthleteTodayRecentActivityList } from "./screens/athlete/AthleteTodayRecentActivityPanel";
 import { AthleteTodayCreateSessionButton, AthleteTodayEventCard, AthleteTodaySessionCard } from "./screens/athlete/AthleteTodayPanel";
+import { PainCheckInCard } from "./screens/athlete/PainCheckInCard";
 import { AthleteDirectoryPanel } from "./screens/coach/AthleteDirectoryPanel";
 import { AthleteProfileAssignmentPanel } from "./screens/coach/AthleteProfileAssignmentPanel";
 import { AthleteRelationshipDetailPanel } from "./screens/coach/AthleteRelationshipDetailPanel";
@@ -188,6 +189,7 @@ mount("coach-link-request-root", <CoachLinkRequestCard />);
 mount("athlete-checkins-root", <AthleteCheckinsCard />);
 mount("athlete-first-steps-root", <AthleteFirstStepsGuide />);
 mount("coach-first-programme-root", <CoachFirstProgrammeGuide />);
+mount("athlete-today-pain-check-in-root", <PainCheckInCard dueOnly />);
 mount("athlete-today-session-root", <AthleteTodaySessionCard />);
 mount("athlete-today-event-root", <AthleteTodayEventCard />);
 mount("today-history-count-root", <AthleteTodayHistoryCountBadge />);

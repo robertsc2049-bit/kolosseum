@@ -252,7 +252,7 @@ async function requireCoachAccess(coachUserId: string, athleteUserId: string) {
 }
 
 export type PainCarryForwardResult =
-  | { ok: true; exercises: Json[] }
+  | { ok: true; exercises: Json[]; left_out: Json[] }
   | { ok: false; failure_token: "pain_check_in_required" | "pain_session_empty"; details: Json };
 
 // Apply open pain flags to a session about to be created. Every affected
@@ -269,7 +269,7 @@ export async function applyPainCarryForward(
   finally { client.release(); }
   const flags = derivePainFlags(facts);
   const affecting = flags.filter((flag) => exercises.some((e) => flagCovers(flag.flag_key, text(e.exercise_id))));
-  if (!affecting.length) return { ok: true, exercises };
+  if (!affecting.length) return { ok: true, exercises, left_out: [] };
 
   const missing = affecting.filter((flag) => !pendingCheckIn(flag, facts.lastSessionAt));
   if (missing.length) {
@@ -287,6 +287,8 @@ export async function applyPainCarryForward(
 
   const inSession = new Set(exercises.map((e) => baseExerciseId(text(e.exercise_id))));
   const out: Json[] = [];
+  // Left out for this session: said on the session screen, never silently gone.
+  const leftOut: Json[] = [];
   for (const exercise of exercises) {
     const id = text(exercise.exercise_id);
     const flag = affecting.find((f) => flagCovers(f.flag_key, id));
@@ -307,9 +309,10 @@ export async function applyPainCarryForward(
       }
     }
     // Left out for this session (asked to, or nothing suitable to swap to).
+    leftOut.push({ ...reason, plan });
   }
   if (!out.length) {
     return { ok: false, failure_token: "pain_session_empty", details: { flags: affecting.map((flag) => describeFlag(flag, facts.lastSessionAt)) } };
   }
-  return { ok: true, exercises: out };
+  return { ok: true, exercises: out, left_out: leftOut };
 }

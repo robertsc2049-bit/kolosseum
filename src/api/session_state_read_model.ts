@@ -534,6 +534,17 @@ export function projectSessionStatePayload(
     ...(planned?.injury_modified && typeof planned.injury_modified === "object"
       ? { injury_modified: planned.injury_modified }
       : {}),
+    // A coached athlete back after a break: their coach's programme is made
+    // lighter (blocks.handlers.ts gapReentryForAthlete) - the screen says why.
+    ...(planned?.template_position && typeof planned.template_position === "object" &&
+      (planned.template_position as any).reentry && typeof (planned.template_position as any).reentry === "object" &&
+      (planned.template_position as any).reentry.reentry_week === true
+      ? { coach_programme_reentry: (planned.template_position as any).reentry }
+      : {}),
+    // Exercises left out because an open pain flag is still sore.
+    ...(Array.isArray(planned?.pain_left_out) && planned.pain_left_out.length
+      ? { pain_left_out: planned.pain_left_out }
+      : {}),
     // The programme's own name for it ("Squat day"), when it has one.
     ...(plannedSessionTitle(planned) !== "Training session"
       ? { session_title: plannedSessionTitle(planned) }

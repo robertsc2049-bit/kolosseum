@@ -751,6 +751,26 @@ test("a main lift (squat, bench, deadlift) is never swapped, and the athlete is 
   assert.equal(screen.queryByTestId("no-substitute"), null);
 });
 
+test("exercises left out because a knee is still sore are named at the top, so a shorter session never looks broken (walkthrough 13)", async () => {
+  seedActiveSession("session_1");
+  installMocks({ sessionState: baseSessionState({ pain_left_out: [
+    { area: "knee", plan: "swap", from_exercise_id: "back_squat", from_display_name: "Back squat" },
+    { area: "knee", plan: "swap", from_exercise_id: "paused_back_squat", from_display_name: "Paused back squat" }
+  ] }) });
+  render(<AthleteSessionExecutionPanel />);
+  await waitFor(() => screen.getByTestId("pain-left-out-note"));
+  assert.equal(screen.getByTestId("pain-left-out-note").textContent, "Left out today because your knee is still sore and there's nothing that trains the same without loading it: Back squat, Paused back squat.");
+});
+
+test("a coached athlete back after 10 days is told why their coach's session is lighter (walkthrough 13)", async () => {
+  seedActiveSession("session_1");
+  installMocks({ sessionState: baseSessionState({ coach_programme_reentry: { reentry_week: true, gap_days: 10 } }) });
+  render(<AthleteSessionExecutionPanel />);
+  await waitFor(() => screen.getByTestId("session-reentry"));
+  assert.match(screen.getByTestId("session-reentry").textContent ?? "", /it has been 10 days since your last session/);
+  assert.ok(screen.getByText("Re-entry week"));
+});
+
 test("video upload shows a factual validation error before any request when no file is chosen", async () => {
   seedActiveSession("session_1");
   installMocks({ sessionState: baseSessionState({ started: true }) });

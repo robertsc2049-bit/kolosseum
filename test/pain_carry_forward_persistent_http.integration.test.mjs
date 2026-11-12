@@ -336,6 +336,13 @@ test(
     assert.ok(skippedIds.length > 0 && skippedIds.every((id) => !loadsElbow(id)), skippedIds.join(","));
     assert.ok(skipped.json.planned_session.exercises.every((e) => !e.pain_swap));
     assert.deepEqual(skippedIds, firstIds.filter((id) => !loadsElbow(id)), "the rest of the session is unchanged");
+    // ...and the left-out exercises are named on the session screen (walkthrough 13).
+    const leftOut = skipped.json.planned_session.pain_left_out;
+    assert.ok(Array.isArray(leftOut) && leftOut.length > 0, "what was left out is recorded");
+    assert.deepEqual(leftOut.map((e) => e.from_exercise_id).sort(), firstIds.filter((id) => loadsElbow(id)).sort());
+    assert.ok(leftOut.every((e) => e.area === "elbow" && e.plan === "skip" && e.from_display_name));
+    const skippedState = await requestJson(server.baseUrl, "GET", `/sessions/${skipped.json.session_id}/state`, { cookie });
+    assert.deepEqual(skippedState.json.pain_left_out.map((e) => e.from_exercise_id).sort(), leftOut.map((e) => e.from_exercise_id).sort(), "the session screen gets it");
 
     // Pain-free: the flag closes and the bench work is back.
     const better = await checkIn({ flag_key: "area:elbow", status: "pain_free" });

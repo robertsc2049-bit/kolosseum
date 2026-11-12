@@ -229,6 +229,10 @@ test("a powerlifter whose meet is 16 days away starts her coach's six-week prep 
   assert.ok(back.json.planned_session.template_position.reentry.gap_days >= 15);
   const squat = back.json.planned_session.exercises.find((e) => e.exercise_id === "back_squat");
   assert.deepEqual([squat.sets, squat.reentry_lighter], [3, true], "4 sets of squats become 3");
+  // ...and she sees why on her session screen (walkthrough 13): it was lighter but said nothing.
+  const backState = await request(baseUrl, "GET", `/sessions/${back.json.session_id}/state`, undefined, athleteAuth);
+  assertStatus(backState, 200, "session state");
+  assert.equal(backState.json.coach_programme_reentry?.reentry_week, true, "the session screen gets the re-entry week");
 
   // Her coach sees why on the review screen: the skipped weeks, the held
   // week and the lighter week back.
