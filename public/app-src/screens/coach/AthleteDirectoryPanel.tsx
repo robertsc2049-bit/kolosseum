@@ -3,6 +3,15 @@ import React, { useMemo, useState } from "react";
 import { type JsonRecord } from "../../api/transport";
 import { titleCase } from "../../utils/format";
 import { useAthleteDirectory } from "./useAthleteDirectory";
+import { openShareLink, revealSection } from "../../components/GuideChecklist";
+
+// The "Invite an athlete" form sits in a collapsed <details> above the roster.
+function openInviteForm() {
+  const details = document.getElementById("invite-athlete-root")?.closest("details");
+  if (!details) return;
+  details.open = true;
+  revealSection("#invite-athlete-root", 50);
+}
 import { sportLabel } from "../../utils/sportLabel";
 
 // DEV NOTE: FULL-UI-04A coach athlete directory (roster) - ported from
@@ -139,7 +148,17 @@ export function AthleteDirectoryPanel() {
       </div>
 
       <div className="record-list">
-        {visible.length === 0 ? (
+        {!loading && !error && relationships.length === 0 ? (
+          <div className="empty-state" data-testid="roster-empty">
+            <div className="empty-icon">A</div>
+            <h3>No athletes yet</h3>
+            <p>Invite an athlete by email, or send them your share link - they join your roster once they accept.</p>
+            <div className="inline-controls">
+              <button className="button primary" type="button" onClick={openInviteForm}>Invite an athlete</button>
+              <button className="button secondary" type="button" onClick={openShareLink}>Share your link</button>
+            </div>
+          </div>
+        ) : visible.length === 0 ? (
           <div className="empty-state">
             <div className="empty-icon">A</div>
             <h3>No matching relationships</h3>

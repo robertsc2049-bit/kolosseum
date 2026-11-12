@@ -84,7 +84,7 @@ function visible() {
   for (const view of document.querySelectorAll(".view")) view.hidden = view.id !== "view-onboarding";
   for (const button of document.querySelectorAll(".nav-item")) button.classList.toggle("active", button.id === "athleteOnboardingNav");
   const title = document.getElementById("topbarTitle");
-  if (title) title.textContent = "Declarations";
+  if (title) title.textContent = "Training details";
   document.getElementById("sidebar")?.classList.remove("open");
 }
 

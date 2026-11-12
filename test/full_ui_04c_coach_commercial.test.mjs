@@ -588,3 +588,6 @@ test(
     );
   }
 );
+test("the coach setup screen opened by the onboarding gate titles the top bar 'Coach setup', not the previous screen's (walkthrough 12)", () => {
+  assert.match(onboardingUi, /title\.textContent = "Coach setup";/u);
+});

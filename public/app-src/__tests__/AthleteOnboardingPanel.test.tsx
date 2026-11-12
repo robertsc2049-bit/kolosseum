@@ -302,6 +302,21 @@ test("a beginner powerlifter who doesn't compete isn't made to pick an event: No
   assert.equal((savedFields ?? {}).competition_event, "not_competing");
 });
 
+test("at review, a rugby player with no position is prompted and can jump straight back to the sport stage to choose one (walkthrough 10)", async () => {
+  let savedStage: unknown = null;
+  installMocks({
+    initialState: draftState({ current_stage: "review", draft: { fields: { activity_id: "rugby_union", experience_level: "amateur", training_days_per_week: 3, no_fixed_date: true, execution_scope: "individual" } } }),
+    onDraftSave: (body) => {
+      savedStage = body.current_stage;
+      return draftState({ current_stage: body.current_stage, draft: { fields: body.fields }, saved_draft_state: true, saved_draft_at_iso8601: "2026-11-12T00:00:00.000Z" });
+    }
+  });
+  render(<AthleteOnboardingPanel />);
+  await screen.findByTestId("position-prompt");
+  await act(async () => { fireEvent.click(screen.getByText("Choose your position")); });
+  await waitFor(() => assert.equal(savedStage, "activity"));
+});
+
 test("athletes in other sports are never asked for a competition event", async () => {
   installMocks({ initialState: draftState({ current_stage: "experience_level", draft: { fields: { activity_id: "rugby_union" } } }) });
   render(<AthleteOnboardingPanel />);

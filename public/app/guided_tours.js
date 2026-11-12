@@ -88,7 +88,7 @@ function selfCoachedAthleteSteps(account) {
     { before: openView("programme"), target: "#athlete-my-programme-root", title: "My programme", body: "Your training, week by week, and where you are in it." },
     { before: openView("history"), target: "#athlete-history-root", title: "History", body: "Every session you've logged. The Wellbeing tab holds body metrics, nutrition, habits, goals and weekly check-ins." },
     { before: openView("account"), target: "#account-code-root", title: "Want a coach later?", body: "Share your account code with a coach, or accept their invitation here - your history comes with you." },
-    { before: openView("today"), title: "You're set", body: "Build your training on Declarations, then your first session is waiting on Today.", doneLabel: "Get started" }
+    { before: openView("today"), title: "You're set", body: "Build your training in Training details, then your first session is waiting on Today.", doneLabel: "Get started" }
   ];
 }
 

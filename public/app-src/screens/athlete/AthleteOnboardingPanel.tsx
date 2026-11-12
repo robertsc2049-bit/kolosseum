@@ -114,7 +114,7 @@ function ProgressBar({ stage }: { stage: string }) {
   );
 }
 
-function DeclarationFacts({ fields, promptPosition = false }: { fields: JsonRecord; promptPosition?: boolean }) {
+function DeclarationFacts({ fields, promptPosition = false, onChoosePosition }: { fields: JsonRecord; promptPosition?: boolean; onChoosePosition?: () => void }) {
   return (
     <div className="declaration-grid">
       <div className="declaration-fact"><span>Activity</span><strong>{label(fields.activity_id)}</strong></div>
@@ -128,7 +128,10 @@ function DeclarationFacts({ fields, promptPosition = false }: { fields: JsonReco
         <div className="declaration-fact"><span>Position</span><strong>{positionLabel(fields.activity_id, fields.position)}</strong></div>
       ) : null}
       {promptPosition && POSITION_PROGRAMME_SPORTS.has(String(fields.activity_id ?? "")) && (!fields.position || fields.position === "athlete") ? (
-        <p className="inline-result position-prompt" data-tone="warning" data-testid="position-prompt">{POSITION_PROMPT}</p>
+        <div className="inline-result position-prompt" data-tone="warning" data-testid="position-prompt">
+          <p>{POSITION_PROMPT}</p>
+          {onChoosePosition ? <button className="button secondary" type="button" onClick={onChoosePosition}>Choose your position</button> : null}
+        </div>
       ) : null}
       <div className="declaration-fact"><span>Who sets your sessions</span><strong>{fields.execution_scope === "coach_managed" ? "My coach sets them" : fields.execution_scope === "individual" ? "I train myself" : label(fields.execution_scope)}</strong></div>
       <div className="declaration-fact"><span>Product acknowledgement</span><strong>{fields.product_acknowledged ? "Accepted" : "Not accepted"}</strong></div>
@@ -199,7 +202,7 @@ function competitionEventLabel(event: unknown): string {
   return COMPETITION_EVENT_OPTIONS.find(([value]) => value === event)?.[1] ?? "Not declared";
 }
 
-function StageFields({ stage, draft, onChange }: { stage: string; draft: JsonRecord; onChange: (fields: JsonRecord) => void }) {
+function StageFields({ stage, draft, onChange, onChoosePosition }: { stage: string; draft: JsonRecord; onChange: (fields: JsonRecord) => void; onChoosePosition?: () => void }) {
   if (stage === "activity") {
     const activityId = String(draft.activity_id ?? "");
     return (
@@ -343,14 +346,14 @@ function StageFields({ stage, draft, onChange }: { stage: string; draft: JsonRec
 
   return (
     <>
-      <DeclarationFacts fields={draft} promptPosition />
+      <DeclarationFacts fields={draft} promptPosition onChoosePosition={onChoosePosition} />
       <p className="onboarding-boundary">Confirmation does not infer ability, safety, readiness, suitability, risk or medical clearance.</p>
     </>
   );
 }
 
 function DraftView({ api }: { api: OnboardingApi }) {
-  const { serverState, draft, busy, validationError, currentStage, move, confirm } = api;
+  const { serverState, draft, busy, validationError, currentStage, move, jumpBackTo, confirm } = api;
   const [localDraft, setLocalDraft] = useState<JsonRecord>(draft);
   const [syncedFrom, setSyncedFrom] = useState({ stage: currentStage, draft });
 
@@ -392,7 +395,7 @@ function DraftView({ api }: { api: OnboardingApi }) {
       <form className="onboarding-card" data-onboarding-stage={currentStage} onSubmit={handleSubmit}>
         <p className="eyebrow">Stage {index + 1} of {STAGES.length}</p>
         <h3>{STAGE_TITLES[currentStage]}</h3>
-        <StageFields stage={currentStage} draft={localDraft} onChange={setLocalDraft} />
+        <StageFields stage={currentStage} draft={localDraft} onChange={setLocalDraft} onChoosePosition={() => { jumpBackTo("activity").catch(() => {}); }} />
         <div className="onboarding-actions">
           <button className="button secondary" type="button" disabled={index === 0 || busy} onClick={() => move(-1, localDraft)}>Back</button>
           <button className="button primary" type="submit" disabled={busy}>
@@ -675,9 +678,12 @@ function openTodayAfterSetup() {
   (document.querySelector<HTMLElement>('.nav-item[data-view="today"]') ?? document.querySelector<HTMLElement>('[data-view="today"]'))?.click();
 }
 
+// Switches to Today in place. (location.assign to a same-page #-address
+// never reloaded anyway; creating a session re-reads the current
+// declaration - app.js refreshAthleteDeclaration - so nothing is stale.)
 function openWorkspace() {
   sessionStorage.removeItem("kolosseum.athlete_onboarding.reload_required");
-  location.assign("/app/#/athlete/today");
+  openTodayAfterSetup();
 }
 
 function CompletedView({ api }: { api: OnboardingApi }) {

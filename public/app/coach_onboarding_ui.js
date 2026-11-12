@@ -22,6 +22,9 @@ import { applyAccessibilityPreferences } from "./accessibility_preferences_ui.js
 function visible() {
   for (const section of document.querySelectorAll(".view")) section.hidden = section.id !== "view-coach-onboarding";
   for (const navigation of document.querySelectorAll(".nav-item")) navigation.classList.toggle("active", navigation.id === "coachOnboardingNav");
+  // The top bar follows the screen (app.js's viewTitle("coach-onboarding")).
+  const title = document.getElementById("topbarTitle");
+  if (title) title.textContent = "Coach setup";
   document.getElementById("sidebar")?.classList.remove("open");
 }
 
