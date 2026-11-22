@@ -142,6 +142,27 @@ export async function request(
   return structuredClone(await entry.promise);
 }
 
+// The legacy app (app.js, account_ui.js) reads the same records as the React
+// panels on the same screen - a coach's programme list, assignments and
+// relationships went out two or three times per navigation, once from each
+// side (2026-11-22 walkthrough: GET /templates 24 times). Its GETs go through
+// the shared reads above too once this bundle has loaded; before that they
+// fetch on their own. Resolves with the answer either way (ok false on an
+// error status, as fetch would) and rejects only when nothing came back.
+export type SharedGetResult = { ok: boolean; status: number; payload: unknown };
+
+export async function sharedGet(path: string): Promise<SharedGetResult> {
+  try {
+    return { ok: true, status: 200, payload: await request("GET", path) };
+  }
+  catch (error) {
+    if (error instanceof ApiRequestError) return { ok: false, status: error.status, payload: error.payload };
+    throw error;
+  }
+}
+
+(globalThis as { kolosseumSharedGet?: typeof sharedGet }).kolosseumSharedGet = sharedGet;
+
 async function send(
   method: string,
   path: string,

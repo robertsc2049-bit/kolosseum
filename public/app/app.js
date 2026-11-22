@@ -736,18 +736,28 @@ async function api(method, path, body) {
   // go back to the server, both while it runs and once it has landed.
   const changesData = method !== "GET" && method !== "HEAD" && path !== "/sessions/beta-athlete-today" && path !== "/sessions/beta-athlete-history";
   if (changesData) globalThis.document?.dispatchEvent(new Event("kolosseum:data-changed"));
-  const response = await fetch(path, {
-    method,
-    credentials: "same-origin",
-    headers,
-    body:
-      body === undefined
-        ? undefined
-        : JSON.stringify(body)
-  });
+  // A read: shared with the React panels' identical reads (kolosseumSharedGet
+  // in app-src/api/transport.ts), so one screen asks the server once.
+  const sharedGet = method === "GET" ? globalThis.kolosseumSharedGet : undefined;
+  let response;
+  if (typeof sharedGet === "function") {
+    response = await sharedGet(path);
+  }
+  else {
+    const fetched = await fetch(path, {
+      method,
+      credentials: "same-origin",
+      headers,
+      body:
+        body === undefined
+          ? undefined
+          : JSON.stringify(body)
+    });
+    response = { ok: fetched.ok, status: fetched.status, payload: await readJson(fetched) };
+  }
   if (changesData) globalThis.document?.dispatchEvent(new Event("kolosseum:data-changed"));
 
-  const payload = await readJson(response);
+  const payload = response.payload;
 
   if (!response.ok) {
     const error = new Error(
@@ -1935,7 +1945,8 @@ async function refreshCoachAthletes(options = {}) {
 }
 
 async function refreshCoachAssignments(options = {}) {
-  if (state.role !== "coach") return [];
+  // No coach id yet (mid sign-in): never ask with an empty coach_user_id.
+  if (state.role !== "coach" || !state.profile?.coachUserId) return [];
 
   if (!options.quiet) showBusy("Loading programme assignments…");
 
@@ -3188,9 +3199,9 @@ async function loadTemplateExercises() {
 }
 
 async function refreshTemplates(options = {}) {
-  if (state.role !== "coach") return [];
-
   const coachUserId = state.profile?.coachUserId ?? "";
+  // No coach id yet (mid sign-in): never ask with an empty coach_user_id.
+  if (state.role !== "coach" || !coachUserId) return [];
   const response = await api(
     "GET",
     `/templates?coach_user_id=${encodeURIComponent(coachUserId)}`
