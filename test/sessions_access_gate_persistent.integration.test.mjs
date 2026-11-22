@@ -109,6 +109,16 @@ test("session routes are the signed-in owner's only, and a coach can only invite
     assert.equal((await call(baseUrl, "POST", route, { body: { athlete_user_id: owner.userId } })).status, 401, `${route} without sign-in`);
     assert.equal((await call(baseUrl, "POST", route, { cookie: stranger.cookie, body: { athlete_user_id: owner.userId } })).status, 403, `${route} for someone else`);
   }
+  // Express routes ignore case and one trailing slash; so does the gate.
+  for (const route of ["/sessions/beta-athlete-history-export/", "/sessions/BETA-Athlete-History-Export", "/sessions/Beta-Athlete-Today/"]) {
+    assert.equal((await call(baseUrl, "POST", route, { body: { athlete_user_id: owner.userId } })).status, 401, `${route} without sign-in`);
+    assert.equal((await call(baseUrl, "POST", route, { cookie: stranger.cookie, body: { athlete_user_id: owner.userId } })).status, 403, `${route} for someone else`);
+  }
+  for (const route of [`/sessions/${ownedId}/state/`, `/sessions/${ownedId}/STATE`, `/sessions/${ownedId}/Events/`]) {
+    assert.equal((await call(baseUrl, "GET", route)).status, 401, `${route} without sign-in`);
+    assert.equal((await call(baseUrl, "GET", route, { cookie: stranger.cookie })).status, 403, `${route} as another athlete`);
+  }
+  assert.equal((await call(baseUrl, "POST", "/sessions/Beta-Auth/", { cookie: owner.cookie, csrf: owner.csrf, body: {} })).status, 404);
   const ownHistory = await call(baseUrl, "POST", "/sessions/beta-athlete-history", { cookie: owner.cookie, body: { athlete_user_id: owner.userId } });
   assert.equal(ownHistory.status, 200, ownHistory.text);
 
@@ -140,6 +150,9 @@ test("session routes are the signed-in owner's only, and a coach can only invite
   const early = await call(baseUrl, "POST", "/sessions/beta-coach-notes", { cookie: coach.cookie, csrf: coach.csrf, body: noteBody });
   assert.equal(early.status, 403, early.text);
   assert.equal(early.json?.details?.failure_token ?? early.json?.failure_token, "sessions_coach_relationship_required", early.text);
+
+  assert.equal((await call(baseUrl, "POST", "/sessions/Beta-Coach-Notes/", { cookie: coach.cookie, csrf: coach.csrf, body: noteBody })).status, 403, "any spelling of the notes route");
+  assert.equal((await call(baseUrl, "POST", "/sessions/BETA-COACH-RELATIONSHIP/", { cookie: coach.cookie, csrf: coach.csrf, body: relationship("accepted") })).status, 403, "any spelling of the relationship route");
 
   // The athlete sees the invitation and accepts it themselves.
   const pending = await call(baseUrl, "GET", "/coach-workspace/relationship-invitations", { cookie: owner.cookie });
