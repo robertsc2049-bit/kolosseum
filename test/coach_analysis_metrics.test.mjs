@@ -177,3 +177,56 @@ test("a big week then a drop is one story, not two lines that look like they dis
   assert.equal(list.some((f) => f.id === "load" || f.id === "load_spike"), false);
   assert.equal(story.evidence, undefined);
 });
+
+// 2026-11-22 phone walkthrough: a coach's Analysis and weekly reports for an
+// athlete three weeks into their first programme.
+function newAthlete({ today, weeks, closed, plannedAhead, extra = [] }) {
+  const days = ["2026-11-02", "2026-11-04", "2026-11-06", "2026-11-09", "2026-11-11", "2026-11-13", "2026-11-16", "2026-11-18"];
+  const sessions = days.map((date, i) => {
+    const squatDay = i % 3 === 0;
+    const lift = squatDay ? "back_squat" : i % 3 === 1 ? "bench_press" : "deadlift";
+    const events = [{ type: "START_SESSION", at: at(date, 18, 0) }];
+    for (let s = 1; s <= 3; s += 1) events.push({ type: "SET_LOG_REPORT", at: at(date, 18, 5 + s), exercise_id: lift, set_index: s, reps: 5, load_kg: 100 + i * 2.5 });
+    // Three sets of rows logged, all short of 8 reps, where the plan gave two.
+    for (let s = 1; s <= 3; s += 1) events.push({ type: "SET_LOG_REPORT", at: at(date, 18, 20 + s), exercise_id: "barbell_row", set_index: s, reps: 5, load_kg: 60 });
+    events.push({ type: "COMPLETE_EXERCISE", at: at(date, 18, 40), exercise_id: "barbell_row" });
+    return {
+      session_id: `n_${i}`, status: "completed", created_at: at(date, 17, 0), events,
+      planned: [
+        { exercise_id: lift, segment: "working", sets: 3, reps_target: 5, load_kg: 100 + i * 2.5, role: "primary" },
+        { exercise_id: "barbell_row", segment: "working", sets: 2, reps_target: 8, load_kg: null, role: "accessory" }
+      ]
+    };
+  });
+  sessions.push(...extra);
+  return analyseAthlete({
+    today, weeks, closed, sessions, readiness: [], checkins: [], planned_days_per_week: 3,
+    exercise_name: (id) => ({ back_squat: "Back squat", bench_press: "Bench press", deadlift: "Deadlift", barbell_row: "Barbell row" })[id] ?? id,
+    is_strength_lift: (id) => ["back_squat", "bench_press", "deadlift", "barbell_row", "overhead_press"].includes(id),
+    ...(plannedAhead ? { planned_ahead: plannedAhead } : {})
+  });
+}
+
+test("'lately' starts at their first planned week: the empty weeks before it don't make the plan look like a spike", () => {
+  const ahead = [{ week_number: 4, block_name: "Intensification", block_type: "strength", current: false, sessions: 3, working_sets: 15, tonnage_kg: null, sets_80: 0, sets_90: 0, avg_rpe: null }];
+  const a = newAthlete({ today: "2026-11-22", weeks: 12, closed: false, plannedAhead: ahead });
+  assert.equal(a.plan.ahead.recent.sets, 15, "two complete weeks of 15 sets, not (15 + 15) / 4");
+  assert.equal(a.plan.ahead.rows[0].flag, null, "15 planned against 15 lately");
+});
+
+test("'most missed' never goes past 100%, however many extra sets were logged", () => {
+  const a = newAthlete({ today: "2026-11-22", weeks: 4, closed: false });
+  const rows = a.execution.most_missed.find((row) => row.exercise_id === "barbell_row");
+  assert.equal(rows.missed_pct, 100, "every planned set of rows short of 8 reps");
+});
+
+test("a weekly report lists every lift trained that week, and never reads the weeks after it", () => {
+  // Overhead press: first trained the week after the report (and the week after that).
+  const press = (date, i) => ({ session_id: `p_${i}`, status: "completed", created_at: at(date, 7, 0), planned: [{ exercise_id: "overhead_press", segment: "working", sets: 1, reps_target: 5, load_kg: 50, role: "primary" }],
+    events: [{ type: "START_SESSION", at: at(date, 8, 0) }, { type: "SET_LOG_REPORT", at: at(date, 8, 5), exercise_id: "overhead_press", set_index: 1, reps: 5, load_kg: 50 }] });
+  const week = newAthlete({ today: "2026-11-15", weeks: 1, closed: true, extra: [press("2026-11-17", 1), press("2026-11-24", 2)] });
+  const lifts = week.strength.lifts.map((lift) => lift.exercise_id).sort();
+  assert.deepEqual(lifts, ["back_squat", "barbell_row", "bench_press", "deadlift"], "deadlift, trained once that week and not the week after, is listed; overhead press isn't");
+  const bench = week.strength.lifts.find((lift) => lift.exercise_id === "bench_press");
+  assert.deepEqual([bench.series.map((point) => point.week_start), bench.latest], [["2026-11-09"], 128.3], "110 x 5 on 11 Nov");
+});

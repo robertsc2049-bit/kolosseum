@@ -673,6 +673,15 @@ export async function compileBlock(req: Request, res: Response) {
   const templateSessionTitle = executionStamp && typeof executionStamp.template_session_title === "string"
     ? executionStamp.template_session_title.trim()
     : "";
+  // The programme author's main lifts (a work item marked primary), so Coach
+  // Analysis raises its strength findings for those and not for whichever
+  // three lifts sort first. Only from a written programme: the engine's own
+  // generated plans mark every item primary.
+  const templatePrimaryItems = new Set<string>(
+    executionStamp && Array.isArray(programForSession?.planned_items)
+      ? (programForSession.planned_items as unknown[]).filter(isRecord).filter((item) => item.role === "primary").map((item) => String(item.item_id ?? ""))
+      : []
+  );
   const named_session: Phase6SessionOutput = {
     ...p6_session,
     ...(templateSessionTitle ? { title: templateSessionTitle } : {}),
@@ -687,7 +696,8 @@ export async function compileBlock(req: Request, res: Response) {
       : {}),
     exercises: p6.session.exercises.map((e: any) => {
       const exId = String(e.exercise_id ?? "");
-      return displayNames[exId] ? { ...e, display_name: displayNames[exId] } : e;
+      const named = displayNames[exId] ? { ...e, display_name: displayNames[exId] } : e;
+      return templatePrimaryItems.has(String(e.item_id ?? "")) ? { ...named, role: "primary" } : named;
     })
   };
 

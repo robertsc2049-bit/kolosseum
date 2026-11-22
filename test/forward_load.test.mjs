@@ -22,7 +22,7 @@ test("each week ahead against their last 4 weeks and the plan's week before", ()
   assert.equal(rows[3].flag, "spike", "70 sets against 40 lately");
   const f = forwardFindings(rows);
   assert.equal(f[0].id, "forward_load");
-  assert.equal(f[0].text, "Week 7 of the plan (Intensification) is 1.63× the work they've done lately.");
+  assert.equal(f[0].text, "Week 7 of the plan (Intensification) is 1.6× the work they've done lately.");
 });
 
 test("a step up on the plan's week before (not after a deload) when their recent work isn't known", () => {
