@@ -7,7 +7,7 @@
 // when it's created.
 import { pool } from "../db/pool.js";
 import { coachBusinessName, coachNameWithBusiness } from "./coach_branding_service.js";
-import { orderedTemplateSessions, loadExecutableCoachTemplateById } from "./beta18_programme_template_service.js";
+import { assignmentPositionIds, orderedTemplateSessions, loadExecutableCoachTemplateById } from "./beta18_programme_template_service.js";
 import { loadAthleteStrengthProfile, requireCoachAthleteAccess, resolvePercentageLoad } from "./beta19_coach_workspace_service.js";
 import { getCurrentProgrammeRun } from "./programme_catalogue_service.js";
 import { getAthleteCustomExerciseNames, getAthleteTrainingPlan, sessionExerciseDisplayNames } from "./athlete_onboarding_service.js";
@@ -41,9 +41,9 @@ async function sessionsByIndex(trackingId: string): Promise<Map<number, Json>> {
     `SELECT session_id, status, created_at, updated_at,
             planned_session->'template_position'->>'template_session_index' AS template_session_index
      FROM sessions
-     WHERE beta_assignment_id = $1 OR planned_session->'programme_run'->>'run_id' = $1
+     WHERE beta_assignment_id = ANY($2::text[]) OR planned_session->'programme_run'->>'run_id' = $1
      ORDER BY created_at ASC, session_id ASC`,
-    [trackingId]
+    [trackingId, await assignmentPositionIds(trackingId)]
   );
   const byIndex = new Map<number, Json>();
   result.rows.forEach((row, position) => {

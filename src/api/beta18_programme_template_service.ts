@@ -4468,10 +4468,12 @@ export async function duplicateCoachProgrammeTemplate(
   input.template_version =
     nextVersion;
 
+  // Same name: the version is shown beside it everywhere ("· v2", "Version 2
+  // of 2"). Appending " v2" made "Name v2 · v2", then "Name v2 v3".
   input.template_name =
-    `${cleanString(
+    cleanString(
       existing.template_name
-    )} v${nextVersion}`;
+    ).replace(/(?:\s+v\d+)+$/u, "") || cleanString(existing.template_name);
 
   input.updated_at_iso8601 =
     new Date().toISOString();
@@ -4798,19 +4800,50 @@ export function orderedTemplateSessions(
   return sessions;
 }
 
+// The assignments whose sessions mark the athlete's place in a programme:
+// this one, and the ones it continues. A coach who edits a programme and
+// moves the athlete onto the new version (Replace assignment, same programme
+// family) keeps them where they were - they don't start the block again.
+// product_assignment.routes.ts stamps continues_position_from_assignment_id.
+export async function assignmentPositionIds(assignmentId: string): Promise<string[]> {
+  const ids = [assignmentId];
+  for (let id = assignmentId; id && ids.length < 20;) {
+    const result = await pool.query(
+      `SELECT record_payload->>'continues_position_from_assignment_id' AS previous
+       FROM beta_product_records
+       WHERE record_type = 'beta17_assignment_trigger' AND record_payload->>'assignment_id' = $1
+       LIMIT 1`,
+      [id]
+    );
+    const previous = cleanString(result.rows?.[0]?.previous);
+    if (!previous || ids.includes(previous)) break;
+    ids.push(previous);
+    id = previous;
+  }
+  return ids;
+}
+
+// Sessions on this assignment ($1) or run, plus sessions the athlete started
+// on the assignments it continues ($2) - one opened but never started on the
+// old version is done on the new one instead of skipped.
+const CONTINUED_POSITION_SESSIONS =
+  `beta_assignment_id = $1 OR planned_session->'programme_run'->>'run_id' = $1
+   OR (beta_assignment_id = ANY($2::text[]) AND status <> 'created')`;
+
 // The template session index of the athlete's latest session on an
-// assignment or programme run (its planned_session.template_position stamp),
-// or null when it has none (sessions created before the stamp existed).
+// assignment (or the ones it continues) or programme run (its
+// planned_session.template_position stamp), or null when it has none
+// (sessions created before the stamp existed).
 export async function lastTemplateSessionIndex(assignmentId: string): Promise<number | null> {
   const result = await pool.query(
     `
     SELECT planned_session->'template_position'->>'template_session_index' AS template_session_index
     FROM sessions
-    WHERE beta_assignment_id = $1 OR planned_session->'programme_run'->>'run_id' = $1
+    WHERE ${CONTINUED_POSITION_SESSIONS}
     ORDER BY created_at DESC, session_id DESC
     LIMIT 1
     `,
-    [assignmentId]
+    [assignmentId, await assignmentPositionIds(assignmentId)]
   );
   const value = result.rows?.[0]?.template_session_index;
   return value === null || value === undefined || !/^\d+$/u.test(String(value)) ? null : Number(value);
@@ -4826,9 +4859,9 @@ export async function nextTemplateSessionIndex(assignmentId: string): Promise<nu
     `
     SELECT count(*)::integer AS session_count
     FROM sessions
-    WHERE beta_assignment_id = $1 OR planned_session->'programme_run'->>'run_id' = $1
+    WHERE ${CONTINUED_POSITION_SESSIONS}
     `,
-    [assignmentId]
+    [assignmentId, await assignmentPositionIds(assignmentId)]
   );
   return Number(result.rows?.[0]?.session_count ?? 0);
 }

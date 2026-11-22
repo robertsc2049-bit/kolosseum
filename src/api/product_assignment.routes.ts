@@ -9,7 +9,7 @@ import type { PoolClient } from "pg";
 
 import { pool } from "../db/pool.js";
 import { createBeta17AssignmentRecord } from "./beta17_coach_managed_service.js";
-import { loadActiveCoachTemplateById } from "./beta18_programme_template_service.js";
+import { loadActiveCoachTemplateById, loadExecutableCoachTemplateById } from "./beta18_programme_template_service.js";
 import { loadBeta17StoredCoachContext } from "./beta_product_record_store.js";
 import { asyncHandler } from "./async_handler.js";
 import {
@@ -721,7 +721,8 @@ function replacementAssignmentRecord(
     >>
   >,
   template: JsonRecord,
-  previousAssignmentId: string
+  previousAssignmentId: string,
+  continuesPosition: boolean
 ): JsonRecord {
   const result =
     createBeta17AssignmentRecord({
@@ -769,6 +770,9 @@ function replacementAssignmentRecord(
       input.event_id || null,
     replaces_assignment_id:
       previousAssignmentId,
+    // A newer version of the same programme carries on from the athlete's
+    // place in it (beta18_programme_template_service.ts assignmentPositionIds).
+    ...(continuesPosition ? { continues_position_from_assignment_id: previousAssignmentId } : {}),
     lifecycle_action: "replace",
     preserves_prior_sessions: true,
     engine_visible: false
@@ -906,12 +910,20 @@ async function replaceAssignment(
         oldAssignmentId
       );
 
+    const previousTemplate =
+      await loadExecutableCoachTemplateById(
+        input.coach_user_id,
+        cleanString(current.template_id)
+      );
+    const previousFamily = cleanString(previousTemplate?.template_family_id);
+
     const replacement =
       replacementAssignmentRecord(
         input,
         validated.coach_context,
         validated.template,
-        oldAssignmentId
+        oldAssignmentId,
+        previousFamily !== "" && previousFamily === cleanString(validated.template.template_family_id)
       );
 
     const storedAssignment =

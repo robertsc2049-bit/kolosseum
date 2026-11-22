@@ -90,7 +90,7 @@ export function OtherTrainingPanel() {
         </div>
         {!open ? <button type="button" className="button secondary small-button" onClick={() => setOpen(true)}>Log training</button> : null}
       </div>
-      <p className="muted small">Training outside your sessions here counts towards your load - your coach sees a heavy match week for what it is.</p>
+      <p className="muted small">Training outside your sessions here counts towards your load, so a heavy match week shows for what it is.</p>
       {open ? (
         <div className="other-training-form">
           <label className="field"><span>Date</span><input type="date" value={form.date} max={todayIso()} onChange={(event) => setForm({ ...form, date: event.target.value })} /></label>
