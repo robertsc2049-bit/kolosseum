@@ -224,6 +224,23 @@ test("a coached powerlifter sees her whole programme with her weights, and it mo
   assert.deepEqual([doneDay.state, nextDay.state, after.completed_sessions, after.current.session_index], ["done", "current", 1, 1]);
   assert.ok(doneDay.date, "the done day carries the date she trained it");
 
+  // Her coach edits the programme mid-block (a new version, same name) and
+  // moves her onto it: she carries on at Bench day, not back at Squat day.
+  const v2 = ok(await coach.req("POST", `/templates/${templateId}/duplicate`, { coach_user_id: coachAccount.userId }), 201, "edit as a new version").json.template;
+  assert.equal(v2.template_name, `Meet prep ${nonce}`, "no ' v2' added to the name - the version shows beside it");
+  ok(await coach.req("POST", `/templates/${v2.template_id}/complete`, { coach_user_id: coachAccount.userId }), 200, "complete v2");
+  ok(await coach.req("POST", `/templates/${v2.template_id}/activate`, { coach_user_id: coachAccount.userId }), 200, "activate v2");
+  const currentAssignmentId = (await pool.query(
+    `SELECT record_payload->>'assignment_id' AS id FROM beta_product_records
+     WHERE record_type = 'beta17_assignment_trigger' AND subject_user_id = $1 ORDER BY created_at DESC LIMIT 1`, [athleteAccount.userId])).rows[0].id;
+  await coach.refresh();
+  ok(await coach.req("POST", `/coach-workspace/athlete-assignment/${encodeURIComponent(currentAssignmentId)}/replace`, {
+    request_id: `my_programme_v2_${nonce}`, requested_at_iso8601: new Date().toISOString(), coach_user_id: coachAccount.userId,
+    athlete_user_id: athleteAccount.userId, template_id: v2.template_id, activity_id: "powerlifting", event_id: ""
+  }), 201, "move her onto v2");
+  const onV2 = ok(await athlete.req("GET", "/account/onboarding/my-programme"), 200, "on v2").json;
+  assert.deepEqual([onV2.completed_sessions, onV2.current.session_index, onV2.blocks[0].weeks[0].sessions[0].state], [1, 1, "done"], "her place in the programme carries over");
+
   // The coach's Analysis: she is on the roster, her trends come back with
   // findings and every section; the athlete cannot read it.
   const roster = ok(await coach.req("GET", "/coach-workspace/analysis"), 200, "analysis roster").json;

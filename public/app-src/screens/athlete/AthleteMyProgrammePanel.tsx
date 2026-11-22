@@ -135,7 +135,8 @@ export function AthleteMyProgrammePanel() {
     return (
       <div className="empty-state" data-testid="my-programme-empty">
         <h3>No programme yet</h3>
-        <p className="muted">When your coach assigns you a programme, every block, week and session shows here.</p>
+        <p className="muted">When a coach assigns you a programme, every block, week and session shows here. Training on your own? Your sessions follow the week you build in My training.</p>
+        <button className="button secondary" type="button" onClick={() => (document.getElementById("athleteOnboardingNav") as HTMLElement | null)?.click()}>My training</button>
       </div>
     );
   }
