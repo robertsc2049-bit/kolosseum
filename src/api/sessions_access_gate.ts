@@ -58,7 +58,17 @@ const COACH_PATHS: Readonly<Record<string, { mutation: boolean }>> = Object.free
 
 const COACH_RELATIONSHIP_STATES: ReadonlySet<string> = new Set(["invited", "revoked"]);
 
-const SESSION_PATH = /^\/([^/]+)\/(state|events|start|substitution-request|substitution-options|summary)$/u;
+const SESSION_PATH = /^\/([^/]+)\/(state|events|start|substitution-request|substitution-options|summary)$/iu;
+
+// Express routes ignore letter case and one trailing slash, so
+// "/beta-athlete-today/" and "/BETA-Athlete-Today" reach the same handler as
+// "/beta-athlete-today". The gates must read paths the same way or those
+// spellings skip every check. Compare the result lower-cased (keep the
+// original for ids, which are case-sensitive).
+export function gatePath(request: Request): string {
+  const path = request.path;
+  return path.length > 1 && path.endsWith("/") ? path.slice(0, -1) : path;
+}
 
 export function sessionsTestHarnessEnabled(): boolean {
   return process.env.NODE_ENV !== "production" && process.env.KOLOSSEUM_SESSIONS_TEST_HARNESS === "1";
@@ -113,31 +123,32 @@ async function assertCoachHasAthlete(coachUserId: string, athleteUserId: unknown
 }
 
 export const sessionsAccessGate = asyncHandler(async (request: Request, _response: Response, next: NextFunction) => {
-  const path = request.path;
+  const path = gatePath(request);
+  const key = path.toLowerCase();
   const harness = sessionsTestHarnessEnabled();
   const body: JsonRecord = isRecord(request.body) ? request.body : {};
 
-  if (HARNESS_ONLY_PATHS.has(path) || path.startsWith("/decision-summary/")) {
+  if (HARNESS_ONLY_PATHS.has(key) || key.startsWith("/decision-summary/")) {
     if (!harness) throw notFound("Not found");
     return next();
   }
   if (harness && !cookieValue(request, PRODUCT_SESSION_COOKIE)) return next();
 
-  if (ATHLETE_READ_PATHS.has(path)) {
+  if (ATHLETE_READ_PATHS.has(key)) {
     const callerUserId = await signedInUserId(request, false);
     if (body.athlete_user_id !== callerUserId) denied("sessions_athlete_identity_mismatch");
     return next();
   }
 
-  const coachPath = COACH_PATHS[path];
+  const coachPath = Object.hasOwn(COACH_PATHS, key) ? COACH_PATHS[key] : undefined;
   if (coachPath) {
     const callerUserId = await signedInUserId(request, coachPath.mutation);
     assertCoachIdentity(body, callerUserId);
-    if (path === "/beta-coach-relationship") {
+    if (key === "/beta-coach-relationship") {
       const state = body.relationship_state;
       if (typeof state !== "string" || !COACH_RELATIONSHIP_STATES.has(state)) denied("sessions_coach_can_only_invite");
     }
-    if (path === "/beta-coach-notes") await assertCoachHasAthlete(callerUserId, body.athlete_user_id);
+    if (key === "/beta-coach-notes") await assertCoachHasAthlete(callerUserId, body.athlete_user_id);
     return next();
   }
 

@@ -23,7 +23,7 @@ import { cookieValue } from "./coach_session_auth.js";
 import { forbidden } from "./http_errors.js";
 import { PRODUCT_SESSION_COOKIE } from "./product_account_service.js";
 import { accountRateLimitKey } from "./rate_limit_key.js";
-import { sessionsTestHarnessEnabled, signedInUserId } from "./sessions_access_gate.js";
+import { gatePath, sessionsTestHarnessEnabled, signedInUserId } from "./sessions_access_gate.js";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -50,14 +50,15 @@ function harnessWithoutCookie(request: Request): boolean {
   return sessionsTestHarnessEnabled() && !cookieValue(request, PRODUCT_SESSION_COOKIE);
 }
 
-const BLOCK_PATH = /^\/([^/]+)(?:\/sessions)?$/u;
+const BLOCK_PATH = /^\/([^/]+)(?:\/sessions)?$/iu;
 
 export const blocksAccessGate = asyncHandler(async (request: Request, _response: Response, next: NextFunction) => {
   if (harnessWithoutCookie(request)) return next();
-  const path = request.path;
+  const path = gatePath(request);
+  const isCompile = path.toLowerCase() === "/compile";
   const body: JsonRecord = isRecord(request.body) ? request.body : {};
 
-  if (path === "/compile" && request.method === "POST") {
+  if (isCompile && request.method === "POST") {
     const context = isRecord(body.beta_path_context) ? body.beta_path_context : null;
     const authUserId = context && isRecord(context.auth_record) ? context.auth_record.user_id : undefined;
     const names = body.beta_user_id !== undefined || body.beta_coach_user_id !== undefined || context !== null;
@@ -70,7 +71,7 @@ export const blocksAccessGate = asyncHandler(async (request: Request, _response:
   }
 
   const match = BLOCK_PATH.exec(path);
-  if (match && path !== "/compile") {
+  if (match && !isCompile) {
     let blockId = match[1];
     try { blockId = decodeURIComponent(blockId); }
     catch { return next(); }
@@ -89,10 +90,10 @@ export const blocksAccessGate = asyncHandler(async (request: Request, _response:
   return next();
 });
 
-const COACH_IDENTITY_PATH = /^\/(?:reviews|session-review\/[^/]+|athlete-assignment\/[^/]+\/(?:replace|cancel))$/u;
+const COACH_IDENTITY_PATH = /^\/(?:reviews|session-review\/[^/]+|athlete-assignment\/[^/]+\/(?:replace|cancel))$/iu;
 
 export const coachIdentityGate = asyncHandler(async (request: Request, _response: Response, next: NextFunction) => {
-  if (!COACH_IDENTITY_PATH.test(request.path)) return next();
+  if (!COACH_IDENTITY_PATH.test(gatePath(request))) return next();
   if (harnessWithoutCookie(request)) return next();
   const read = request.method === "GET" || request.method === "HEAD";
   const callerUserId = await signedInUserId(request, !read);

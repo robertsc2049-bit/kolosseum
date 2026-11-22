@@ -85,6 +85,9 @@ test("compile, blocks, reviews and assignments need the named athlete or coach s
   assert.equal((await call(baseUrl, "POST", compileRoute, { cookie: coach.cookie, csrf: coach.csrf, body: compile })).status, 403, "a coach can't compile as their athlete");
   const selfContext = { phase1_input: {}, beta_path_context: { auth_record: { user_id: athlete.userId } } };
   assert.equal((await call(baseUrl, "POST", compileRoute, { cookie: stranger.cookie, csrf: stranger.csrf, body: selfContext })).status, 403, "a self-coached compile for someone else");
+  for (const route of ["/blocks/COMPILE?create_session=true&beta_path=true", "/blocks/compile/?create_session=true&beta_path=true"]) {
+    assert.equal((await call(baseUrl, "POST", route, { body: compile })).status, 401, `${route}: any spelling of compile`);
+  }
   notGate(await call(baseUrl, "POST", compileRoute, { cookie: athlete.cookie, csrf: athlete.csrf, body: compile }), "the athlete themselves");
   notGate(await call(baseUrl, "POST", "/blocks/compile", { body: { phase1_input: {} } }), "an anonymous engine compile stays open");
 
@@ -105,6 +108,13 @@ test("compile, blocks, reviews and assignments need the named athlete or coach s
     notGate(await call(baseUrl, "GET", route, { cookie: coach.cookie }), `${route} as their coach`);
   }
   assert.equal((await call(baseUrl, "POST", `/blocks/${blockId}/sessions`, { cookie: stranger.cookie, csrf: stranger.csrf, body: {} })).status, 403);
+  for (const route of [`/blocks/${blockId}/`, `/blocks/${blockId}/SESSIONS`, `/blocks/${blockId}/sessions/`]) {
+    assert.equal((await call(baseUrl, "GET", route, { cookie: stranger.cookie })).status, 403, `${route} as someone else`);
+  }
+  for (const route of ["/coach-workspace/REVIEWS", "/coach-workspace/reviews/"]) {
+    assert.equal((await call(baseUrl, "GET", `${route}?coach_user_id=${encodeURIComponent(coach.userId)}`, { cookie: stranger.cookie })).status, 403, `${route} as someone else`);
+  }
+  assert.equal((await call(baseUrl, "POST", "/coach-workspace/Athlete-Assignment/assign_x/Cancel/", { cookie: stranger.cookie, csrf: stranger.csrf, body: { coach_user_id: coach.userId } })).status, 403);
 
   // Reviews and assignment changes name the signed-in coach.
   const reviews = `/coach-workspace/reviews?coach_user_id=${encodeURIComponent(coach.userId)}`;
