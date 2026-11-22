@@ -205,6 +205,9 @@ test("a coached powerlifter sees her whole programme with her weights, and it mo
   const adjustedSquat = created.planned_session.exercises.find((e) => e.exercise_id === "back_squat");
   assert.equal(adjustedSquat.sets, 3, "her coach's change for her");
   assert.match(adjustedSquat.coaching_notes, /Your coach: Keep it pain-free/u);
+  // Her coach's main lift is marked as one, so Coach Analysis judges it as one.
+  assert.equal(adjustedSquat.role, "primary");
+  assert.equal(created.planned_session.exercises.find((e) => e.exercise_id === "romanian_deadlift").role, undefined, "an accessory isn't");
   assert.equal(created.planned_session.exercises.some((e) => e.exercise_id === "barbell_row"), false, "the row is left out for her");
   assert.equal(created.planned_session.coach_overrides.applied, 2);
   assert.equal(ok(await athlete.req("GET", `/sessions/${sessionId}/state`), 200, "state").json.session_title, "Squat day");

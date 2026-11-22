@@ -68,7 +68,7 @@ export function forwardFindings(rows: readonly Json[]): Json[] {
   const jump = upcoming.find((row) => row.flag === "jump" || row.flag === "step_up");
   const pick = spike ?? jump;
   if (!pick) return [];
-  const vs = Math.max(Number(pick.sets_vs_recent ?? 0), Number(pick.tonnage_vs_recent ?? 0));
+  const vs = round(Math.max(Number(pick.sets_vs_recent ?? 0), Number(pick.tonnage_vs_recent ?? 0)), 1);
   const text = pick.flag === "step_up"
     ? `Week ${pick.week_number} of the plan (${pick.block_name}) steps working sets up ${Math.round((Number(pick.sets_vs_week_before) - 1) * 100)}% on the week before.`
     : `Week ${pick.week_number} of the plan (${pick.block_name}) is ${vs}× the work they've done lately.`;

@@ -468,7 +468,9 @@ export function analyseAthlete(input: AnalysisInput): Json {
 
   // --- strength (estimated max per lift, weekly best) ---
   const liftWeeks = new Map<string, Map<string, { value: number; method: string; reps: number; load: number }>>();
-  for (const session of sessions.filter(done)) {
+  // Not past the window's last day: a report on a week that has ended
+  // never reads the weeks after it.
+  for (const session of sessions.filter((s) => done(s) && sessionDay(s) <= input.today)) {
     const ratingFor = new Map<string, number>();
     for (const event of session.events) {
       if (event.type === "RPE_REPORT" && event.exercise_id && finite(event.rpe)) ratingFor.set(baseExercise(event.exercise_id), event.rpe);
@@ -512,7 +514,8 @@ export function analyseAthlete(input: AnalysisInput): Json {
   // trained more often; then the most-trained.
   const ranked = [...liftWeeks.entries()]
     .map(([lift, byWeek]) => ({ lift, inWindow: [...byWeek.keys()].filter((week) => week >= first) }))
-    .filter((entry) => entry.inWindow.length >= 2)
+    // Two weeks for a trend; a one-week report still lists what was lifted.
+    .filter((entry) => entry.inWindow.length >= Math.min(2, weeks.length))
     .sort((a, b) => Number(primary(b.lift)) - Number(primary(a.lift)) || b.inWindow.length - a.inWindow.length || a.lift.localeCompare(b.lift))
     .slice(0, 8);
   // Main lifts are the coach's primary lifts; findings are only raised for
@@ -606,14 +609,17 @@ export function analyseAthlete(input: AnalysisInput): Json {
         const mine = logs.filter((log) => log.exercise_id === planned.exercise_id);
         t.sets_logged += Math.min(mine.length, planned.sets_max ?? planned.sets);
         for (const log of mine) if (finite(log.velocity) && finite(log.load_kg) && log.load_kg > 0) velocitySets.push({ session_id: session.session_id, date: sessionDay(session), exercise_id: baseExercise(planned.exercise_id), load_kg: log.load_kg, velocity: log.velocity, set_index: log.set_index ?? 0 });
+        let missed = Math.max(0, planned.sets - mine.length);
         if (planned.reps_target !== null) {
           for (const log of mine) {
             t.reps_checked += 1;
             if (finite(log.reps) && log.reps >= Number(targetRepsFor(planned, log.set_index))) t.reps_hit += 1;
-            else ex.missed_sets += 1;
+            else missed += 1;
           }
         }
-        ex.missed_sets += Math.max(0, planned.sets - mine.length);
+        // Extra sets logged beyond the plan can't make more than every
+        // planned set missed (a share over 100%).
+        ex.missed_sets += Math.min(planned.sets, missed);
         missedByExercise.set(baseExercise(planned.exercise_id), ex);
         // The weight against a fixed weight, a weight range or a % of max.
         if (planned.load_kg && planned.load_kg > 0 && planned.intensity_type !== "bodyweight") {
@@ -1048,8 +1054,11 @@ export function analyseAthlete(input: AnalysisInput): Json {
       })
     ], input.competition_date ?? null, input.today, finite(input.bodyweight_kg) ? input.bodyweight_kg : null),
     plan: { rows: planRows, ahead: (() => {
-      // What they've actually done lately: the mean of their last 4 complete weeks.
-      const recent = planRows.filter((row) => !row.partial_week).slice(-4);
+      // What they've actually done lately: the mean of their last 4 complete
+      // weeks - from their first planned week, so the empty weeks before they
+      // started don't make a new athlete's next week look like a spike.
+      const started = planRows.findIndex((row) => row.planned_sessions > 0);
+      const recent = started < 0 ? [] : planRows.slice(started).filter((row) => !row.partial_week).slice(-4);
       const avg = (pick: (row: (typeof planRows)[number]) => number) => (recent.length ? round(recent.reduce((sum, row) => sum + pick(row), 0) / recent.length, 0) : null);
       return { recent: { sets: avg((row) => row.done_sets), tonnage_kg: avg((row) => row.done_tonnage_kg) }, rows: forwardRows(input.planned_ahead ?? [], { sets: avg((row) => row.done_sets), tonnage_kg: avg((row) => row.done_tonnage_kg) }) };
     })() },
