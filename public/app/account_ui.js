@@ -42,18 +42,28 @@ async function request(
   // go back to the server, both while it runs and once it has landed.
   const changesData = method !== "GET" && method !== "HEAD";
   if (changesData) globalThis.document?.dispatchEvent(new Event("kolosseum:data-changed"));
-  const response = await fetch(path, {
-    method,
-    credentials: "same-origin",
-    headers,
-    body:
-      body === undefined
-        ? undefined
-        : JSON.stringify(body)
-  });
+  // A read: shared with the React panels' identical reads (kolosseumSharedGet
+  // in app-src/api/transport.ts), so one screen asks the server once.
+  const sharedGet = method === "GET" ? globalThis.kolosseumSharedGet : undefined;
+  let response;
+  if (typeof sharedGet === "function") {
+    response = await sharedGet(path);
+  }
+  else {
+    const fetched = await fetch(path, {
+      method,
+      credentials: "same-origin",
+      headers,
+      body:
+        body === undefined
+          ? undefined
+          : JSON.stringify(body)
+    });
+    response = { ok: fetched.ok, status: fetched.status, payload: await readJson(fetched) };
+  }
   if (changesData) globalThis.document?.dispatchEvent(new Event("kolosseum:data-changed"));
 
-  const payload = await readJson(response);
+  const payload = response.payload;
 
   if (!response.ok) {
     const error = new Error(

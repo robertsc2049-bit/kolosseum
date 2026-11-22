@@ -4,6 +4,7 @@
 // and src/api/progress_insights.routes.ts's authenticatedCoach calls) - the
 // client only ever needs to send athlete_user_id.
 
+import { loadAccountDetail } from "./client";
 import { ApiRequestError, type JsonRecord, request } from "./transport";
 
 export function loadAthleteStrengthProfile(athleteUserId: string): Promise<JsonRecord> {
@@ -164,8 +165,19 @@ export async function loadCoachTemplates(coachUserId: string): Promise<JsonRecor
   return Array.isArray(response.templates) ? (response.templates as JsonRecord[]) : [];
 }
 
+// A few panels pass "" for coach_user_id (these routes read the coach from
+// the session). Asking with the signed-in coach's id instead keeps that read
+// identical to every other panel's, so they share one request (transport.ts),
+// and no request goes out with an empty coach_user_id.
+async function coachUserIdOrSignedIn(coachUserId: string): Promise<string> {
+  if (coachUserId) return coachUserId;
+  const account = await loadAccountDetail();
+  return String((account.account as JsonRecord | undefined)?.user_id ?? "");
+}
+
 export async function loadCoachEventsList(coachUserId: string): Promise<JsonRecord[]> {
-  const response = await request("GET", `/coach-workspace/events?coach_user_id=${encodeURIComponent(coachUserId)}`);
+  const id = await coachUserIdOrSignedIn(coachUserId);
+  const response = await request("GET", `/coach-workspace/events?coach_user_id=${encodeURIComponent(id)}`);
   return Array.isArray(response.events) ? (response.events as JsonRecord[]) : [];
 }
 
@@ -241,12 +253,14 @@ export function unlinkStandaloneEventAthlete(eventId: string, athleteUserId: str
 // athlete-detail sub-panels above, this is a whole-workspace read, not
 // scoped to one athlete.
 export async function loadCoachRelationships(coachUserId: string): Promise<JsonRecord[]> {
-  const response = await request("GET", `/coach-workspace/relationships?coach_user_id=${encodeURIComponent(coachUserId)}`);
+  const id = await coachUserIdOrSignedIn(coachUserId);
+  const response = await request("GET", `/coach-workspace/relationships?coach_user_id=${encodeURIComponent(id)}`);
   return Array.isArray(response.relationships) ? (response.relationships as JsonRecord[]) : [];
 }
 
 export async function loadCoachAssignments(coachUserId: string): Promise<JsonRecord[]> {
-  const response = await request("GET", `/coach-workspace/assignments?coach_user_id=${encodeURIComponent(coachUserId)}`);
+  const id = await coachUserIdOrSignedIn(coachUserId);
+  const response = await request("GET", `/coach-workspace/assignments?coach_user_id=${encodeURIComponent(id)}`);
   return Array.isArray(response.assignments) ? (response.assignments as JsonRecord[]) : [];
 }
 

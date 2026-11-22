@@ -326,7 +326,45 @@ async function resolvedCoachRoute(route, options) {
   }
 }
 
-export async function applyCurrentProductRoute(options = {}) {
+// DEV NOTE: one route change, one application. Changing location.hash fires
+// both popstate and hashchange, and a sign-in re-applies the route three
+// more times (scheduleRouteApplication) - each application clicked the
+// view's nav button again, so setView() refetched the whole screen (and
+// re-opened an athlete profile) two to four times per navigation
+// (2026-11-22 walkthrough: GET /templates 24 times in a handful of
+// screens). An application already running for the same hash is shared,
+// and a silent re-application of the route last applied, whose view is
+// already showing, has nothing left to do. A real navigation (not silent)
+// always applies, so every screen change still loads fresh records.
+let routeInFlight = null;
+let lastAppliedHash = "";
+
+function visibleViewName() {
+  return [...document.querySelectorAll(".view")]
+    .find((section) => !section.hidden)
+    ?.id.replace(/^view-/u, "") ?? "";
+}
+
+export function applyCurrentProductRoute(options = {}) {
+  const hash = location.hash;
+  if (routeInFlight?.hash === hash) return routeInFlight.promise;
+  if (options.silent && hash && hash === lastAppliedHash && parseProductRoute(hash)?.view === visibleViewName()) {
+    return Promise.resolve(true);
+  }
+
+  const promise = applyProductRouteNow(options)
+    .then((applied) => {
+      if (applied) lastAppliedHash = location.hash;
+      return applied;
+    })
+    .finally(() => {
+      if (routeInFlight?.promise === promise) routeInFlight = null;
+    });
+  routeInFlight = { hash, promise };
+  return promise;
+}
+
+async function applyProductRouteNow(options) {
   const actor = readRole();
   if (!actor) return false;
 
@@ -502,7 +540,9 @@ function installProductRouting() {
   const appShell = document.getElementById("appShell");
   if (appShell) {
     new MutationObserver(() => {
-      if (!appShell.hidden) scheduleRouteApplication();
+      // Signed out: the next sign-in applies its route afresh.
+      if (appShell.hidden) lastAppliedHash = "";
+      else scheduleRouteApplication();
     }).observe(appShell, { attributes: true, attributeFilter: ["hidden"] });
   }
 

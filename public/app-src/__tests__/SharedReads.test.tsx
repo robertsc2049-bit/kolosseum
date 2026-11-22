@@ -4,7 +4,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { __resetSharedReadsForTests, request } from "../api/transport";
+import { loadCoachAssignments, loadCoachRelationships } from "../api/coachWorkspaceClient";
+import { __resetSharedReadsForTests, request, sharedGet } from "../api/transport";
 
 type Call = { method: string; path: string };
 let calls: Call[] = [];
@@ -17,6 +18,7 @@ function installFetch() {
     calls.push({ method, path });
     await new Promise((resolve) => setTimeout(resolve, 5));
     if (path === "/broken") return new Response(JSON.stringify({ error: "nope" }), { status: 500 });
+    if (path === "/account/detail") return new Response(JSON.stringify({ account: { user_id: "coach_1" }, version: detailVersion }), { status: 200 });
     if (method === "POST" && path === "/account/profile") detailVersion += 1;
     return new Response(JSON.stringify({ path, version: detailVersion, items: [1, 2] }), { status: 200 });
   }) as typeof fetch;
@@ -35,8 +37,8 @@ test.after(() => { g.__KOLOSSEUM_READ_REUSE_MS__ = 0; });
 test("ten screens asking for the account at once send one request, and each gets its own copy", async () => {
   const results = await Promise.all(Array.from({ length: 10 }, () => request("GET", "/account/detail")));
   assert.equal(calls.length, 1);
-  (results[0].items as number[]).push(3);
-  assert.deepEqual(results[1].items, [1, 2], "one screen changing its copy doesn't change another's");
+  (results[0].account as { user_id: string }).user_id = "changed";
+  assert.equal((results[1].account as { user_id: string }).user_id, "coach_1", "one screen changing its copy doesn't change another's");
 });
 
 test("a read just after the same read is reused; a different read is not", async () => {
@@ -76,4 +78,31 @@ test("a failed read is not kept: the next read tries again", async () => {
   await assert.rejects(request("GET", "/broken"));
   await assert.rejects(request("GET", "/broken"));
   assert.equal(calls.length, 2);
+});
+
+// 2026-11-22 walkthrough: a coach's few navigations sent GET /templates 24
+// times - the legacy app (app.js, account_ui.js) fetched the same lists as
+// the React panels beside it. Its reads now go through sharedGet().
+test("the legacy app's reads share the React panels' identical reads", async () => {
+  const path = "/coach-workspace/assignments?coach_user_id=coach_1";
+  const [legacy, react] = await Promise.all([sharedGet(path), request("GET", path)]);
+  assert.equal(calls.length, 1);
+  assert.equal(legacy.ok, true);
+  assert.deepEqual(legacy.payload, react);
+  assert.equal((globalThis as { kolosseumSharedGet?: unknown }).kolosseumSharedGet, sharedGet, "published for app.js/account_ui.js");
+});
+
+test("a legacy read that fails answers like fetch would (ok false, the status and body), and isn't kept", async () => {
+  const result = await sharedGet("/broken");
+  assert.deepEqual(result, { ok: false, status: 500, payload: { error: "nope" } });
+  await sharedGet("/broken");
+  assert.equal(calls.length, 2);
+});
+
+test("a panel without the coach's id never asks with an empty coach_user_id, and shares the other panels' read", async () => {
+  await Promise.all([loadCoachRelationships(""), loadCoachRelationships("coach_1"), loadCoachAssignments("")]);
+  const paths = calls.map((c) => c.path);
+  assert.ok(paths.every((path) => !/coach_user_id=(&|$)/u.test(path)), paths.join(", "));
+  assert.equal(paths.filter((path) => path === "/coach-workspace/relationships?coach_user_id=coach_1").length, 1);
+  assert.equal(paths.filter((path) => path === "/coach-workspace/assignments?coach_user_id=coach_1").length, 1);
 });

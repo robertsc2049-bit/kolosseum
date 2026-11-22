@@ -246,13 +246,13 @@ export function useAthleteProfileAssignment() {
       const coachUserId = String((account.account as JsonRecord | undefined)?.user_id ?? "");
 
       const [relationships, templates, events, rawAssignments, eventLinks, strengthProfileResponse, exercises] = await Promise.all([
-        loadCoachRelationships(""),
+        loadCoachRelationships(coachUserId),
         // Unlike every other route here, getCoachTemplates resolves
         // coach_user_id from this query param, not the session - a legacy
         // route predating the authenticatedCoach(request, ...) convention.
         loadCoachTemplates(coachUserId),
-        loadCoachEventsList(""),
-        loadCoachAssignments(""),
+        loadCoachEventsList(coachUserId),
+        loadCoachAssignments(coachUserId),
         loadAthleteEventLinks(id),
         loadAthleteStrengthProfile(id),
         loadTemplateExercises()
