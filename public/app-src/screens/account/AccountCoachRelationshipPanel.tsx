@@ -123,11 +123,14 @@ export function AccountCoachRelationshipPanel() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   // A package payment notification opens Account: open My coach (collapsed
-  // on a phone) at the package, where "I've paid" is.
+  // on a phone) at the package, where "I've paid" is; a message, at the messages.
   useEffect(() => {
     const onOpenTarget = (event: Event) => {
       const type = String(((event as CustomEvent).detail as JsonRecord | undefined)?.notification_type ?? "");
       if (PACKAGE_NOTIFICATIONS.has(type)) revealSection("[data-testid=\"my-package\"]");
+      // A message from their coach: open My coach at the newest message (the
+      // list runs oldest first), not the top of Account with the section shut.
+      else if (type === "coach_athlete_message_received") revealSection("[data-testid=\"coach-messages\"] > article:last-child");
     };
     document.addEventListener("kolosseum:open-notification-target", onOpenTarget);
     return () => document.removeEventListener("kolosseum:open-notification-target", onOpenTarget);
@@ -220,7 +223,7 @@ export function AccountCoachRelationshipPanel() {
       {currentCoach ? (
         <>
           <p className="eyebrow">Messages</p>
-          <div className="record-list">
+          <div className="record-list" data-testid="coach-messages">
             {messages.length === 0 ? (
               <div className="empty-state compact-empty"><p>No messages yet.</p></div>
             ) : messages.map((message: JsonRecord, index) => (

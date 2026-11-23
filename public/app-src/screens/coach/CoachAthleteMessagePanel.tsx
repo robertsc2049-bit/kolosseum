@@ -48,7 +48,8 @@ export function CoachAthleteMessagePanel() {
     const openTarget = (event: Event) => {
       const detail = ((event as CustomEvent).detail ?? {}) as JsonRecord;
       const athleteId = ((detail.params ?? {}) as JsonRecord).athlete_id;
-      if (MESSAGE_SAFETY_NOTIFICATIONS.has(String(detail.notification_type ?? "")) && athleteId) revealFor.current = String(athleteId);
+      const type = String(detail.notification_type ?? "");
+      if ((MESSAGE_SAFETY_NOTIFICATIONS.has(type) || type === "coach_athlete_message_received") && athleteId) revealFor.current = String(athleteId);
     };
     document.addEventListener(OPEN_TARGET_EVENT, openTarget);
     return () => document.removeEventListener(OPEN_TARGET_EVENT, openTarget);
@@ -57,7 +58,12 @@ export function CoachAthleteMessagePanel() {
   useEffect(() => {
     if (!athleteUserId || loading || revealFor.current !== athleteUserId) return;
     revealFor.current = null;
-    revealSection(".athlete-detail-messages-panel");
+    // The messages sit on the profile's "Notes & messages" tab, which a
+    // profile always opens away from: switch to it, then bring the newest
+    // message (the list runs oldest first) into view.
+    document.querySelector<HTMLElement>('.section-tab[data-tab-target="notes-messages"]')?.click();
+    const newest = ".athlete-detail-messages-panel .athlete-detail-list > article:last-child";
+    revealSection(document.querySelector(newest) ? newest : ".athlete-detail-messages-panel");
   }, [athleteUserId, loading]);
 
   useEffect(() => {
