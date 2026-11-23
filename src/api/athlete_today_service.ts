@@ -16,6 +16,8 @@ import {
   materialiseNextCoachTemplateProgram
 } from "./beta18_programme_template_service.js";
 import { getAthleteTrainingPlan } from "./athlete_onboarding_service.js";
+import { getCurrentTrainingWeek } from "./athlete_training_week_service.js";
+import { gapReentryForAthlete } from "./training_cycle_service.js";
 import {
   getSessionStateQuery
 } from "./session_state_query_service.js";
@@ -316,6 +318,9 @@ export async function loadAthleteTodayView(
     const selfDirectedSession = await latestOpenSelfDirectedSession(athleteUserId);
 
     return baseResponse("no_current_assignment", athleteUserId, {
+      // Training on their own: whether they've built their own week yet (the
+      // card says what their sessions follow).
+      own_week: Boolean(await getCurrentTrainingWeek(athleteUserId).catch(() => null)),
       session: selfDirectedSession
         ? deepFreeze({ action: "continue", session_id: selfDirectedSession.session_id })
         : null
@@ -510,9 +515,14 @@ export async function loadAthleteTodayView(
     });
   }
 
+  // Back after 10+ days away: their next session will be made lighter when
+  // it's created (blocks.handlers.ts) - say so before they start it.
+  const back = await gapReentryForAthlete(athleteUserId).catch(() => null);
+
   return baseResponse("session_already_complete", athleteUserId, {
     coach_user_id: coachUserId,
     assignment: assignmentSummary,
+    ...(back?.reentry_week ? { reentry: { gap_days: back.gap_days, long_layoff: Boolean(back.long_layoff) } } : {}),
     session: sessionContextFromMaterialised(materialised, "start_next", null, totalSessionCount),
     event,
     notes

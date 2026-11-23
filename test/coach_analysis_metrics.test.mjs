@@ -230,3 +230,22 @@ test("a weekly report lists every lift trained that week, and never reads the we
   const bench = week.strength.lifts.find((lift) => lift.exercise_id === "bench_press");
   assert.deepEqual([bench.series.map((point) => point.week_start), bench.latest], [["2026-11-09"], 128.3], "110 x 5 on 11 Nov");
 });
+
+test("no training for 10+ days is a finding - a watch, then an alert a week later; never in a report on an ended period", () => {
+  const quiet = (today, closed = false) => findings(newAthlete({ today, weeks: 8, closed })).find((f) => f.id === "no_training");
+  assert.equal(quiet("2026-11-25"), undefined, "trained 7 days ago");
+  assert.deepEqual([quiet("2026-11-28").level, quiet("2026-11-28").text], ["watch", "No training logged for 10 days."]);
+  assert.equal(quiet("2026-12-04").level, "watch", "16 days");
+  assert.equal(quiet("2026-12-05").level, "alert", "17 days, three sessions a week");
+  const list = findings(newAthlete({ today: "2026-12-05", weeks: 8, closed: false }));
+  assert.equal(list[0].id, "no_training", "it leads the list - a roster row shows the first three");
+  assert.equal(quiet("2026-11-29", true), undefined, "an ended period's report");
+});
+
+test("once a week, 12 days without training is their normal gap; 14 is a finding", () => {
+  const today = "2026-10-17";
+  const once = (lastDay) => analyseAthlete({ today, weeks: 6, sessions: [{ session_id: "w1", status: "completed", created_at: at(lastDay, 9, 0), planned: [], events: [{ type: "START_SESSION", at: at(lastDay, 9, 0) }] }],
+    readiness: [], checkins: [], planned_days_per_week: 1, exercise_name: (id) => id, is_strength_lift: () => false });
+  assert.equal(findings(once("2026-10-05")).some((f) => f.id === "no_training"), false);
+  assert.equal(findings(once("2026-10-03")).find((f) => f.id === "no_training").text, "No training logged for 14 days.");
+});

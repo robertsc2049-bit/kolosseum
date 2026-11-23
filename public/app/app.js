@@ -6790,13 +6790,14 @@ const COLLAPSIBLE_SCREENS = [
     keepOpenRoots: new Set(),
     keepOpen: "[data-declaration-status=\"current\"], .readiness, .stand-down-card, .pain-check-in, .athlete-programme"
   },
-  // A coach's athlete profile: the counts and the assignment section stay
-  // open; each record (history, notes, wellbeing...) is a row to open.
+  // A coach's athlete profile: the counts, the assignment section and their
+  // current programme (with "Adjust for this athlete") stay open; each record
+  // (history, notes, wellbeing...) is a row to open.
   {
     viewId: "athleteProfilePanel",
     panels: "article.panel",
     keepOpenRoots: new Set(),
-    keepOpen: ".metric-card"
+    keepOpen: ".metric-card, :has(> #athlete-history-current-programme-root)"
   },
   // A programme's detail: the preview stays open; assigning, versions,
   // usage, checks, marketplace and release are rows to open.

@@ -1026,9 +1026,13 @@ export function analyseAthlete(input: AnalysisInput): Json {
       : null
   };
 
+  // The last day they trained (gym or other training), for "no training for N days".
+  const lastTrained = sessionRows.filter((row) => row.status !== "skipped" && String(row.date) <= input.today).map((row) => String(row.date)).sort().at(-1) ?? null;
   return {
     weeks,
     baseline,
+    as_of: input.today,
+    last_trained: lastTrained,
     ...(input.from || input.to ? { range: { from: input.from ?? null, to: input.to ?? null } } : {}),
     ...(input.closed ? { closed: true } : {}),
     load: { rows: loadRows, sessions: sessionRows.filter((row) => inWindow(String(row.date))), quality: loadQuality },
@@ -1166,6 +1170,18 @@ export function findings(analysis: Json): Finding[] {
   const weeksShown = a.weeks as unknown as string[];
   // An ended period names its weeks by date, not "this week".
   const currentWeek = a.closed ? "" : weeksShown[weeksShown.length - 1];
+
+  // Gone quiet: no training at all for 10+ days (the point a return is made
+  // a lighter re-entry week), or two of their usual gaps if they train less
+  // often (14 days for once a week). Only while it's still going on - not in
+  // a report on a period that has ended. First, so it leads a roster row:
+  // it's the plainest fact about an athlete who has stopped.
+  if (!a.closed && typeof a.last_trained === "string" && typeof a.as_of === "string") {
+    const days = Math.round((Date.parse(`${a.as_of}T00:00:00Z`) - Date.parse(`${a.last_trained}T00:00:00Z`)) / 86_400_000);
+    const perWeek = Number((a.adherence as Json).planned_days_per_week) || 0;
+    const quietAfter = Math.max(10, perWeek > 0 ? Math.ceil(14 / perWeek) : 10);
+    if (days >= quietAfter) out.push({ id: "no_training", section: "adherence", level: days >= Math.max(14, quietAfter + 7) ? "alert" : "watch", text: `No training logged for ${days} days.` });
+  }
 
   // Adherence: the last 2 complete weeks.
   const adherenceRows = (a.adherence.rows as Json[]).filter((row) => row.adherence_pct !== null);

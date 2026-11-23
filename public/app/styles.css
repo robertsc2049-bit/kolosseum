@@ -701,6 +701,8 @@ button:focus-visible,
 }
 
 .session-hero { min-height: 315px; }
+/* Back after a break: said on the Today card before the session starts. */
+.today-reentry-note { margin-top: 12px; padding: 10px 12px; border-left: 3px solid var(--k-accent); background: var(--k-surface-2); border-radius: 8px; text-align: left; color: var(--k-text); }
 .compact-panel { display: flex; min-height: 315px; flex-direction: column; justify-content: center; }
 .large-number { display: block; margin: 0.2rem 0 0.6rem; font-family: var(--k-font-display); font-size: 4.4rem; font-weight: 500; }
 

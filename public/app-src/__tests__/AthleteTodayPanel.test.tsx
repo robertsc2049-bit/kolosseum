@@ -456,3 +456,28 @@ test("a self-coached session that's started but not finished is continued, never
     document.removeEventListener("kolosseum:create-session", onCreate);
   }
 });
+
+// 2026-11-22 walkthrough: the self-coached card still said generated sessions
+// "fill in until you do" after the athlete had built their week.
+test("once a self-coached athlete has built their week, the card says their sessions follow it", async () => {
+  installMocks({ state: "no_current_assignment", own_week: true, assignment: null, session: null, event: null, notes: [] }, undefined, undefined, []);
+  render(<AthleteTodaySessionCard />);
+  await screen.findByText(/your sessions follow the training week you built in My training/u);
+  assert.doesNotMatch(document.body.textContent ?? "", /fill in until you do/u);
+});
+
+// 2026-11-22 walkthrough: back after 12 days, the athlete only learned their
+// session was lighter once they had started it.
+test("back after a break, the card says the next sessions are lighter before they start", async () => {
+  installMocks({ state: "session_already_complete", reentry: { gap_days: 12, long_layoff: false }, assignment: { template_name: "Strength block", activity_id: "powerlifting" }, session: { action: "start_next" }, event: null, notes: [] });
+  render(<AthleteTodaySessionCard />);
+  const note = await screen.findByTestId("today-reentry-note");
+  assert.match(note.textContent ?? "", /12 days since your last session, so your next sessions are lighter: a set fewer and less weight/u);
+});
+
+test("no break, no welcome-back note", async () => {
+  installMocks({ state: "session_already_complete", assignment: { template_name: "Strength block", activity_id: "powerlifting" }, session: { action: "start_next" }, event: null, notes: [] });
+  render(<AthleteTodaySessionCard />);
+  await screen.findByText("Session done", { selector: "h3" });
+  assert.equal(screen.queryByTestId("today-reentry-note"), null);
+});
