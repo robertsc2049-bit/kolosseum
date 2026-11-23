@@ -254,3 +254,35 @@ test("a 'message removed' notification for this athlete scrolls the coach to the
     window.scrollTo = originalScrollTo;
   }
 });
+
+// 2026-11-23 phone walkthrough: "New message" from an athlete opened their
+// profile on the Training log tab - the message out of sight on another tab.
+test("a 'new message' notification opens the Notes & messages tab at the newest message", async () => {
+  installMocks({ messages: [
+    { message_id: "m1", sender_role: "coach", body_text: "Your report is ready", created_at_iso8601: "2026-11-23T09:00:00.000Z" },
+    { message_id: "m2", sender_role: "athlete", body_text: "Is 130 next week ok?", created_at_iso8601: "2026-11-23T10:00:00.000Z" }
+  ] });
+  const tab = document.createElement("button");
+  tab.className = "section-tab";
+  tab.dataset.tabTarget = "notes-messages";
+  let tabOpened = false;
+  tab.addEventListener("click", () => { tabOpened = true; });
+  document.body.append(tab);
+  const scrolls: number[] = [];
+  const originalScrollTo = window.scrollTo;
+  window.scrollTo = ((options: ScrollToOptions) => { scrolls.push(Number(options.top)); }) as typeof window.scrollTo;
+  try {
+    render(<CoachAthleteMessagePanel />);
+    document.dispatchEvent(new CustomEvent("kolosseum:open-notification-target", { detail: { route_id: "coach_athlete_detail", params: { athlete_id: "athlete_1" }, notification_type: "coach_athlete_message_received" } }));
+    await openProfile();
+    const newest = (await screen.findByText("Is 130 next week ok?")).closest("article") as HTMLElement;
+    newest.getBoundingClientRect = () => ({ top: 600 } as DOMRect);
+    await act(async () => { await new Promise((resolve) => setTimeout(resolve, 400)); });
+    assert.equal(tabOpened, true, "switched to Notes & messages");
+    assert.equal(scrolls[0], 600 + window.scrollY - 80, "scrolled to the newest message");
+  }
+  finally {
+    window.scrollTo = originalScrollTo;
+    tab.remove();
+  }
+});

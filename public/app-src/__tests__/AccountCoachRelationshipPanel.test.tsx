@@ -356,3 +356,29 @@ test("no payment due, no badge on My coach", async () => {
   await screen.findByText(`Paid until ${dayLabel("2026-11-30")}`);
   assert.equal(screen.getByRole("heading", { name: /My coach/ }).querySelector(".badge"), null);
 });
+
+// 2026-11-23 phone walkthrough: "New message" from their coach opened the top
+// of Account with My coach still shut - the message nowhere on screen.
+test("a message notification opens My coach at the newest message", async () => {
+  seedRole("athlete");
+  installMocks({ messages: [
+    { message_id: "m1", sender_role: "coach", body_text: "Older note", created_at_iso8601: "2026-11-20T09:00:00Z" },
+    { message_id: "m2", sender_role: "coach", body_text: "Your progress report is ready", created_at_iso8601: "2026-11-23T09:00:00Z" }
+  ] });
+  const { container } = render(<AccountCoachRelationshipPanel />);
+  const newest = (await screen.findByText("Your progress report is ready")).closest("article") as HTMLElement;
+  const panel = container.querySelector("article.panel") as HTMLElement;
+  panel.dataset.collapsible = "2";
+  panel.dataset.collapsed = "true";
+  const toggle = document.createElement("button");
+  toggle.className = "section-toggle";
+  toggle.addEventListener("click", () => { panel.dataset.collapsed = "false"; });
+  screen.getByRole("heading", { name: /My coach/ }).append(toggle);
+  const scrolledTo: number[] = [];
+  newest.getBoundingClientRect = () => ({ top: 500 } as DOMRect);
+  window.scrollTo = ((options: ScrollToOptions) => { scrolledTo.push(Number(options.top)); }) as typeof window.scrollTo;
+  document.dispatchEvent(new CustomEvent("kolosseum:open-notification-target", { detail: { route_id: "shared_account", params: {}, notification_type: "coach_athlete_message_received" } }));
+  await new Promise((resolve) => setTimeout(resolve, 350));
+  assert.equal(panel.dataset.collapsed, "false");
+  assert.equal(scrolledTo[0], 500 + window.scrollY - 80, "scrolled to the newest message, clear of the top bar");
+});
