@@ -76,6 +76,13 @@ const SELF_COACHED_COPY = {
   badgeClass: "neutral"
 };
 
+// Once they've built their own week, their sessions follow it - no more
+// "generated sessions fill in until you do".
+const OWN_WEEK_COPY = {
+  ...SELF_COACHED_COPY,
+  body: "You're training without a coach: your sessions follow the training week you built in My training. Start a session when you're ready to train, or change your week there."
+};
+
 // Chose "My coach sets them" at onboarding but no coach has been accepted
 // yet: not self-coached, and nobody to "ask to assign" yet either.
 const WAITING_FOR_COACH_COPY = {
@@ -116,6 +123,13 @@ function useCoachState(needed: boolean, refreshKey: unknown): CoachState | null 
     return () => { cancelled = true; };
   }, [needed, refreshKey]);
   return needed ? coachState : null;
+}
+
+const isRecord = (value: unknown): value is JsonRecord => value !== null && typeof value === "object" && !Array.isArray(value);
+
+// Back after a break: said before they start, not only once the session is open.
+function reentryNote(reentry: JsonRecord): string {
+  return `Welcome back - it has been ${Number(reentry.gap_days)} days since your last session, so your next sessions are lighter: a set fewer and less weight. Your programme picks up where you left off.`;
 }
 
 function openTrainingSetup() {
@@ -270,7 +284,7 @@ export function AthleteTodaySessionCard() {
   const selfCoached = unassigned && coachState === "self";
   const waitingForCoach = unassigned && coachState === "waiting";
   const inProgress = unassigned && selfCoachedOpenSession(today);
-  const unassignedCopy = inProgress ? SESSION_IN_PROGRESS_COPY : selfCoached ? SELF_COACHED_COPY : waitingForCoach ? WAITING_FOR_COACH_COPY : null;
+  const unassignedCopy = inProgress ? SESSION_IN_PROGRESS_COPY : selfCoached ? (today?.own_week === true ? OWN_WEEK_COPY : SELF_COACHED_COPY) : waitingForCoach ? WAITING_FOR_COACH_COPY : null;
   const badge = unassignedCopy ? { label: unassignedCopy.badgeLabel, className: unassignedCopy.badgeClass } : statusBadge(today, sessionState);
 
   if (loading && !today) {
@@ -333,6 +347,9 @@ export function AthleteTodaySessionCard() {
           <div className="empty-icon">{messageCopy.icon}</div>
           <h3>{messageCopy.heading}</h3>
           <p>{messageCopy.body}</p>
+          {stateKey === "session_already_complete" && isRecord(today?.reentry) ? (
+            <p className="today-reentry-note" data-testid="today-reentry-note">{reentryNote(today!.reentry as JsonRecord)}</p>
+          ) : null}
           {inProgress
             ? <button className="button primary" type="button" onClick={continueToSession}>Continue session</button>
             : selfCoached ? <button className="button secondary" type="button" onClick={openTrainingSetup}>My training</button> : null}
