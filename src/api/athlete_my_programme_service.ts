@@ -7,7 +7,7 @@
 // when it's created.
 import { pool } from "../db/pool.js";
 import { coachBusinessName, coachNameWithBusiness } from "./coach_branding_service.js";
-import { assignmentPositionIds, orderedTemplateSessions, loadExecutableCoachTemplateById } from "./beta18_programme_template_service.js";
+import { assignmentPositionIds, orderedTemplateSessions, loadExecutableCoachTemplateById, templateAdjustsForBreaks } from "./beta18_programme_template_service.js";
 import { loadAthleteStrengthProfile, requireCoachAthleteAccess, resolvePercentageLoad } from "./beta19_coach_workspace_service.js";
 import { getCurrentProgrammeRun } from "./programme_catalogue_service.js";
 import { getAthleteCustomExerciseNames, getAthleteTrainingPlan, sessionExerciseDisplayNames } from "./athlete_onboarding_service.js";
@@ -299,7 +299,8 @@ export async function loadCoachAthleteProgramme(coachUserId: string, athleteUser
   await requireCoachAthleteAccess(coachUserId, athleteUserId);
   const assignment = await currentAssignment(athleteUserId);
   if (!assignment || text(assignment.assigned_by_coach_id) !== coachUserId) return { ok: true, status: "none" };
-  const programme = await buildProgramme(athleteUserId, "coach", assignment, null);
+  const template = await loadExecutableCoachTemplateById(coachUserId, text(assignment.template_id)).catch(() => null);
+  const programme = { ...(await buildProgramme(athleteUserId, "coach", assignment, null)), adjusts_for_breaks: templateAdjustsForBreaks(template) } as Json;
   // This athlete's own changes to the programme, beside each exercise.
   const overrides = await loadProgrammeOverrides(athleteUserId, text(assignment.assignment_id)).catch(() => []);
   if (!overrides.length || !Array.isArray(programme.blocks)) return programme;

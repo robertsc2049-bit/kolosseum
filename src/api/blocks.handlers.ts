@@ -859,7 +859,9 @@ export async function compileBlock(req: Request, res: Response) {
   // re-entry week's sessions are lighter (programme_reentry.ts), and the run
   // then carries on from where it left off. A generated programme makes the
   // whole week a deload instead (training_cycle.ts).
-  if (create_session && (programme_run_session || own_training_session) && session_reentry?.reentry_week) {
+  // A coach's programme only where they ticked "Adjust for breaks" on it.
+  const programmeAdjustsForBreaks = executionStamp?.adjust_for_breaks !== false;
+  if (create_session && ((programme_run_session && programmeAdjustsForBreaks) || own_training_session) && session_reentry?.reentry_week) {
     planned_session_from_engine = {
       ...planned_session_from_engine,
       exercises: lighterForReentry(planned_session_from_engine.exercises as any, session_reentry as any) as any,
@@ -868,9 +870,9 @@ export async function compileBlock(req: Request, res: Response) {
     } as any;
   }
   // A coached athlete back from 10+ days away gets the same lighter first
-  // week on their coach's programme - never the next session unchanged, and
-  // never a competition-timed skip into heavier weeks at full load.
-  if (create_session && template_position && !programme_run_session && beta_session_binding?.subject_user_id) {
+  // week on their coach's programme, where the coach ticked "Adjust for
+  // breaks" on it. Otherwise their sessions come as the coach wrote them.
+  if (create_session && programmeAdjustsForBreaks && template_position && !programme_run_session && beta_session_binding?.subject_user_id) {
     const back = await gapReentryForAthlete(beta_session_binding.subject_user_id);
     if (back?.reentry_week) {
       planned_session_from_engine = {

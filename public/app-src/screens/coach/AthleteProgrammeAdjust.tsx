@@ -35,13 +35,14 @@ export function overrideSummary(override: JsonRecord): string {
   ].filter(Boolean).join(", ");
 }
 
-function AdjustForm({ athleteUserId, sessionIndex, exercise, onDone }: { athleteUserId: string; sessionIndex: number; exercise: JsonRecord; onDone: () => void }) {
+function AdjustForm({ athleteUserId, sessionIndex, exercise, adjustsForBreaks, onDone }: { athleteUserId: string; sessionIndex: number; exercise: JsonRecord; adjustsForBreaks: boolean; onDone: () => void }) {
   const [form, setForm] = useState({ sets: "", reps: "", load_kg: "", rpe: "", remove: false, note: "", lighter_after_break: false });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [requestId] = useState(newRequestId);
   // Only a number the coach set can be kept as set or made lighter.
-  const numbersSet = [form.sets, form.load_kg, form.rpe].some((value) => value.trim() !== "");
+  // (And only a programme ticked "Adjust for breaks" makes anything lighter.)
+  const numbersSet = adjustsForBreaks && [form.sets, form.load_kg, form.rpe].some((value) => value.trim() !== "");
   async function save() {
     setBusy(true);
     setError(null);
@@ -119,7 +120,7 @@ export function AthleteProgrammeAdjust({ athleteUserId }: { athleteUserId: strin
                   {override ? <strong className="programme-adjust-change">{` → ${overrideSummary(override)}`}</strong> : null}
                   {override ? <button type="button" className="text-button" onClick={() => void clear(session.session_index, String(exercise.exercise_id))}>Undo</button>
                     : <button type="button" className="text-button" aria-label={`Adjust ${String(exercise.name)} in week ${session.week_number}`} onClick={() => setEditing(editing === key ? null : key)}>Adjust</button>}
-                  {editing === key ? <AdjustForm athleteUserId={athleteUserId} sessionIndex={session.session_index} exercise={exercise} onDone={() => { setEditing(null); void load(); }} /> : null}
+                  {editing === key ? <AdjustForm athleteUserId={athleteUserId} sessionIndex={session.session_index} exercise={exercise} adjustsForBreaks={data?.adjusts_for_breaks === true} onDone={() => { setEditing(null); void load(); }} /> : null}
                 </li>
               );
             })}

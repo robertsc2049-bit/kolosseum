@@ -268,7 +268,7 @@ test(
     const saved = await requestJson(base, "POST", "/templates", {
       cookie: author.cookie, csrf: author.csrf,
       body: {
-        coach_user_id: author.userId, template_version: 1, template_name: "Beginner full-body", description: "Proof programme.", activity_id: "general_strength",
+        coach_user_id: author.userId, template_version: 1, template_name: "Beginner full-body", description: "Proof programme.", adjust_for_breaks: true, activity_id: "general_strength",
         blocks: [{ block_id: "", order_index: 1, name: "Foundation", description: "", block_type: "general", week_count: 1, weeks: [{ week_id: "", order_index: 1, sessions: [
           session(1, "Day A", [workItem(1, "back_squat", 3, 5, "percent_1rm"), workItem(2, "bench_press", 3, 5, "percent_1rm")]),
           session(2, "Day B", [workItem(1, "deadlift", 1, 5, "percent_1rm"), workItem(2, "push_up", 3, 10, "bodyweight")]),

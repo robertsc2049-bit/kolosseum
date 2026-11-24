@@ -127,6 +127,7 @@ export type ProgrammeDraft = {
   event_compile_summary: JsonRecord | null;
   bound_event_id: string;
   bound_event_record_sha256: string;
+  adjust_for_breaks?: boolean;
   blocks: ProgrammeBlockDraft[];
 };
 

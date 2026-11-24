@@ -8,14 +8,14 @@ import { act, cleanup, fireEvent, render, screen } from "@testing-library/react"
 
 import { AthleteProgrammeAdjust, overrideSummary } from "../screens/coach/AthleteProgrammeAdjust";
 
-const PROGRAMME = { status: "active", blocks: [{ weeks: [{ week_number: 1, sessions: [{ session_index: 0, title: "Squat day", state: "current", exercises: [{ exercise_id: "back_squat", name: "Back squat", segment: "working", sets: 5, reps: "5" }] }] }] }] };
+const PROGRAMME = { status: "active", adjusts_for_breaks: true, blocks: [{ weeks: [{ week_number: 1, sessions: [{ session_index: 0, title: "Squat day", state: "current", exercises: [{ exercise_id: "back_squat", name: "Back squat", segment: "working", sets: 5, reps: "5" }] }] }] }] };
 
-function installMocks(): Record<string, unknown>[] {
+function installMocks(programme: Record<string, unknown> = PROGRAMME): Record<string, unknown>[] {
   const saved: Record<string, unknown>[] = [];
   globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
     const path = String(input);
     if (path.endsWith("/programme-overrides")) saved.push(JSON.parse(String(init?.body)));
-    const body = path.endsWith("/programme-print") ? PROGRAMME : path.startsWith("/account/detail") ? { csrf_token: "t" } : { ok: true };
+    const body = path.endsWith("/programme-print") ? programme : path.startsWith("/account/detail") ? { csrf_token: "t" } : { ok: true };
     return { ok: true, status: 200, text: async () => JSON.stringify(body) } as Response;
   }) as typeof fetch;
   return saved;
@@ -49,4 +49,11 @@ test("ticked, it is sent, and the change says so", async () => {
   await act(async () => { fireEvent.click(screen.getByText("Save for this athlete")); });
   assert.equal(saved[0].lighter_after_break, true);
   assert.equal(overrideSummary({ load_kg: 120, lighter_after_break: true }), "120 kg, lighter after a break");
+});
+
+test("a programme that isn't adjusted for breaks offers no break option", async () => {
+  installMocks({ ...PROGRAMME, adjusts_for_breaks: false });
+  await openForm();
+  fireEvent.change(screen.getByLabelText("Weight (kg)"), { target: { value: "120" } });
+  assert.equal(screen.queryByLabelText(/first week back after a break/u), null);
 });

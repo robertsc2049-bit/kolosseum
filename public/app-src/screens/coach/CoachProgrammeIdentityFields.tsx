@@ -78,6 +78,17 @@ export function CoachProgrammeIdentityFields() {
           data-field="description"
         />
       </label>
+      <label className="checkbox-field programme-adjust-breaks">
+        <input
+          key={draft.template_id}
+          type="checkbox"
+          defaultChecked={draft.adjust_for_breaks === true}
+          data-template-kind="header"
+          data-field="adjust_for_breaks"
+        />
+        <span>Adjust for breaks</span>
+      </label>
+      <p className="muted small">When ticked, an athlete back after 10 or more days without a session gets a lighter first week: a set fewer on everything, weights 10% lighter (20% after 28 days) and RPE 1 easier (2 after 28 days). Not ticked, their sessions come exactly as you write them.</p>
     </>
   );
 }

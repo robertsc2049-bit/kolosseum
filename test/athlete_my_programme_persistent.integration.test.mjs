@@ -8,6 +8,7 @@ import crypto from "node:crypto";
 import test from "node:test";
 
 import { app } from "../dist/src/server.js";
+import { templateAdjustsForBreaks } from "../dist/src/api/beta18_programme_template_service.js";
 import { pool } from "../dist/src/db/pool.js";
 
 const STAGES = ["activity", "experience_level", "training_plan", "execution_scope", "product_acknowledgement", "jurisdiction", "accessibility", "instruction_density", "review"];
@@ -99,7 +100,7 @@ test("a coached powerlifter sees her whole programme with her weights, and it mo
     ["POST", "/account/coach-onboarding/complete", { completion_confirmed: true }]
   ]) await coach.req(method, route, body);
   const saved = ok(await coach.req("POST", "/templates", {
-    coach_user_id: coachAccount.userId, template_version: 1, template_name: `Meet prep ${nonce}`, description: "", activity_id: "powerlifting", blocks,
+    coach_user_id: coachAccount.userId, template_version: 1, template_name: `Meet prep ${nonce}`, description: "", activity_id: "powerlifting", adjust_for_breaks: true, blocks,
     updated_at_iso8601: new Date().toISOString()
   }), 201, "save programme");
   const templateId = saved.json.template.template_id;
@@ -358,4 +359,31 @@ test("a coached powerlifter sees her whole programme with her weights, and it mo
   };
   assert.deepEqual(await backSession(0), [4, 120, 120], "exactly as her coach set it");
   assert.deepEqual(await backSession(1), [3, 90, 90], "a set fewer and 10% lighter, as her coach chose");
+
+  // "Adjust for breaks" is the coach's tick on the programme: kept by a new
+  // version, off unless ticked, and on for one saved before the tick existed.
+  const templates = ok(await coach.req("GET", `/templates?coach_user_id=${coachAccount.userId}`), 200, "templates").json.templates;
+  assert.equal(templates.find((t) => t.template_id === v2.template_id).adjust_for_breaks, true, "kept by the new version");
+  assert.deepEqual([templateAdjustsForBreaks({}), templateAdjustsForBreaks({ adjust_for_breaks: true }), templateAdjustsForBreaks({ adjust_for_breaks: false })], [true, true, false]);
+  const asWritten = ok(await coach.req("POST", "/templates", {
+    coach_user_id: coachAccount.userId, template_version: 1, template_name: `As written ${nonce}`, description: "", activity_id: "powerlifting", blocks, updated_at_iso8601: new Date().toISOString()
+  }), 201, "a programme with no tick").json.template;
+  assert.equal(asWritten.adjust_for_breaks, false);
+  for (const step of ["complete", "activate"]) ok(await coach.req("POST", `/templates/${asWritten.template_id}/${step}`, { coach_user_id: coachAccount.userId }), 200, step);
+  const onV2Id = (await pool.query(`SELECT record_payload->>'assignment_id' AS id FROM beta_product_records
+     WHERE record_type = 'beta17_assignment_trigger' AND subject_user_id = $1 ORDER BY created_at DESC LIMIT 1`, [athleteAccount.userId])).rows[0].id;
+  await coach.refresh();
+  ok(await coach.req("POST", `/coach-workspace/athlete-assignment/${encodeURIComponent(onV2Id)}/replace`, {
+    request_id: `my_programme_aw_${nonce}`, requested_at_iso8601: new Date().toISOString(), coach_user_id: coachAccount.userId,
+    athlete_user_id: athleteAccount.userId, template_id: asWritten.template_id, activity_id: "powerlifting", event_id: ""
+  }), 201, "move her onto it");
+  await pool.query("UPDATE sessions SET created_at = created_at - interval '30 days' WHERE beta_subject_user_id = $1", [athleteAccount.userId]);
+  const last = await athlete.refresh();
+  const written = ok(await athlete.req("POST", "/blocks/compile?create_session=true&beta_path=true", {
+    phase1_input: last.bootstrap.declaration_record.engine_phase1_input, beta_user_id: athleteAccount.userId, beta_coach_user_id: coachAccount.userId
+  }), 201, "back after a break on it").json.planned_session;
+  assert.equal(written.template_position.reentry, undefined);
+  assert.equal(written.exercises.some((entry) => entry.reentry_lighter), false);
+  assert.equal(written.exercises.find((entry) => entry.exercise_id === "back_squat").sets, 5, "5 sets, as her coach wrote it");
+  assert.equal(ok(await coach.req("GET", `/coach-workspace/athletes/${athleteAccount.userId}/programme-print`), 200, "print").json.adjusts_for_breaks, false);
 });
