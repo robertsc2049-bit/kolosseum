@@ -10,27 +10,28 @@
   var OPEN_FOR_MS = 15000;
   var started = Date.now();
   var spent = false;
-  var firstUsed = {};
+  var firstUsed = new Map();
 
   var reads = Promise.race([
     fetch("/account/opening", { credentials: "same-origin", headers: { accept: "application/json" } })
       .then(function (response) { return response.ok ? response.json() : null; })
-      .then(function (body) { return body && body.reads && typeof body.reads === "object" ? body.reads : null; })
+      .then(function (body) { return body && body.reads && typeof body.reads === "object" ? new Map(Object.entries(body.reads)) : null; })
       .catch(function () { return null; }),
     new Promise(function (resolve) { setTimeout(function () { resolve(null); }, WAIT_MS); })
   ]);
 
   function usable(key) {
-    return !spent && Date.now() - started < OPEN_FOR_MS && (firstUsed[key] === undefined || Date.now() - firstUsed[key] < REUSE_MS);
+    return !spent && Date.now() - started < OPEN_FOR_MS && (!firstUsed.has(key) || Date.now() - firstUsed.get(key) < REUSE_MS);
   }
 
   // { status, payload } for this read, or null: ask for it in the ordinary way.
   window.kolosseumOpeningRead = function (key) {
     if (!usable(key)) return Promise.resolve(null);
     return reads.then(function (all) {
-      if (!all || !Object.prototype.hasOwnProperty.call(all, key) || !usable(key)) return null;
-      if (firstUsed[key] === undefined) firstUsed[key] = Date.now();
-      return JSON.parse(JSON.stringify(all[key]));
+      var read = all ? all.get(key) : undefined;
+      if (!read || !usable(key)) return null;
+      if (!firstUsed.has(key)) firstUsed.set(key, Date.now());
+      return JSON.parse(JSON.stringify(read));
     });
   };
   // Anything changed: what was read at the start is out of date.
