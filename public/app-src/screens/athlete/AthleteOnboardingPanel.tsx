@@ -28,6 +28,7 @@ import { AthleteProgrammeCard } from "./AthleteProgrammeCard";
 import { ProgrammeGrantsCard } from "./ProgrammeGrantsCard";
 import { MyTrainingCard } from "./MyTrainingCard";
 import { PainCheckInCard } from "./PainCheckInCard";
+import { BreakAdjustmentCard } from "./BreakAdjustmentCard";
 import { ReadinessCard } from "./ReadinessCard";
 import { StandDownCard } from "./StandDownCard";
 import { InjuryStatusCard } from "./InjuryStatusCard";
@@ -723,6 +724,7 @@ function CompletedView({ api }: { api: OnboardingApi }) {
       <AthleteProgrammeCard />
       {/* Keyed on the declaration so a new sport, level, event or week reloads its slots. */}
       <ReadinessCard selfDirected={fields.execution_scope === "individual"} />
+      {fields.execution_scope === "individual" ? <BreakAdjustmentCard /> : null}
       <StandDownCard />
       <InjuryStatusCard />
       <PainCheckInCard />

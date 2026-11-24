@@ -1047,7 +1047,7 @@ test(
 );
 
 test(
-  "head-injury return: a winger cleared after a concussion gets a lighter first week back with no sprints, jumps or neck loading",
+  "head injury: a winger cleared after a concussion trains his sessions as they come - nothing held back, nothing lighter",
   { timeout: 180000 },
   async (testContext) => {
     const root = repoRoot();
@@ -1110,13 +1110,11 @@ test(
     const back = await compile();
     assertStatus(back, 201, "first session back");
     const ids = training(back.json.planned_session.exercises).map((e) => e.exercise_id);
-    for (const id of ["ten_metre_acceleration", "self_resisted_neck_isometric"]) assert.ok(!ids.includes(id), `${id} held back: ${ids.join(",")}`);
-    assert.ok(ids.includes("trap_bar_deadlift"), "his strength work stays");
-    assert.deepEqual(back.json.planned_session.head_injury_return.held_back_exercise_ids.sort(), normalIds.filter((id) => !ids.includes(id)).sort());
-    const cycle = back.json.planned_session.training_cycle;
-    assert.equal(cycle.reentry.after_head_injury, true);
-    assert.equal(cycle.reentry.reentry_week, true);
-    assert.equal(cycle.meso_week, 4, "a lighter re-entry week");
+    // Cleared to train: the app holds nothing back and makes nothing lighter.
+    assert.ok(ids.length >= 3, ids.join(","));
+    assert.equal(back.json.planned_session.head_injury_return, undefined);
+    assert.equal(back.json.planned_session.training_cycle.reentry, undefined);
+    assert.equal(back.json.planned_session.training_cycle.meso_week, before.json.planned_session.training_cycle.meso_week);
   }
 );
 

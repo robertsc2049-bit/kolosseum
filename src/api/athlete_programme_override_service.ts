@@ -58,6 +58,7 @@ function validChange(body: Json): Omit<ProgrammeOverride, "assignment_id" | "ses
   if (note.length > 200) throw new ProgrammeOverrideError("programme_override_note_too_long");
   if (note) out.note = note;
   if (!Object.keys(out).length) throw new ProgrammeOverrideError("programme_override_empty");
+  if (body.lighter_after_break === true) out.lighter_after_break = true;
   return out as Omit<ProgrammeOverride, "assignment_id" | "session_index" | "exercise_id">;
 }
 

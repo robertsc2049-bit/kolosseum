@@ -13,6 +13,7 @@ import {
   Beta18ProgrammeTemplateError,
   lastTemplateSessionIndex,
   loadExecutableCoachTemplateById,
+  templateAdjustsForBreaks,
   materialiseNextCoachTemplateProgram
 } from "./beta18_programme_template_service.js";
 import { getAthleteTrainingPlan } from "./athlete_onboarding_service.js";
@@ -517,7 +518,8 @@ export async function loadAthleteTodayView(
 
   // Back after 10+ days away: their next session will be made lighter when
   // it's created (blocks.handlers.ts) - say so before they start it.
-  const back = await gapReentryForAthlete(athleteUserId).catch(() => null);
+  // Only where the coach ticked "Adjust for breaks" on this programme.
+  const back = templateAdjustsForBreaks(template) ? await gapReentryForAthlete(athleteUserId).catch(() => null) : null;
 
   return baseResponse("session_already_complete", athleteUserId, {
     coach_user_id: coachUserId,

@@ -403,7 +403,7 @@ test(
 );
 
 test(
-  "medical stand-down: a rugby player's coach records a head-injury stand-down - no session until the date, only a stranger can't see it, and it ends early only once she is medically cleared",
+  "medical stand-down: a rugby player's coach records a head-injury stand-down - no session until she is medically cleared, whatever the date, and then her coach's sessions come as written",
   async (testContext) => {
     const nonce = crypto.randomUUID().replaceAll("-", "").slice(0, 12);
     let server = null;
@@ -444,6 +444,11 @@ test(
       athlete_user_id: athlete.userId, template_id: template.template_id, activity_id: "powerlifting", event_id: ""
     }, { cookie: coach.cookie, csrf: coach.csrf }), 201, "assignment");
 
+    // A session as her coach wrote it, open and not started yet.
+    const before = await compileCoachSession(baseUrl, coach, athlete);
+    assertStatus(before, 201, "a session before the injury");
+    sessionIds.push(before.json.session_id);
+
     const inTwoWeeks = new Date(Date.now() + 14 * 86_400_000).toISOString().slice(0, 10);
     const coachPath = `/stand-down/coach/${athlete.userId}`;
     assertStatus(await request(baseUrl, "POST", coachPath, { reason: "head_injury", until_date: "2020-01-01" }, { cookie: coach.cookie, csrf: coach.csrf }), 422, "a past date is refused");
@@ -460,7 +465,22 @@ test(
     assert.equal(refused.json.details.failure_token, "medical_stand_down");
     assert.equal(refused.json.details.details.until_date, inTwoWeeks);
 
-    // The athlete sees it; ending it early needs medical clearance.
+    // The session already open can't be started either.
+    const start = await request(baseUrl, "POST", `/sessions/${before.json.session_id}/start`, {}, { cookie: athlete.cookie, csrf: athlete.csrf });
+    assertStatus(start, 400, "an open session isn't started during a stand-down");
+    assert.equal(start.json.details.failure_token, "medical_stand_down");
+
+    // Its date passing is not clearance.
+    await pool.query(
+      `UPDATE product_account_events SET event_payload = event_payload || '{"from_date":"2026-01-01","until_date":"2026-01-15"}'::jsonb
+       WHERE user_id = $1 AND event_type = 'athlete_stand_down_recorded'`, [athlete.userId]);
+    const past = await compileCoachSession(baseUrl, coach, athlete);
+    assertStatus(past, 400, "still no session after the date");
+    assert.equal(past.json.details.failure_token, "medical_stand_down");
+    // Recorded again with a later date: one confirmation clears both.
+    assertStatus(await request(baseUrl, "POST", coachPath, { reason: "head_injury", until_date: inTwoWeeks }, { cookie: coach.cookie, csrf: coach.csrf }), 200, "recorded again");
+
+    // The athlete sees it; ending it needs medical clearance.
     const mine = await request(baseUrl, "GET", "/account/onboarding/stand-down", undefined, { cookie: athlete.cookie });
     assertStatus(mine, 200, "athlete sees the stand-down");
     assert.equal(mine.json.stand_down.reason, "head_injury");
@@ -471,9 +491,12 @@ test(
     const after = await compileCoachSession(baseUrl, coach, athlete);
     assertStatus(after, 201, "sessions resume once cleared");
     sessionIds.push(after.json.session_id);
-    // Her first week back is a head-injury return week, on the coach's programme too.
-    assert.equal(after.json.planned_session.head_injury_return.returned_on, new Date().toISOString().slice(0, 10));
-    assert.equal(after.json.planned_session.head_injury_return.lighter, true, "and lighter than the coach wrote it");
+    // The app changes nothing about it: her coach's next session, as written.
+    assert.equal(after.json.planned_session.head_injury_return, undefined);
+    assert.equal(after.json.planned_session.template_position.reentry, undefined);
+    const asWritten = (session) => session.exercises.map((e) => [e.exercise_id, e.sets, e.reps, e.intensity]);
+    assert.deepEqual(asWritten(after.json.planned_session), asWritten(before.json.planned_session), "the same sets, reps and intensity as before the injury");
+    assertStatus(await request(baseUrl, "POST", `/sessions/${before.json.session_id}/start`, {}, { cookie: athlete.cookie, csrf: athlete.csrf }), 200, "and the open one can be started");
   }
 );
 

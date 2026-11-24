@@ -12,7 +12,7 @@ test("a rugby player records a head-injury stand-down with the date her doctor g
   const recorded: Record<string, unknown>[] = [];
   render(<StandDownPanel standDown={null} busy={false} error={null} whose="your" onRecord={(input) => recorded.push(input)} onEnd={() => undefined} />);
   fireEvent.click(screen.getByText("Record a head injury or medical stand-down"));
-  assert.ok(screen.getByText(/No sessions will be created until the date your medical professional gives/u));
+  assert.ok(screen.getByText(/No sessions until it's confirmed here that a medical professional has cleared you to train/u));
   assert.equal((screen.getByLabelText("Stand-down reason") as HTMLSelectElement).value, "head_injury");
   const record = screen.getByText("Record stand-down") as HTMLButtonElement;
   assert.equal(record.disabled, true, "needs a date");
@@ -24,11 +24,17 @@ test("a rugby player records a head-injury stand-down with the date her doctor g
 test("an active stand-down can only be ended once a medical professional has cleared her", () => {
   let ended = 0;
   render(<StandDownPanel standDown={{ reason: "head_injury", until_date: "2026-10-15", recorded_by: "coach" }} busy={false} error={null} whose="your" onRecord={() => undefined} onEnd={() => { ended += 1; }} />);
-  assert.ok(screen.getByText("Stood down from training until 2026-10-15"));
-  assert.ok(screen.getByText(/Recorded by the coach\. No sessions until then - follow your medical professional's return-to-play plan\./u));
+  assert.ok(screen.getByText("Stood down from training until medically cleared"));
+  assert.ok(screen.getByText(/Recorded by the coach\. Earliest date given: 2026-10-15\. No sessions until .* cleared you to train - the date passing doesn't end this\./u));
   const end = screen.getByText("End stand-down") as HTMLButtonElement;
   assert.equal(end.disabled, true);
   fireEvent.click(screen.getByLabelText("A medical professional has cleared me to train"));
   fireEvent.click(end);
   assert.equal(ended, 1);
+});
+
+test("another medical reason still runs to the date given", () => {
+  render(<StandDownPanel standDown={{ reason: "medical", until_date: "2026-10-15", recorded_by: "athlete" }} busy={false} error={null} whose="your" onRecord={() => undefined} onEnd={() => undefined} />);
+  assert.ok(screen.getByText("Stood down from training until 2026-10-15"));
+  assert.ok(screen.getByText("Reason: medical reason. Recorded by the athlete. No sessions until then."));
 });

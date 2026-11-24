@@ -1291,14 +1291,17 @@ export function findings(analysis: Json): Finding[] {
     if (testRow.verdict === "improved") out.push({ id: `test_${testRow.test_id}`, section: "testing", level: "good", text: `${testRow.name} improved to ${(testRow.latest as Json).value} ${testRow.unit} (from ${(testRow.previous as Json).value}) - a real change.` });
     if (testRow.verdict === "declined") out.push({ id: `test_${testRow.test_id}`, section: "testing", level: "watch", text: `${testRow.name} went back to ${(testRow.latest as Json).value} ${testRow.unit} (from ${(testRow.previous as Json).value}) - more than normal variation.` });
   }
-  // Doing less (or more) than the plan, by tonnage, over the last 2 complete weeks.
-  const planWeeks = complete(((a.plan as Json | undefined)?.rows ?? []) as Json[]).filter((row) => Number(row.planned_tonnage_kg) > 0).slice(-2);
+  // Doing less (or more) than the plan, by tonnage, over the last 2 complete
+  // weeks - those two calendar weeks, never older ones standing in for them
+  // when the athlete has stopped training.
+  const planWeeks = complete(((a.plan as Json | undefined)?.rows ?? []) as Json[]).slice(-2).filter((row) => Number(row.planned_tonnage_kg) > 0);
+  const planSpan = planWeeks.length === 1 ? "in their latest training week" : "over the last 2 weeks";
   if (planWeeks.length) {
     const planned = planWeeks.reduce((sum, row) => sum + Number(row.planned_tonnage_kg), 0);
     const doneT = planWeeks.reduce((sum, row) => sum + Number(row.done_tonnage_kg), 0);
     const pct = Math.round((doneT / planned) * 100);
-    if (pct < 75) out.push({ id: "plan_under", section: "execution", level: "watch", text: `Did ${pct}% of the planned tonnage over the last ${planWeeks.length === 1 ? "week" : "2 weeks"}.` });
-    if (pct > 115) out.push({ id: "plan_over", section: "execution", level: "watch", text: `Did ${pct}% of the planned tonnage over the last ${planWeeks.length === 1 ? "week" : "2 weeks"} - more than the plan.` });
+    if (pct < 75) out.push({ id: "plan_under", section: "execution", level: "watch", text: `Did ${pct}% of the planned tonnage ${planSpan}.` });
+    if (pct > 115) out.push({ id: "plan_over", section: "execution", level: "watch", text: `Did ${pct}% of the planned tonnage ${planSpan} - more than the plan.` });
   }
   // Bodyweight strength: more reps on their best set.
   for (const lift of ((a.strength.bodyweight ?? []) as Json[]).filter((row) => Number(row.change) >= 2).slice(0, 2)) {

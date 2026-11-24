@@ -422,7 +422,11 @@
     },
     {
       "kind": "command",
-      "value": "node test/head_injury_return.test.mjs"
+      "value": "node test/stand_down_rules.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/break_adjustment.test.mjs"
     },
     {
       "kind": "command",

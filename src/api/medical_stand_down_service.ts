@@ -1,12 +1,14 @@
 // DEV NOTE: API boundary surface. Medical stand-down: after a head injury
 // (concussion) or any medical instruction not to train, the athlete or their
 // coach records a stand-down with the date training may resume, taken from
-// the athlete's medical professional. Until then no session is created - the
-// product never overrides a stand-down and never gives medical advice.
+// the athlete's medical professional. While it is in force no session is
+// created or started - the product never overrides a stand-down, never gives
+// medical advice and prescribes nothing about the return.
 //
-// - It ends on its "no training until" date, or earlier only when a medical
-//   professional has cleared the athlete (the athlete confirms that, or their
-//   coach ends it).
+// - A head injury ends only when a medical professional has cleared the
+//   athlete (the athlete, their coach or the team's medical lead confirms it);
+//   its date passing ends nothing. Another medical reason also ends on its
+//   "no training until" date (stand_down_rules.ts).
 // - Records facts only: a reason category (head injury / other medical), who
 //   recorded it and the dates. No symptoms, diagnosis or notes are stored.
 
@@ -17,7 +19,7 @@ import path from "node:path";
 import { pool } from "../db/pool.js";
 import { requireCoachAthleteAccess } from "./beta19_coach_workspace_service.js";
 import { medicalLeadTeamMemberCoach } from "./team_analysis_service.js";
-import { headInjuryReturnFor, type HeadInjuryReturn } from "./head_injury_return.js";
+import { standDownInForce } from "./stand_down_rules.js";
 
 type Json = Record<string, unknown>;
 
@@ -41,11 +43,12 @@ export type StandDown = {
   until_date: string;
   recorded_by: "athlete" | "coach";
   recorded_at: string;
+  schema_version?: string;
 };
 
-// The athlete's active stand-down (recorded, not ended, and today is on or
-// before its "no training until" date), or null.
-export async function activeStandDown(athleteUserId: string, onDate = today()): Promise<StandDown | null> {
+// Every stand-down in force (recorded, not ended, see stand_down_rules.ts),
+// oldest first.
+async function standDownsInForce(athleteUserId: string, onDate: string): Promise<StandDown[]> {
   const result = await pool.query(
     `SELECT event_type, event_payload, occurred_at FROM product_account_events
      WHERE user_id = $1 AND event_type IN ($2, $3) ORDER BY occurred_at, event_id`,
@@ -55,29 +58,18 @@ export async function activeStandDown(athleteUserId: string, onDate = today()): 
   const active = (result.rows ?? [])
     .filter((r: Json) => r.event_type === RECORDED && isRecord(r.event_payload))
     .map((r: Json) => ({ ...(r.event_payload as Json), recorded_at: new Date(String(r.occurred_at)).toISOString() }) as unknown as StandDown)
-    .filter((s: StandDown) => !ended.has(s.stand_down_id) && s.from_date <= onDate && onDate <= s.until_date);
-  return active.length ? active[active.length - 1] : null;
+    .filter((s: StandDown) => !ended.has(s.stand_down_id));
+  if (!active.length) return [];
+  const last = await pool.query("SELECT MAX(created_at) AS at FROM sessions WHERE beta_subject_user_id = $1", [athleteUserId]);
+  const lastSessionDate = last.rows?.[0]?.at ? new Date(last.rows[0].at).toISOString().slice(0, 10) : null;
+  return active.filter((s: StandDown) => standDownInForce(s, onDate, lastSessionDate));
 }
 
-// The first week back after a head-injury stand-down ended (on clearance or
-// on its date), or null (head_injury_return.ts).
-export async function headInjuryReturn(athleteUserId: string, onDate = today()): Promise<HeadInjuryReturn | null> {
-  const result = await pool.query(
-    `SELECT event_type, event_payload, occurred_at FROM product_account_events
-     WHERE user_id = $1 AND event_type IN ($2, $3) ORDER BY occurred_at, event_id`,
-    [athleteUserId, RECORDED, ENDED]
-  );
-  const endedOn = new Map<string, string>();
-  for (const r of result.rows ?? []) {
-    if (r.event_type === ENDED && isRecord(r.event_payload)) endedOn.set(text(r.event_payload.stand_down_id), new Date(String(r.occurred_at)).toISOString().slice(0, 10));
-  }
-  const standDowns = (result.rows ?? [])
-    .filter((r: Json) => r.event_type === RECORDED && isRecord(r.event_payload))
-    .map((r: Json) => {
-      const p = r.event_payload as Json;
-      return { reason: text(p.reason), from_date: text(p.from_date), until_date: text(p.until_date), ended_on: endedOn.get(text(p.stand_down_id)) ?? null };
-    });
-  return headInjuryReturnFor(standDowns, onDate);
+// The athlete's stand-down in force, or null. One that only clearance ends
+// comes before one that ends on its date.
+export async function activeStandDown(athleteUserId: string, onDate = today()): Promise<StandDown | null> {
+  const active = await standDownsInForce(athleteUserId, onDate);
+  return active.filter((s) => s.reason === "head_injury").at(-1) ?? active.at(-1) ?? null;
 }
 
 // Movement pattern per exercise, from the exercise registry (read once).
@@ -119,20 +111,29 @@ export async function describeStandDown(athleteUserId: string): Promise<Readonly
 
 export async function recordStandDown(athleteUserId: string, input: unknown, recordedBy: "athlete" | "coach" = "athlete"): Promise<Readonly<Json>> {
   const standDown = validate(input, recordedBy);
-  await append(athleteUserId, RECORDED, { stand_down_id: `stand_down_${crypto.randomUUID().replace(/-/gu, "")}`, ...standDown, schema_version: "stand_down_v1" });
+  await append(athleteUserId, RECORDED, { stand_down_id: `stand_down_${crypto.randomUUID().replace(/-/gu, "")}`, ...standDown, schema_version: "stand_down_v2" });
   return describeStandDown(athleteUserId);
 }
 
-// End the active stand-down early: only once a medical professional has
-// cleared the athlete to train.
+// End the stand-down: only once a medical professional has cleared the athlete
+// to train. Clearance covers every stand-down in force, so one recorded again
+// with a later date doesn't leave the earlier one behind.
 export async function endStandDown(athleteUserId: string, input: unknown, endedBy: "athlete" | "coach" = "athlete"): Promise<Readonly<Json>> {
   if (!isRecord(input) || input.cleared_by_medical_professional !== true) {
     throw new StandDownError("stand_down_clearance_required", 422, { cleared_by_medical_professional: "Confirm a medical professional has cleared you to train." });
   }
-  const active = await activeStandDown(athleteUserId);
-  if (!active) throw new StandDownError("stand_down_not_active", 404);
-  await append(athleteUserId, ENDED, { stand_down_id: active.stand_down_id, ended_by: endedBy, cleared_by_medical_professional: true, schema_version: "stand_down_v1" });
+  const active = await standDownsInForce(athleteUserId, today());
+  if (!active.length) throw new StandDownError("stand_down_not_active", 404);
+  for (const standDown of active) await append(athleteUserId, ENDED, { stand_down_id: standDown.stand_down_id, ended_by: endedBy, cleared_by_medical_professional: true, schema_version: "stand_down_v1" });
   return describeStandDown(athleteUserId);
+}
+
+// The stand-down that holds back starting this session: one created before it
+// isn't started during it. A session already under way isn't held back - it
+// can still be finished and its sets saved.
+export async function standDownHoldingSession(sessionId: string): Promise<StandDown | null> {
+  const owner = await pool.query("SELECT beta_subject_user_id AS user_id FROM sessions WHERE session_id = $1 AND status = 'created'", [sessionId]);
+  return owner.rows?.[0]?.user_id ? activeStandDown(String(owner.rows[0].user_id)) : null;
 }
 
 // The athlete's own coach, or the medical lead of a team they're on.

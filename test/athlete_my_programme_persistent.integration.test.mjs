@@ -8,6 +8,7 @@ import crypto from "node:crypto";
 import test from "node:test";
 
 import { app } from "../dist/src/server.js";
+import { templateAdjustsForBreaks } from "../dist/src/api/beta18_programme_template_service.js";
 import { pool } from "../dist/src/db/pool.js";
 
 const STAGES = ["activity", "experience_level", "training_plan", "execution_scope", "product_acknowledgement", "jurisdiction", "accessibility", "instruction_density", "review"];
@@ -99,7 +100,7 @@ test("a coached powerlifter sees her whole programme with her weights, and it mo
     ["POST", "/account/coach-onboarding/complete", { completion_confirmed: true }]
   ]) await coach.req(method, route, body);
   const saved = ok(await coach.req("POST", "/templates", {
-    coach_user_id: coachAccount.userId, template_version: 1, template_name: `Meet prep ${nonce}`, description: "", activity_id: "powerlifting", blocks,
+    coach_user_id: coachAccount.userId, template_version: 1, template_name: `Meet prep ${nonce}`, description: "", activity_id: "powerlifting", adjust_for_breaks: true, blocks,
     updated_at_iso8601: new Date().toISOString()
   }), 201, "save programme");
   const templateId = saved.json.template.template_id;
@@ -330,4 +331,70 @@ test("a coached powerlifter sees her whole programme with her weights, and it mo
 
   // It is hers alone: a coach gets nothing from it.
   assert.notEqual((await coach.req("GET", "/account/onboarding/my-programme")).status, 200);
+
+  // Back after 20 days: what her coach set for her stays exactly as set; on the
+  // one they ticked, the drop applies.
+  const db = await pool.connect();
+  try {
+    await db.query("BEGIN");
+    await db.query("SET LOCAL session_replication_role = replica");
+    await db.query("UPDATE sessions SET created_at = created_at - interval '20 days' WHERE beta_subject_user_id = $1", [athleteAccount.userId]);
+    await db.query("COMMIT");
+  }
+  finally { db.release(); }
+  const ahead = ok(await coach.req("GET", `/coach-workspace/athletes/${athleteAccount.userId}/programme-print`), 200, "what's next").json;
+  const upcoming = ahead.blocks.flatMap((b) => b.weeks).flatMap((w) => w.sessions).filter((session) => session.session_index >= ahead.current.session_index).slice(0, 2)
+    .map((session) => ({ index: session.session_index, lift: session.exercises.find((entry) => entry.segment === "working").exercise_id }));
+  assert.equal(upcoming.length, 2, "two sessions still to come");
+  ok(await coach.req("POST", overrideBase, { session_index: upcoming[0].index, exercise_id: upcoming[0].lift, sets: 4, load_kg: 120, client_request_id: "po_integration_5" }), 200, "kept as set");
+  ok(await coach.req("POST", overrideBase, { session_index: upcoming[1].index, exercise_id: upcoming[1].lift, sets: 4, load_kg: 100, lighter_after_break: true, client_request_id: "po_integration_6" }), 200, "drop allowed");
+  const backSession = async (index) => {
+    const refreshed = await athlete.refresh();
+    const planned = ok(await athlete.req("POST", "/blocks/compile?create_session=true&beta_path=true", {
+      phase1_input: refreshed.bootstrap.declaration_record.engine_phase1_input, beta_user_id: athleteAccount.userId, beta_coach_user_id: coachAccount.userId
+    }), 201, "a session in the first week back").json.planned_session;
+    assert.deepEqual([planned.template_position.template_session_index, planned.template_position.reentry.reentry_week], [upcoming[index].index, true]);
+    const lift = planned.exercises.find((entry) => entry.exercise_id === upcoming[index].lift);
+    return [lift.sets, lift.intensity.value, lift.resolved_load.value];
+  };
+  assert.deepEqual(await backSession(0), [4, 120, 120], "exactly as her coach set it");
+  assert.deepEqual(await backSession(1), [3, 90, 90], "a set fewer and 10% lighter, as her coach chose");
+
+  // "Adjust for breaks" is the coach's tick on the programme: kept by a new
+  // version, off unless ticked, and on for one saved before the tick existed.
+  const templates = ok(await coach.req("GET", `/templates?coach_user_id=${coachAccount.userId}`), 200, "templates").json.templates;
+  assert.equal(templates.find((t) => t.template_id === v2.template_id).adjust_for_breaks, true, "kept by the new version");
+  assert.deepEqual([templateAdjustsForBreaks({}), templateAdjustsForBreaks({ adjust_for_breaks: true }), templateAdjustsForBreaks({ adjust_for_breaks: false })], [true, true, false]);
+  const asWritten = ok(await coach.req("POST", "/templates", {
+    coach_user_id: coachAccount.userId, template_version: 1, template_name: `As written ${nonce}`, description: "", activity_id: "powerlifting", blocks, updated_at_iso8601: new Date().toISOString()
+  }), 201, "a programme with no tick").json.template;
+  assert.equal(asWritten.adjust_for_breaks, false);
+  // Every change of the tick is logged against the coach: on, then off; a
+  // programme never ticked logs nothing.
+  const draftBody = (extra) => ({ coach_user_id: coachAccount.userId, template_version: 1, template_name: `Ticked ${nonce}`, description: "", activity_id: "powerlifting", blocks: [blocks[0]], updated_at_iso8601: new Date().toISOString(), ...extra });
+  const ticked = ok(await coach.req("POST", "/templates", draftBody({ adjust_for_breaks: true })), 201, "ticked").json.template;
+  const ids = { template_id: ticked.template_id, template_family_id: ticked.template_family_id };
+  ok(await coach.req("POST", "/templates", draftBody({ ...ids })), 201, "an edit that doesn't mention it");
+  ok(await coach.req("POST", "/templates", draftBody({ ...ids, adjust_for_breaks: false })), 201, "unticked");
+  const breakLog = (id) => pool.query("SELECT event_payload AS p FROM product_account_events WHERE user_id = $1 AND event_type = 'programme_break_adjustment_set' AND event_payload->>'template_id' = $2 ORDER BY occurred_at", [coachAccount.userId, id])
+    .then((result) => result.rows.map((row) => [row.p.enabled, row.p.previous, row.p.set_by]));
+  assert.deepEqual(await breakLog(ticked.template_id), [[true, null, "coach"], [false, true, "coach"]]);
+  assert.deepEqual(await breakLog(asWritten.template_id), []);
+  for (const step of ["complete", "activate"]) ok(await coach.req("POST", `/templates/${asWritten.template_id}/${step}`, { coach_user_id: coachAccount.userId }), 200, step);
+  const onV2Id = (await pool.query(`SELECT record_payload->>'assignment_id' AS id FROM beta_product_records
+     WHERE record_type = 'beta17_assignment_trigger' AND subject_user_id = $1 ORDER BY created_at DESC LIMIT 1`, [athleteAccount.userId])).rows[0].id;
+  await coach.refresh();
+  ok(await coach.req("POST", `/coach-workspace/athlete-assignment/${encodeURIComponent(onV2Id)}/replace`, {
+    request_id: `my_programme_aw_${nonce}`, requested_at_iso8601: new Date().toISOString(), coach_user_id: coachAccount.userId,
+    athlete_user_id: athleteAccount.userId, template_id: asWritten.template_id, activity_id: "powerlifting", event_id: ""
+  }), 201, "move her onto it");
+  await pool.query("UPDATE sessions SET created_at = created_at - interval '30 days' WHERE beta_subject_user_id = $1", [athleteAccount.userId]);
+  const last = await athlete.refresh();
+  const written = ok(await athlete.req("POST", "/blocks/compile?create_session=true&beta_path=true", {
+    phase1_input: last.bootstrap.declaration_record.engine_phase1_input, beta_user_id: athleteAccount.userId, beta_coach_user_id: coachAccount.userId
+  }), 201, "back after a break on it").json.planned_session;
+  assert.equal(written.template_position.reentry, undefined);
+  assert.equal(written.exercises.some((entry) => entry.reentry_lighter), false);
+  assert.equal(written.exercises.find((entry) => entry.exercise_id === "back_squat").sets, 5, "5 sets, as her coach wrote it");
+  assert.equal(ok(await coach.req("GET", `/coach-workspace/athletes/${athleteAccount.userId}/programme-print`), 200, "print").json.adjusts_for_breaks, false);
 });

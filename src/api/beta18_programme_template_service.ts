@@ -8,6 +8,7 @@
 // explicit coach-entered value passed through as-is, never inferred or
 // resolved to a weight.
 
+import { logProgrammeBreakAdjustment } from "./break_adjustment_service.js";
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
@@ -2590,6 +2591,13 @@ function normaliseTemplateStructure(
   });
 }
 
+// Whether the coach ticked "Adjust for breaks": a lighter first week for an
+// athlete back after 10+ days (programme_reentry.ts). Off unless ticked; a
+// programme saved before the tick existed keeps the adjustment it always had.
+export function templateAdjustsForBreaks(record: unknown): boolean {
+  return isRecord(record) && record.adjust_for_breaks !== false;
+}
+
 export function templateRecordInput(
   record: JsonRecord
 ): JsonRecord {
@@ -3134,6 +3142,10 @@ export function templateRecordInput(
             record.event_plan
           )
         : null,
+    adjust_for_breaks:
+      templateAdjustsForBreaks(
+        record
+      ),
     blocks,
     updated_at_iso8601:
       new Date().toISOString()
@@ -3350,6 +3362,7 @@ export async function saveCoachProgrammeTemplate(
       "template_name",
       "description",
       "activity_id",
+      "adjust_for_breaks",
       "event_plan",
       "bound_event_id",
       "bound_event_record_sha256",
@@ -3607,6 +3620,14 @@ export async function saveCoachProgrammeTemplate(
         normalised.event_plan,
       event_compile_summary:
         normalised.event_compile_summary,
+      // An edit that doesn't mention it (a page loaded before the tick
+      // existed) keeps what the programme had.
+      adjust_for_breaks:
+        typeof input.adjust_for_breaks === "boolean"
+          ? input.adjust_for_breaks
+          : existing
+            ? templateAdjustsForBreaks(existing)
+            : false,
       bound_event_id:
         boundEventId,
       bound_event_record_sha256:
@@ -3705,9 +3726,25 @@ export async function saveCoachProgrammeTemplate(
         false
     });
 
-  return persistTemplateRecord(
-    recordWithoutHash
+  const saved =
+    await persistTemplateRecord(
+      recordWithoutHash
+    );
+
+  await logProgrammeBreakAdjustment(
+    coachUserId,
+    {
+      template_id: templateId,
+      template_family_id: templateFamilyId,
+      template_version: templateVersion
+    },
+    recordWithoutHash.adjust_for_breaks === true,
+    existing
+      ? templateAdjustsForBreaks(existing)
+      : null
   );
+
+  return saved;
 }
 
 function transitionTemplateRecord(
@@ -5447,6 +5484,10 @@ export async function materialiseNextCoachTemplateProgram(
             .session_id,
         template_session_index:
           nextIndex,
+        adjust_for_breaks:
+          templateAdjustsForBreaks(
+            template
+          ),
         ...(maxFallbacks.length
           ? { max_fallbacks: deepFreeze(maxFallbacks) }
           : {}),

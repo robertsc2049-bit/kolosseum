@@ -268,7 +268,7 @@ test(
     const saved = await requestJson(base, "POST", "/templates", {
       cookie: author.cookie, csrf: author.csrf,
       body: {
-        coach_user_id: author.userId, template_version: 1, template_name: "Beginner full-body", description: "Proof programme.", activity_id: "general_strength",
+        coach_user_id: author.userId, template_version: 1, template_name: "Beginner full-body", description: "Proof programme.", adjust_for_breaks: true, activity_id: "general_strength",
         blocks: [{ block_id: "", order_index: 1, name: "Foundation", description: "", block_type: "general", week_count: 1, weeks: [{ week_id: "", order_index: 1, sessions: [
           session(1, "Day A", [workItem(1, "back_squat", 3, 5, "percent_1rm"), workItem(2, "bench_press", 3, 5, "percent_1rm")]),
           session(2, "Day B", [workItem(1, "deadlift", 1, 5, "percent_1rm"), workItem(2, "push_up", 3, 10, "bodyweight")]),
@@ -502,9 +502,16 @@ test(
     assertStatus(todayState, 200, "today's session state");
     assert.equal(todayState.json.own_training.today, true, "the session screen knows it's today's own session");
     assert.deepEqual(training(today.json.planned_session.exercises).map((e) => e.exercise_id), ["deadlift", "push_up"]);
-    // Still the week back after two weeks away: a set fewer than they chose.
-    assert.equal(today.json.planned_session.own_training.reentry.reentry_week, true);
-    assert.deepEqual(training(today.json.planned_session.exercises).map((e) => e.sets), [1, 2]);
+    // Still the week back after two weeks away, but they haven't ticked "Adjust
+    // for breaks" for their own training: exactly what they chose.
+    assert.equal(today.json.planned_session.own_training.reentry, undefined);
+    assert.deepEqual(training(today.json.planned_session.exercises).map((e) => e.sets), [2, 3]);
+    // Ticked: a set fewer than they chose.
+    assertStatus(await requestJson(base, "PUT", "/account/onboarding/break-adjustment", { cookie: athlete.cookie, csrf, body: { enabled: true } }), 200, "ticked");
+    const lighter = await createSession({ todays_exercises: [{ exercise_id: "deadlift", sets: 2, reps: 3 }, { exercise_id: "push_up", sets: 3, reps: 12 }] });
+    assertStatus(lighter, 201, "today's session, adjusted");
+    assert.equal(lighter.json.planned_session.own_training.reentry.reentry_week, true);
+    assert.deepEqual(training(lighter.json.planned_session.exercises).map((e) => e.sets), [1, 2]);
     // A starter week to edit (walkthrough 11): quick build's exercises for
     // their sport and level, which save as their week unchanged. Nothing is
     // saved by asking for it.

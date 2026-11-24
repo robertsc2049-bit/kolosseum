@@ -8,7 +8,7 @@ import { MuscleGroupSelect } from "../../components/MuscleGroupSelect";
 import { ExerciseSearchInput } from "../../components/ExerciseSearchInput";
 import { inMuscleGroup, matchesExerciseSearch, musclesText } from "../../utils/muscleGroups";
 import { PlateWarmupCalculator } from "../../components/PlateWarmupCalculator";
-import { borgAnchorLabel, cr10AnchorLabel, exerciseDetails, exerciseName, groupTimingLabel, rpeReserveLabel, titleCase } from "../../utils/format";
+import { borgAnchorLabel, cr10AnchorLabel, exerciseDetails, exerciseName, groupTimingLabel, programmeReentryNote, rpeReserveLabel, titleCase } from "../../utils/format";
 import { trainingCycleSummary } from "../../utils/trainingPlan";
 import { programmePositionLine } from "./AthleteProgrammeCard";
 import { SetLogger } from "./SetLogger";
@@ -337,11 +337,9 @@ export function AthleteSessionExecutionPanel() {
     : null;
   const reentry = runReentry ?? (isRecord(cycle?.reentry) ? (cycle?.reentry as JsonRecord) : null);
   const reentryNote = reentry && reentry.reentry_week === true
-    ? reentry.after_head_injury === true
-      ? `Your first week back after a head injury: a lighter re-entry week with no jumping, sprinting, cutting or neck loading.${runReentry ? " Your programme carries on from here, a set fewer and lighter this week." : ""} Follow your medical professional's return-to-play plan.`
-      : runReentry
-        ? `Welcome back - it has been ${Number(reentry.gap_days)} days since your last session, so this week's sessions are lighter: a set fewer and less weight. Your programme picks up where you left off.`
-        : `Welcome back - it has been ${Number(reentry.gap_days)} days since your last session, so this week is a lighter re-entry week. Your training blocks restart from week 1 next week.`
+    ? runReentry
+      ? programmeReentryNote(reentry)
+      : `Welcome back - this is your first week back after ${Number(reentry.gap_days)} days away, so it's a lighter re-entry week. Your training blocks restart from week 1 next week.`
     : null;
 
   const rows: { exercise: JsonRecord; status: "complete" | "current" | "remaining" | "dropped" }[] = [

@@ -264,6 +264,7 @@ function normalisePersistedTemplateDraft(draft) {
 
   return {
     ...draft,
+    adjust_for_breaks: typeof draft.adjust_for_breaks === "boolean" ? draft.adjust_for_breaks : Boolean(draft.template_id),
     event_plan: eventPlan,
     event_compile_summary: draft.event_compile_summary && typeof draft.event_compile_summary === "object"
       ? draft.event_compile_summary
@@ -1486,6 +1487,10 @@ async function createSession(options = {}) {
       }
       if (phase4Token === "medical_stand_down") {
         const until = error?.payload?.details?.details?.until_date ?? "";
+        if (error?.payload?.details?.details?.reason === "head_injury") {
+          showNotice("You're stood down after a head injury: no sessions until a medical professional has cleared you. Once they have, confirm it in Training details, under Medical stand-down.", "error");
+          return;
+        }
         showNotice(`You are stood down from training${until ? ` until ${until}` : ""}. Follow your medical professional's return-to-play plan.`, "error");
         return;
       }
@@ -2989,6 +2994,7 @@ function newTemplateDraft() {
     template_name: "",
     description: "",
     activity_id: "powerlifting",
+    adjust_for_breaks: false,
     event_plan: null,
     event_compile_summary: null,
     bound_event_id: "",
@@ -3163,6 +3169,8 @@ function templateRecordToDraft(template) {
     template_name: String(template?.template_name ?? ""),
     description: String(template?.description ?? ""),
     activity_id: String(template?.activity_id ?? "powerlifting"),
+    // A programme saved before this tick existed adjusts for breaks.
+    adjust_for_breaks: template?.adjust_for_breaks !== false,
     event_plan: template?.event_plan && typeof template.event_plan === "object"
       ? {
           event_plan_id: String(template.event_plan.event_plan_id ?? ""),
@@ -5339,7 +5347,7 @@ function updateTemplateIdentityField(control) {
   const field = control.dataset.field;
   if (!field) return;
 
-  draft[field] = control.value;
+  draft[field] = control.type === "checkbox" ? control.checked : control.value;
   if (draft.event_plan) {
     ensureDraftEventPlan();
   }
@@ -5634,6 +5642,7 @@ function templatePayloadFromDraft() {
     template_name: draft.template_name.trim(),
     description: draft.description.trim(),
     activity_id: draft.activity_id,
+    ...(typeof draft.adjust_for_breaks === "boolean" ? { adjust_for_breaks: draft.adjust_for_breaks } : {}),
     event_plan: draft.event_plan
       ? {
           event_plan_id: draft.event_plan.event_plan_id,

@@ -30,15 +30,19 @@ export function overrideSummary(override: JsonRecord): string {
     override.reps !== undefined ? `${override.reps} reps` : "",
     override.load_kg !== undefined ? `${override.load_kg} kg` : "",
     override.rpe !== undefined ? `RPE ${override.rpe}` : "",
+    override.lighter_after_break === true ? "lighter after a break" : "",
     override.note ? `"${String(override.note)}"` : ""
   ].filter(Boolean).join(", ");
 }
 
-function AdjustForm({ athleteUserId, sessionIndex, exercise, onDone }: { athleteUserId: string; sessionIndex: number; exercise: JsonRecord; onDone: () => void }) {
-  const [form, setForm] = useState({ sets: "", reps: "", load_kg: "", rpe: "", remove: false, note: "" });
+function AdjustForm({ athleteUserId, sessionIndex, exercise, adjustsForBreaks, onDone }: { athleteUserId: string; sessionIndex: number; exercise: JsonRecord; adjustsForBreaks: boolean; onDone: () => void }) {
+  const [form, setForm] = useState({ sets: "", reps: "", load_kg: "", rpe: "", remove: false, note: "", lighter_after_break: false });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [requestId] = useState(newRequestId);
+  // Only a number the coach set can be kept as set or made lighter.
+  // (And only a programme ticked "Adjust for breaks" makes anything lighter.)
+  const numbersSet = adjustsForBreaks && [form.sets, form.load_kg, form.rpe].some((value) => value.trim() !== "");
   async function save() {
     setBusy(true);
     setError(null);
@@ -46,7 +50,7 @@ function AdjustForm({ athleteUserId, sessionIndex, exercise, onDone }: { athlete
     try {
       await request("POST", `/coach-workspace/athletes/${encodeURIComponent(athleteUserId)}/programme-overrides`, {
         session_index: sessionIndex, exercise_id: exercise.exercise_id, client_request_id: requestId,
-        ...(form.remove ? { remove: true } : { sets: value(form.sets), reps: value(form.reps), load_kg: value(form.load_kg), rpe: value(form.rpe) }),
+        ...(form.remove ? { remove: true } : { sets: value(form.sets), reps: value(form.reps), load_kg: value(form.load_kg), rpe: value(form.rpe), ...(form.lighter_after_break && numbersSet ? { lighter_after_break: true } : {}) }),
         ...(form.note.trim() ? { note: form.note.trim() } : {})
       }, await csrf());
       onDone();
@@ -65,6 +69,12 @@ function AdjustForm({ athleteUserId, sessionIndex, exercise, onDone }: { athlete
           <label className="field"><span>Weight (kg)</span><input type="number" inputMode="decimal" step="0.5" value={form.load_kg} onChange={set("load_kg")} /></label>
           <label className="field"><span>or RPE</span><input type="number" inputMode="decimal" step="0.5" min={1} max={10} value={form.rpe} onChange={set("rpe")} /></label>
         </>
+      ) : null}
+      {!form.remove && numbersSet ? (
+        <div className="programme-adjust-break">
+          <label className="checkbox-field"><input type="checkbox" checked={form.lighter_after_break} onChange={(event) => setForm({ ...form, lighter_after_break: event.target.checked })} /><span>Make this lighter too in their first week back after a break</span></label>
+          <p className="muted small">{form.lighter_after_break ? "After 10+ days away, the app takes its usual amount off what you set here." : "Off: what you set here stays exactly as you set it, even after 10+ days away."}</p>
+        </div>
       ) : null}
       <label className="field programme-adjust-note"><span>Note for the athlete (optional)</span><input type="text" maxLength={200} value={form.note} onChange={set("note")} placeholder="e.g. keep it pain-free" /></label>
       <button type="button" className="button small-button" disabled={busy} onClick={() => void save()}>Save for this athlete</button>
@@ -110,7 +120,7 @@ export function AthleteProgrammeAdjust({ athleteUserId }: { athleteUserId: strin
                   {override ? <strong className="programme-adjust-change">{` → ${overrideSummary(override)}`}</strong> : null}
                   {override ? <button type="button" className="text-button" onClick={() => void clear(session.session_index, String(exercise.exercise_id))}>Undo</button>
                     : <button type="button" className="text-button" aria-label={`Adjust ${String(exercise.name)} in week ${session.week_number}`} onClick={() => setEditing(editing === key ? null : key)}>Adjust</button>}
-                  {editing === key ? <AdjustForm athleteUserId={athleteUserId} sessionIndex={session.session_index} exercise={exercise} onDone={() => { setEditing(null); void load(); }} /> : null}
+                  {editing === key ? <AdjustForm athleteUserId={athleteUserId} sessionIndex={session.session_index} exercise={exercise} adjustsForBreaks={data?.adjusts_for_breaks === true} onDone={() => { setEditing(null); void load(); }} /> : null}
                 </li>
               );
             })}

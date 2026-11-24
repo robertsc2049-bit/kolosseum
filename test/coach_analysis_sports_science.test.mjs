@@ -73,6 +73,18 @@ test("planned vs done: two weeks of 2 sets of the planned 3 is 67% of the planne
   assert.match(under.text, /Did 67% of the planned tonnage over the last 2 weeks/u);
 });
 
+// 2026-11-24: an athlete 20 days without training was told they had done 74%
+// "over the last 2 weeks" - of the last weeks they trained.
+test("planned tonnage reads the last 2 calendar weeks only: nothing to say once they've stopped, and one week is called one", () => {
+  const sessions = mondays.map((date, i) => week(date, 140, i >= 4 ? 2 : 3));
+  const under = (today) => findings(analyse(sessions, { today })).find((f) => f.id === "plan_under");
+  const lastMonday = Date.parse(`${mondays.at(-1)}T00:00:00Z`);
+  const daysOn = (days) => new Date(lastMonday + days * 86_400_000).toISOString().slice(0, 10);
+  assert.match(under(daysOn(7)).text, /over the last 2 weeks/u, "both weeks trained");
+  assert.match(under(daysOn(14)).text, /Did 67% of the planned tonnage in their latest training week\./u, "one of the two trained");
+  assert.equal(under(daysOn(21)), undefined, "neither trained");
+});
+
 test("a forward who misses reps on his top squat sets at RPE 10 twice gets an alert; at RPE 8 a missed rep is no grind", () => {
   const grind = (date, rpe, reps) => ({
     ...week(date, 150),

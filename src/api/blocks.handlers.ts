@@ -17,9 +17,8 @@ import { phase1Validate } from "@kolosseum/engine/phases/phase1.js";
 import { gapReentryForAthlete, trainingCycleForAthlete } from "./training_cycle_service.js";
 import { applyPainCarryForward } from "./pain_flag_service.js";
 import { applyTodaysReadiness } from "./readiness_service.js";
-import { activeStandDown, exercisePatternOf, headInjuryReturn } from "./medical_stand_down_service.js";
+import { activeStandDown, exercisePatternOf } from "./medical_stand_down_service.js";
 import { withSessionBookends } from "./session_bookends.js";
-import { holdBackAfterHeadInjury, lighterAfterHeadInjury } from "./head_injury_return.js";
 import { applyAthleteEquipment } from "./athlete_equipment_service.js";
 import { applyAthleteMatchWeek } from "./match_week_service.js";
 import { applyAthleteFightCamp } from "./weight_class_service.js";
@@ -707,7 +706,8 @@ export async function compileBlock(req: Request, res: Response) {
   const pain_subject_user_id = beta_individual_subject_user_id ?? beta_session_binding?.subject_user_id;
   let planned_session_from_engine: Phase6SessionOutput = named_session;
   // A medical stand-down (e.g. after a head injury) is never overridden: no
-  // session is created until its date, or until the athlete is cleared.
+  // session is created while it's in force - after a head injury, until a
+  // medical professional has cleared the athlete (stand_down_rules.ts).
   if (create_session && pain_subject_user_id) {
     const standDown = await activeStandDown(pain_subject_user_id);
     if (standDown) {
@@ -742,25 +742,6 @@ export async function compileBlock(req: Request, res: Response) {
       exercises: pain.exercises as any,
       ...(pain.left_out.length ? { pain_left_out: pain.left_out } : {})
     } as any;
-  }
-  if (create_session && pain_subject_user_id) {
-    // The first week back after a head injury holds back jumps, sprints,
-    // cutting and neck loading (head_injury_return.ts) - coached sessions too.
-    const back = await headInjuryReturn(pain_subject_user_id);
-    if (back) {
-      const held = holdBackAfterHeadInjury(planned_session_from_engine.exercises as any[], exercisePatternOf);
-      if (!held.exercises.length) {
-        throw badRequest("Head injury return week", { failure_token: "head_injury_return_session_empty", details: { returned_on: back.returned_on } });
-      }
-      // A self-directed athlete's whole week is a re-entry week; a coach's
-      // session is made lighter here.
-      const coached = !beta_individual_subject_user_id;
-      planned_session_from_engine = {
-        ...planned_session_from_engine,
-        exercises: (coached ? lighterAfterHeadInjury(held.exercises as any[]) : held.exercises) as any,
-        head_injury_return: { returned_on: back.returned_on, held_back_exercise_ids: held.held_back, ...(coached ? { lighter: true } : {}) }
-      } as any;
-    }
   }
   // A low readiness check-in today trims the session only where its chooser
   // turned that rule on: the coach whose programme it is, or a self-directed
@@ -874,10 +855,16 @@ export async function compileBlock(req: Request, res: Response) {
       )) as any
     };
   }
-  // Back after a break (or a head injury) on a Kolosseum programme: the
+  // Back after a break on a Kolosseum programme: the
   // re-entry week's sessions are lighter (programme_reentry.ts), and the run
   // then carries on from where it left off. A generated programme makes the
   // whole week a deload instead (training_cycle.ts).
+  // A coach's programme only where they ticked "Adjust for breaks" on it.
+  const programmeAdjustsForBreaks = executionStamp?.adjust_for_breaks !== false;
+  // The athlete's own week follows their own tick (session_reentry already does).
+  if (programme_run_session) {
+    session_reentry = create_session && programmeAdjustsForBreaks && beta_individual_subject_user_id ? await gapReentryForAthlete(beta_individual_subject_user_id) ?? undefined : undefined;
+  }
   if (create_session && (programme_run_session || own_training_session) && session_reentry?.reentry_week) {
     planned_session_from_engine = {
       ...planned_session_from_engine,
@@ -887,12 +874,11 @@ export async function compileBlock(req: Request, res: Response) {
     } as any;
   }
   // A coached athlete back from 10+ days away gets the same lighter first
-  // week on their coach's programme - never the next session unchanged, and
-  // never a competition-timed skip into heavier weeks at full load. (A return
-  // from a head injury is already made lighter for coached athletes above.)
-  if (create_session && template_position && !programme_run_session && beta_session_binding?.subject_user_id) {
+  // week on their coach's programme, where the coach ticked "Adjust for
+  // breaks" on it. Otherwise their sessions come as the coach wrote them.
+  if (create_session && programmeAdjustsForBreaks && template_position && !programme_run_session && beta_session_binding?.subject_user_id) {
     const back = await gapReentryForAthlete(beta_session_binding.subject_user_id);
-    if (back?.reentry_week && !(planned_session_from_engine as any).head_injury_return) {
+    if (back?.reentry_week) {
       planned_session_from_engine = {
         ...planned_session_from_engine,
         exercises: lighterForReentry(planned_session_from_engine.exercises as any, back as any) as any,

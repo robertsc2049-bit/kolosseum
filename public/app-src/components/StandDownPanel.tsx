@@ -5,7 +5,8 @@ import { type JsonRecord } from "../api/transport";
 // Medical stand-down, shared by the athlete's profile and a coach's view of
 // their athlete. Shows an active stand-down and lets it end only once a
 // medical professional has cleared the athlete; otherwise lets one be
-// recorded with the date training may resume. No medical advice.
+// recorded with the date they gave. After a head injury the date passing ends
+// nothing - only clearance does. No medical advice, nothing prescribed.
 
 const REASON_LABEL: Record<string, string> = { head_injury: "head injury", medical: "medical reason" };
 
@@ -23,10 +24,14 @@ export function StandDownPanel({ standDown, busy, error, whose, onRecord, onEnd 
   const [cleared, setCleared] = useState(false);
 
   if (standDown) {
+    const headInjury = standDown.reason === "head_injury";
+    const recordedBy = standDown.recorded_by === "coach" ? "the coach" : "the athlete";
     return (
       <div className="stand-down active" data-testid="stand-down">
-        <strong>{`Stood down from training until ${String(standDown.until_date)}`}</strong>
-        <p className="muted">{`Reason: ${REASON_LABEL[String(standDown.reason)] ?? "medical"}. Recorded by ${standDown.recorded_by === "coach" ? "the coach" : "the athlete"}. No sessions until then - follow ${whose} medical professional's return-to-play plan.`}</p>
+        <strong>{headInjury ? "Stood down from training until medically cleared" : `Stood down from training until ${String(standDown.until_date)}`}</strong>
+        <p className="muted">{headInjury
+          ? `Reason: head injury. Recorded by ${recordedBy}. Earliest date given: ${String(standDown.until_date)}. No sessions until it's confirmed below that a medical professional has cleared ${whose === "your" ? "you" : "them"} to train - the date passing doesn't end this.`
+          : `Reason: ${REASON_LABEL[String(standDown.reason)] ?? "medical"}. Recorded by ${recordedBy}. No sessions until then.`}</p>
         <label className="consent-box">
           <input type="checkbox" checked={cleared} onChange={(event) => setCleared(event.target.checked)} />
           <span>A medical professional has cleared {whose === "your" ? "me" : "them"} to train</span>
@@ -43,7 +48,9 @@ export function StandDownPanel({ standDown, busy, error, whose, onRecord, onEnd 
         <button className="button secondary" type="button" onClick={() => setOpen(true)}>Record a head injury or medical stand-down</button>
       ) : (
         <div className="stand-down-form">
-          <p className="muted">{`After a suspected concussion or any medical instruction not to train, record it here. No sessions will be created until the date ${whose} medical professional gives.`}</p>
+          <p className="muted">{reason === "head_injury"
+            ? `No sessions until it's confirmed here that a medical professional has cleared ${whose === "your" ? "you" : "them"} to train. Enter the earliest date they gave - the date passing doesn't end the stand-down.`
+            : `No sessions until the date ${whose} medical professional gives.`}</p>
           <label className="field">
             <span>Reason</span>
             <select aria-label="Stand-down reason" value={reason} onChange={(event) => setReason(event.target.value === "medical" ? "medical" : "head_injury")}>

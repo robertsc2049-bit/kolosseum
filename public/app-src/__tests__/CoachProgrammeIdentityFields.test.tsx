@@ -96,3 +96,14 @@ test("clears back to nothing once the legacy builder broadcasts a null draft (cl
   await broadcast(null);
   assert.equal(container.innerHTML, "");
 });
+
+test("Adjust for breaks is a tick on the programme: off for a new one, on where the coach has it on", async () => {
+  render(<CoachProgrammeIdentityFields />);
+  await broadcast(draft());
+  const tick = screen.getByLabelText("Adjust for breaks") as HTMLInputElement;
+  assert.equal(tick.checked, false);
+  assert.deepEqual([tick.dataset.templateKind, tick.dataset.field], ["header", "adjust_for_breaks"], "saved by the builder's own listener");
+  assert.ok(screen.getByText(/Not ticked, their sessions come exactly as you write them/u));
+  await broadcast(draft({ template_id: "coach_template_x_v1", adjust_for_breaks: true }));
+  assert.equal((screen.getByLabelText("Adjust for breaks") as HTMLInputElement).checked, true);
+});

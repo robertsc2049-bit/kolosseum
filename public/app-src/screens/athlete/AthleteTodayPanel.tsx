@@ -6,7 +6,7 @@ import { type JsonRecord } from "../../api/transport";
 import { InfoTooltip } from "../../components/InfoTooltip";
 import { InstallAppPrompt } from "../../components/InstallAppPrompt";
 import { type DayItem, type ExerciseOption, TrainingDayEditor, newDayItem, toExerciseOption } from "../../components/TrainingDayEditor";
-import { countdownLabel, formatDate, titleCase } from "../../utils/format";
+import { countdownLabel, formatDate, programmeReentryNote, titleCase } from "../../utils/format";
 import { useAthleteToday } from "./useAthleteToday";
 import { TodayCoachInvitations } from "../account/AccountCoachInvitationsPanel";
 
@@ -126,11 +126,6 @@ function useCoachState(needed: boolean, refreshKey: unknown): CoachState | null 
 }
 
 const isRecord = (value: unknown): value is JsonRecord => value !== null && typeof value === "object" && !Array.isArray(value);
-
-// Back after a break: said before they start, not only once the session is open.
-function reentryNote(reentry: JsonRecord): string {
-  return `Welcome back - it has been ${Number(reentry.gap_days)} days since your last session, so your next sessions are lighter: a set fewer and less weight. Your programme picks up where you left off.`;
-}
 
 function openTrainingSetup() {
   (document.getElementById("athleteOnboardingNav") as HTMLElement | null)?.click();
@@ -348,7 +343,7 @@ export function AthleteTodaySessionCard() {
           <h3>{messageCopy.heading}</h3>
           <p>{messageCopy.body}</p>
           {stateKey === "session_already_complete" && isRecord(today?.reentry) ? (
-            <p className="today-reentry-note" data-testid="today-reentry-note">{reentryNote(today!.reentry as JsonRecord)}</p>
+            <p className="today-reentry-note" data-testid="today-reentry-note">{programmeReentryNote(today!.reentry as JsonRecord)}</p>
           ) : null}
           {inProgress
             ? <button className="button primary" type="button" onClick={continueToSession}>Continue session</button>

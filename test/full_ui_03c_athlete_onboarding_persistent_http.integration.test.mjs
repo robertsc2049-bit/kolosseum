@@ -990,6 +990,20 @@ test(
     assertStatus(first, 201, "first session");
     assert.equal(first.json.planned_session.training_cycle?.reentry, undefined, "a first session is not a return");
 
+    // She ticked "Adjust for breaks" for herself: off until then, and logged.
+    const breakCsrf = (await requestJson(server.baseUrl, "GET", "/account/detail", { cookie })).json.csrf_token;
+    assert.deepEqual((await requestJson(server.baseUrl, "GET", "/account/onboarding/break-adjustment", { cookie })).json, { enabled: false, changed_at: null });
+    assertStatus(await requestJson(server.baseUrl, "PUT", "/account/onboarding/break-adjustment", { cookie, csrf: breakCsrf, body: { enabled: "yes" } }), 422, "on or off only");
+    const ticked = await requestJson(server.baseUrl, "PUT", "/account/onboarding/break-adjustment", { cookie, csrf: breakCsrf, body: { enabled: true } });
+    assertStatus(ticked, 200, "ticked");
+    assert.equal(ticked.json.enabled, true);
+    assertStatus(await requestJson(server.baseUrl, "PUT", "/account/onboarding/break-adjustment", { cookie, csrf: breakCsrf, body: { enabled: true } }), 200, "the same again");
+    const logged = await withClient(databaseUrl, (client) => client.query(
+      "SELECT event_payload, occurred_at FROM product_account_events WHERE user_id = $1 AND event_type = 'break_adjustment_set'", [userId]
+    ));
+    assert.deepEqual(logged.rows.map((row) => row.event_payload), [{ enabled: true, previous: false, set_by: "athlete", schema_version: "break_adjustment_v1" }], "one change, logged once");
+    assert.equal(new Date(logged.rows[0].occurred_at).toISOString(), ticked.json.changed_at);
+
     // Her last session was 5 weeks ago.
     await withClient(databaseUrl, (client) => client.query(
       "UPDATE sessions SET created_at = now() - interval '38 days' WHERE beta_subject_user_id = $1", [userId]

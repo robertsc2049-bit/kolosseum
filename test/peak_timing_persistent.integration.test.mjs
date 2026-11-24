@@ -184,7 +184,7 @@ test("a powerlifter whose meet is 16 days away starts her coach's six-week prep 
   }, coachAuth);
 
   const saved = await request(baseUrl, "POST", "/templates", {
-    coach_user_id: coachUserId, template_version: 1, template_name: `Meet prep ${nonce}`, description: "Six-week meet prep.",
+    coach_user_id: coachUserId, template_version: 1, template_name: `Meet prep ${nonce}`, description: "Six-week meet prep.", adjust_for_breaks: true,
     activity_id: "powerlifting", event_plan: null, blocks: prepBlocks(), updated_at_iso8601: new Date().toISOString()
   });
   assertStatus(saved, 201, "save the prep");
