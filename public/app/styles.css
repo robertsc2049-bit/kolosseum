@@ -3537,6 +3537,12 @@ html[data-a11y-screen-reader-optimised="true"] [tabindex]:focus-visible {
   background: var(--ink-2);
 }
 
+/* The daily check-in on Today: one line until it's opened. */
+.today-readiness-line { display: flex; align-items: center; justify-content: space-between; gap: var(--k-space-3); width: 100%; min-height: 44px; padding: var(--k-space-2) var(--k-space-3); border: 1px solid var(--line-soft); border-radius: var(--k-radius-m, 12px); background: var(--ink-2); color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.today-readiness-line small { display: block; margin-top: 2px; }
+.today-readiness-action { flex: none; color: var(--bronze); font-weight: 700; }
+
+#athlete-today-readiness-root:not(:empty),
 #coach-link-request-root:not(:empty),
 #athlete-checkins-root:not(:empty),
 #athlete-first-steps-root:not(:empty),
