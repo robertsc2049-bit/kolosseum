@@ -369,6 +369,17 @@ test("a coached powerlifter sees her whole programme with her weights, and it mo
     coach_user_id: coachAccount.userId, template_version: 1, template_name: `As written ${nonce}`, description: "", activity_id: "powerlifting", blocks, updated_at_iso8601: new Date().toISOString()
   }), 201, "a programme with no tick").json.template;
   assert.equal(asWritten.adjust_for_breaks, false);
+  // Every change of the tick is logged against the coach: on, then off; a
+  // programme never ticked logs nothing.
+  const draftBody = (extra) => ({ coach_user_id: coachAccount.userId, template_version: 1, template_name: `Ticked ${nonce}`, description: "", activity_id: "powerlifting", blocks: [blocks[0]], updated_at_iso8601: new Date().toISOString(), ...extra });
+  const ticked = ok(await coach.req("POST", "/templates", draftBody({ adjust_for_breaks: true })), 201, "ticked").json.template;
+  const ids = { template_id: ticked.template_id, template_family_id: ticked.template_family_id };
+  ok(await coach.req("POST", "/templates", draftBody({ ...ids })), 201, "an edit that doesn't mention it");
+  ok(await coach.req("POST", "/templates", draftBody({ ...ids, adjust_for_breaks: false })), 201, "unticked");
+  const breakLog = (id) => pool.query("SELECT event_payload AS p FROM product_account_events WHERE user_id = $1 AND event_type = 'programme_break_adjustment_set' AND event_payload->>'template_id' = $2 ORDER BY occurred_at", [coachAccount.userId, id])
+    .then((result) => result.rows.map((row) => [row.p.enabled, row.p.previous, row.p.set_by]));
+  assert.deepEqual(await breakLog(ticked.template_id), [[true, null, "coach"], [false, true, "coach"]]);
+  assert.deepEqual(await breakLog(asWritten.template_id), []);
   for (const step of ["complete", "activate"]) ok(await coach.req("POST", `/templates/${asWritten.template_id}/${step}`, { coach_user_id: coachAccount.userId }), 200, step);
   const onV2Id = (await pool.query(`SELECT record_payload->>'assignment_id' AS id FROM beta_product_records
      WHERE record_type = 'beta17_assignment_trigger' AND subject_user_id = $1 ORDER BY created_at DESC LIMIT 1`, [athleteAccount.userId])).rows[0].id;

@@ -426,6 +426,10 @@
     },
     {
       "kind": "command",
+      "value": "node test/break_adjustment.test.mjs"
+    },
+    {
+      "kind": "command",
       "value": "node test/weight_class.test.mjs"
     },
     {

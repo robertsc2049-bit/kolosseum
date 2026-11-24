@@ -5,11 +5,12 @@
 import type { TrainingCycle } from "@kolosseum/engine/phases/phase4.js";
 import { pool } from "../db/pool.js";
 import { getAthleteTrainingPlan } from "./athlete_onboarding_service.js";
+import { ownReentry } from "./break_adjustment_service.js";
 import { computeTrainingCycle, reentryFor, weekStartMs, type Reentry } from "./training_cycle.js";
-import { LONG_LAYOFF_DAYS } from "./training_cycle.js";
 
 // A return from 10+ days away from training (the gap between sessions), for
-// any athlete - self-directed or coached: their first week back is lighter.
+// any athlete - self-directed or coached. What follows from it is the choice of
+// whoever's training it is (break_adjustment_service.ts).
 export async function gapReentryForAthlete(userId: string, now: Date = new Date()): Promise<Reentry | null> {
   const history = await pool.query(
     `SELECT created_at FROM sessions WHERE beta_subject_user_id = $1 ORDER BY created_at`,
@@ -30,7 +31,8 @@ export async function trainingCycleForAthlete(userId: string, now: Date = new Da
     [userId, new Date(weekStartMs(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))).toISOString()]
   );
   const sessionsThisWeek = Number(result.rows?.[0]?.n ?? 0);
-  const reentry = await gapReentryForAthlete(userId, now);
+  // Only where the athlete ticked "Adjust for breaks" for themselves.
+  const reentry = await ownReentry(userId, await gapReentryForAthlete(userId, now), now);
   const cycle = computeTrainingCycle(plan, now, sessionsThisWeek, reentry);
   return reentry ? { ...cycle, reentry } : cycle;
 }

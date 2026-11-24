@@ -8,6 +8,7 @@
 // explicit coach-entered value passed through as-is, never inferred or
 // resolved to a weight.
 
+import { logProgrammeBreakAdjustment } from "./break_adjustment_service.js";
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
@@ -3725,9 +3726,25 @@ export async function saveCoachProgrammeTemplate(
         false
     });
 
-  return persistTemplateRecord(
-    recordWithoutHash
+  const saved =
+    await persistTemplateRecord(
+      recordWithoutHash
+    );
+
+  await logProgrammeBreakAdjustment(
+    coachUserId,
+    {
+      template_id: templateId,
+      template_family_id: templateFamilyId,
+      template_version: templateVersion
+    },
+    recordWithoutHash.adjust_for_breaks === true,
+    existing
+      ? templateAdjustsForBreaks(existing)
+      : null
   );
+
+  return saved;
 }
 
 function transitionTemplateRecord(

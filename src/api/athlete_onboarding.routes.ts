@@ -42,6 +42,7 @@ import { PainFlagError, getAthletePainFlags, recordPainCheckIn } from "./pain_fl
 // js/missing-rate-limiting); the profile reads flags on every visit.
 const painFlagsRateLimit = rateLimit({ keyGenerator: accountRateLimitKey, windowMs: 15 * 60 * 1000, limit: 300, standardHeaders: true, legacyHeaders: false });
 
+import { BreakAdjustmentError, describeBreakAdjustment, setBreakAdjustment } from "./break_adjustment_service.js";
 import { ReadinessError, describeReadiness, saveReadiness, setOwnLightening } from "./readiness_service.js";
 import { StandDownError, describeStandDown, endStandDown, recordStandDown } from "./medical_stand_down_service.js";
 import { currentInjury } from "./injury_log_service.js";
@@ -595,6 +596,27 @@ athleteOnboardingRouter.put(
   })
 );
 
+// A self-coached athlete choosing whether a break makes their own first week
+// back lighter. Every change is logged.
+athleteOnboardingRouter.get(
+  "/break-adjustment",
+  readinessRateLimit,
+  asyncHandler(async (request, response) => {
+    const { session } = await athleteSession(request);
+    return response.status(200).json(await describeBreakAdjustment(session.account_row.user_id));
+  })
+);
+
+athleteOnboardingRouter.put(
+  "/break-adjustment",
+  readinessRateLimit,
+  asyncHandler(async (request, response) => {
+    const { token, session } = await athleteSession(request);
+    assertMutation(request, token);
+    return response.status(200).json(await setBreakAdjustment(session.account_row.user_id, request.body));
+  })
+);
+
 athleteOnboardingRouter.put(
   "/equipment",
   equipmentRateLimit,
@@ -667,7 +689,7 @@ athleteOnboardingRouter.use(
       return;
     }
 
-    if (error instanceof ReadinessError) {
+    if (error instanceof ReadinessError || error instanceof BreakAdjustmentError) {
       response.status(error.status).json({ error: error.code, field_errors: error.fieldErrors });
       return;
     }

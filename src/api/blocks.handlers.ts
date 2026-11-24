@@ -861,7 +861,11 @@ export async function compileBlock(req: Request, res: Response) {
   // whole week a deload instead (training_cycle.ts).
   // A coach's programme only where they ticked "Adjust for breaks" on it.
   const programmeAdjustsForBreaks = executionStamp?.adjust_for_breaks !== false;
-  if (create_session && ((programme_run_session && programmeAdjustsForBreaks) || own_training_session) && session_reentry?.reentry_week) {
+  // The athlete's own week follows their own tick (session_reentry already does).
+  if (programme_run_session) {
+    session_reentry = create_session && programmeAdjustsForBreaks && beta_individual_subject_user_id ? await gapReentryForAthlete(beta_individual_subject_user_id) ?? undefined : undefined;
+  }
+  if (create_session && (programme_run_session || own_training_session) && session_reentry?.reentry_week) {
     planned_session_from_engine = {
       ...planned_session_from_engine,
       exercises: lighterForReentry(planned_session_from_engine.exercises as any, session_reentry as any) as any,

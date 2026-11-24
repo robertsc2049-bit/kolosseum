@@ -79,6 +79,15 @@ export function saveOwnLightening(enabled: boolean, csrfToken: string): Promise<
   return request("PUT", "/account/onboarding/readiness/lightening", { enabled }, csrfToken);
 }
 
+// A self-coached athlete's own choice: does a break make their first week back lighter?
+export function loadBreakAdjustment(): Promise<JsonRecord> {
+  return request("GET", "/account/onboarding/break-adjustment");
+}
+
+export function saveBreakAdjustment(enabled: boolean, csrfToken: string): Promise<JsonRecord> {
+  return request("PUT", "/account/onboarding/break-adjustment", { enabled }, csrfToken);
+}
+
 // Medical stand-down (e.g. after a head injury).
 export function loadStandDown(): Promise<JsonRecord> {
   return request("GET", "/account/onboarding/stand-down");
