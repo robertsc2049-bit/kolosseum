@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useId, useRef, useState } from "react";
 
 import { loadReadiness, saveOwnLightening, saveReadiness } from "../../api/athleteOnboardingClient";
 import { loadAccountDetail } from "../../api/client";
@@ -21,7 +21,15 @@ const EXTRA_QUESTIONS: Array<["fatigue" | "mood", string, string, string]> = [
   ["mood", "How's your mood?", "1 very low", "5 great"]
 ];
 
-export function ReadinessCard({ selfDirected = false }: { selfDirected?: boolean }) {
+// Saved on one screen (Today or Training details): the other copy shows it.
+const READINESS_SAVED_EVENT = "kolosseum:readiness-saved";
+
+// compact (Today): one line until it's opened, and no rule to set.
+export function ReadinessCard({ selfDirected = false, compact = false }: { selfDirected?: boolean; compact?: boolean }) {
+  const [open, setOpen] = useState(false);
+  const selfRef = useRef(Symbol("readiness"));
+  // Both copies are in the page at once: their radio groups must not share a name.
+  const group = useId();
   const [extrasOpen, setExtrasOpen] = useState(false);
   const [readings, setReadings] = useState<{ resting_hr: string; hrv_ms: string }>({ resting_hr: "", hrv_ms: "" });
   const [answers, setAnswers] = useState<Record<string, number>>({});
@@ -34,6 +42,11 @@ export function ReadinessCard({ selfDirected = false }: { selfDirected?: boolean
   const [loaded, setLoaded] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  function saved(result: JsonRecord) {
+    apply(result);
+    document.dispatchEvent(new CustomEvent(READINESS_SAVED_EVENT, { detail: { source: selfRef.current, result } }));
+  }
 
   function apply(result: JsonRecord) {
     const check = (result.today as JsonRecord | null) ?? null;
@@ -54,8 +67,30 @@ export function ReadinessCard({ selfDirected = false }: { selfDirected?: boolean
       .then((result) => { if (!cancelled) apply(result); })
       .catch(() => undefined)
       .finally(() => { if (!cancelled) setLoaded(true); });
-    return () => { cancelled = true; };
+    const onSaved = (event: Event) => {
+      const detail = (event as CustomEvent<{ source: symbol; result: JsonRecord }>).detail;
+      if (detail && detail.source !== selfRef.current) apply(detail.result);
+    };
+    document.addEventListener(READINESS_SAVED_EVENT, onSaved);
+    return () => { cancelled = true; document.removeEventListener(READINESS_SAVED_EVENT, onSaved); };
   }, []);
+
+  // The app left open overnight: yesterday's check-in isn't today's.
+  const savedDate = typeof today?.date === "string" ? today.date : null;
+  useEffect(() => {
+    if (!savedDate) return undefined;
+    const onVisible = () => {
+      if (document.visibilityState === "hidden" || savedDate === new Date().toISOString().slice(0, 10)) return;
+      loadReadiness()
+        .then((result) => {
+          if (!result.today) { setAnswers({}); setReadings({ resting_hr: "", hrv_ms: "" }); }
+          apply(result);
+        })
+        .catch(() => undefined);
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
+  }, [savedDate]);
 
   // Watches often give HRV to a decimal: rounded, never dropped.
   const reading = (value: string) => (value.trim() !== "" && Number.isFinite(Number(value)) ? Math.round(Number(value)) : undefined);
@@ -71,7 +106,7 @@ export function ReadinessCard({ selfDirected = false }: { selfDirected?: boolean
     try {
       const account = await loadAccountDetail();
       const csrf = typeof account.csrf_token === "string" ? account.csrf_token : "";
-      apply(await saveReadiness({
+      saved(await saveReadiness({
         sleep: answers.sleep, soreness: answers.soreness, stress: answers.stress,
         ...(answers.fatigue ? { fatigue: answers.fatigue } : {}), ...(answers.mood ? { mood: answers.mood } : {}),
         ...(hr !== undefined ? { resting_hr: hr } : {}),
@@ -92,7 +127,7 @@ export function ReadinessCard({ selfDirected = false }: { selfDirected?: boolean
     setError(null);
     try {
       const account = await loadAccountDetail();
-      apply(await saveOwnLightening(enabled, typeof account.csrf_token === "string" ? account.csrf_token : ""));
+      saved(await saveOwnLightening(enabled, typeof account.csrf_token === "string" ? account.csrf_token : ""));
     }
     catch {
       setError("Your choice could not be saved. Try again.");
@@ -106,12 +141,24 @@ export function ReadinessCard({ selfDirected = false }: { selfDirected?: boolean
   const ruleOn = selfDirected ? lightening.own : lightening.coach_on;
   const complete = QUESTIONS.every(([key]) => Number.isInteger(answers[key]));
 
+  if (compact && !open) {
+    const done = today !== null;
+    return (
+      <button type="button" className="today-readiness-line" data-testid="today-readiness" aria-expanded={false} onClick={() => setOpen(true)}>
+        <span><strong>{done ? "Checked in today" : "How are you today?"}</strong><small className="muted">{done ? (low && ruleOn ? "Today's session will be lighter, if you haven't opened it yet." : "Sleep, soreness and stress recorded.") : "Optional - sleep, soreness and stress, three taps."}</small></span>
+        <span className="today-readiness-action">{done ? "Change" : "Check in"}</span>
+      </button>
+    );
+  }
+
   return (
-    <article className="onboarding-card readiness" data-testid="readiness">
+    <article className="onboarding-card readiness" data-testid={compact ? "today-readiness-open" : "readiness"}>
       <p className="eyebrow">Today's readiness</p>
       <h3>How are you today? (optional)</h3>
       <p className="muted">{selfDirected ? "Your answers are recorded for you." : "Your answers are recorded, and your coach sees them."}</p>
-      {selfDirected ? (
+      {selfDirected && compact ? (
+        lightening.own ? <p className="muted small" data-testid="readiness-rule">You've chosen to lighten your sessions after a low check-in. Change that in Training details.</p> : null
+      ) : selfDirected ? (
         <div className="readiness-rule" data-testid="readiness-rule">
           <label className="checkbox-field">
             <input type="checkbox" checked={lightening.own} disabled={switching} onChange={(event) => void switchOwn(event.target.checked)} />
@@ -134,7 +181,7 @@ export function ReadinessCard({ selfDirected = false }: { selfDirected?: boolean
           <div className="choice-chips readiness-scale">
             {[1, 2, 3, 4, 5].map((n) => (
               <label key={n} className="choice-chip readiness-option">
-                <input type="radio" name={`readiness-${key}`} aria-label={`${label} ${n}`} checked={answers[key] === n} onChange={() => { changed(); setAnswers((current) => ({ ...current, [key]: n })); }} />
+                <input type="radio" name={`readiness-${key}${group}`} aria-label={`${label} ${n}`} checked={answers[key] === n} onChange={() => { changed(); setAnswers((current) => ({ ...current, [key]: n })); }} />
                 <span>{n}</span>
               </label>
             ))}
@@ -151,7 +198,7 @@ export function ReadinessCard({ selfDirected = false }: { selfDirected?: boolean
               <div className="choice-chips readiness-scale">
                 {[1, 2, 3, 4, 5].map((n) => (
                   <label key={n} className="choice-chip readiness-option">
-                    <input type="radio" name={`readiness-${key}`} aria-label={`${label} ${n}`} checked={answers[key] === n} onChange={() => { changed(); setAnswers((current) => ({ ...current, [key]: n })); }} />
+                    <input type="radio" name={`readiness-${key}${group}`} aria-label={`${label} ${n}`} checked={answers[key] === n} onChange={() => { changed(); setAnswers((current) => ({ ...current, [key]: n })); }} />
                     <span>{n}</span>
                   </label>
                 ))}
@@ -168,6 +215,7 @@ export function ReadinessCard({ selfDirected = false }: { selfDirected?: boolean
       ) : null}
       <div className="onboarding-actions">
         <button className="button primary" type="button" disabled={saving || !complete} onClick={() => void save()}>Save check-in</button>
+        {compact ? <button className="button secondary" type="button" onClick={() => setOpen(false)}>Close</button> : null}
       </div>
     </article>
   );
