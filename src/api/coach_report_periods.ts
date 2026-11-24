@@ -185,7 +185,9 @@ export function summariseReport(analysis: Json): Json {
       exercise_id: lift.exercise_id, name: lift.name, main: lift.main,
       start: first ? first.e1rm : null, end: last ? last.e1rm : null, best: best ? best.e1rm : null,
       best_from: best ? best.from : null,
-      change_pct: first && last && first !== last ? round(((Number(last.e1rm) - Number(first.e1rm)) / Number(first.e1rm)) * 100, 1) : null
+      // Down only because the programme was lighter (unrated sets done as
+      // set): not a change in them.
+      change_pct: first && last && first !== last && !(last.as_planned && Number(last.e1rm) < Number(first.e1rm)) ? round(((Number(last.e1rm) - Number(first.e1rm)) / Number(first.e1rm)) * 100, 1) : null
     };
   }).sort((x, y) => Number(y.main) - Number(x.main));
   const execution = a.execution as Json;

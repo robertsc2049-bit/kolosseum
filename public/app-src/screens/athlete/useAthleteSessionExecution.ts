@@ -126,6 +126,9 @@ export type AthleteSessionExecutionState = {
   rpeValue: number;
   borgValue: number;
   cr10Value: number;
+  // Ratings recorded on this screen, by exercise (the server's copy comes
+  // with the session state).
+  effortRatings: Record<string, { rpe?: number; borg?: number; cr10?: number }>;
   extraSetTargetExerciseId: string | null;
   extraSetReps: number;
   extraSetLoadValue: string;
@@ -176,6 +179,7 @@ const initialState: AthleteSessionExecutionState = {
   rpeValue: 8,
   borgValue: 13,
   cr10Value: 5,
+  effortRatings: {},
   extraSetTargetExerciseId: null,
   extraSetReps: 1,
   extraSetLoadValue: "",
@@ -269,6 +273,7 @@ export function useAthleteSessionExecution() {
         error: false,
         sessionId,
         sessionState,
+        effortRatings: current.sessionId === sessionId ? current.effortRatings : {},
         actionPanel: null,
         skipReasonCode: "equipment_unavailable",
         rpeValue: 8,
@@ -547,7 +552,10 @@ export function useAthleteSessionExecution() {
     const rpeValue = state.rpeValue;
     setState((current) => ({ ...current, actionPanel: null }));
     return runMutation(async (sessionId, csrfToken) => {
-      return postOrQueue(sessionId, { type: "RPE_REPORT", exercise_id: exerciseId, rpe_value: rpeValue }, csrfToken);
+      const outcome = await postOrQueue(sessionId, { type: "RPE_REPORT", exercise_id: exerciseId, rpe_value: rpeValue }, csrfToken);
+      // Shown at once, offline too; the session state has it after a reload.
+      setState((current) => ({ ...current, effortRatings: { ...current.effortRatings, [exerciseId]: { ...current.effortRatings[exerciseId], rpe: rpeValue } } }));
+      return outcome;
     }, true);
   }, [runMutation, state.sessionState, state.rpeValue]);
 
@@ -561,7 +569,10 @@ export function useAthleteSessionExecution() {
     const borgValue = state.borgValue;
     setState((current) => ({ ...current, actionPanel: null }));
     return runMutation(async (sessionId, csrfToken) => {
-      return postOrQueue(sessionId, { type: "BORG_REPORT", exercise_id: exerciseId, borg_value: borgValue }, csrfToken);
+      const outcome = await postOrQueue(sessionId, { type: "BORG_REPORT", exercise_id: exerciseId, borg_value: borgValue }, csrfToken);
+      // Shown at once, offline too; the session state has it after a reload.
+      setState((current) => ({ ...current, effortRatings: { ...current.effortRatings, [exerciseId]: { ...current.effortRatings[exerciseId], borg: borgValue } } }));
+      return outcome;
     }, true);
   }, [runMutation, state.sessionState, state.borgValue]);
 
@@ -575,7 +586,10 @@ export function useAthleteSessionExecution() {
     const cr10Value = state.cr10Value;
     setState((current) => ({ ...current, actionPanel: null }));
     return runMutation(async (sessionId, csrfToken) => {
-      return postOrQueue(sessionId, { type: "CR10_REPORT", exercise_id: exerciseId, cr10_value: cr10Value }, csrfToken);
+      const outcome = await postOrQueue(sessionId, { type: "CR10_REPORT", exercise_id: exerciseId, cr10_value: cr10Value }, csrfToken);
+      // Shown at once, offline too; the session state has it after a reload.
+      setState((current) => ({ ...current, effortRatings: { ...current.effortRatings, [exerciseId]: { ...current.effortRatings[exerciseId], cr10: cr10Value } } }));
+      return outcome;
     }, true);
   }, [runMutation, state.sessionState, state.cr10Value]);
 

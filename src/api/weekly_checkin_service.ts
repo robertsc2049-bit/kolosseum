@@ -88,6 +88,13 @@ async function requireCoachAthleteAccess(coachUserId: string, athleteUserId: str
   }
 }
 
+const DAY_MS = 86_400_000;
+
+function mondayOf(date: Date): string {
+  const offset = (date.getUTCDay() + 6) % 7;
+  return new Date(date.getTime() - offset * DAY_MS).toISOString().slice(0, 10);
+}
+
 type WeeklyCheckinInput = {
   week_start_date?: unknown;
   energy_level?: unknown;
@@ -113,22 +120,39 @@ export async function submitWeeklyCheckin(
     throw new WeeklyCheckinError((error as { code?: string }).code ?? "submission_invalid");
   }
 
+  // Weeks run Monday to Sunday: any day names its week, and there is one
+  // check-in a week. Not for a week that hasn't started (a day's grace, for
+  // athletes ahead of UTC).
+  const day = normalised.week_start_date as string;
+  const parsed = new Date(`${day}T00:00:00.000Z`);
+  if (Number.isNaN(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== day) {
+    throw new WeeklyCheckinError("week_start_date_invalid");
+  }
+  const weekStartDate = mondayOf(parsed);
+  if (weekStartDate > mondayOf(new Date(Date.now() + DAY_MS))) {
+    throw new WeeklyCheckinError("week_not_started");
+  }
+
   const checkinId = `weekly_checkin_${sha256({
     athlete,
-    weekStartDate: normalised.week_start_date
+    weekStartDate
   }).slice(0, 24)}`;
 
+  // (one saved under another day of the week, before this rule, counts too)
   const existingResult = await pool.query(
     `
     SELECT 1
     FROM beta_product_records
     WHERE
       record_type = 'weekly_checkin_entry'
-      AND record_id = $1
       AND subject_user_id = $2
+      AND (
+        record_id = $1
+        OR (record_payload->>'week_start_date' >= $3 AND record_payload->>'week_start_date' <= $4)
+      )
     LIMIT 1
     `,
-    [checkinId, athlete]
+    [checkinId, athlete, weekStartDate, new Date(Date.parse(`${weekStartDate}T00:00:00.000Z`) + 6 * DAY_MS).toISOString().slice(0, 10)]
   );
   if ((existingResult.rowCount ?? 0) > 0) {
     throw new WeeklyCheckinError("already_submitted_for_week", 409);
@@ -140,7 +164,7 @@ export async function submitWeeklyCheckin(
     checkin_id: checkinId,
     athlete_user_id: athlete,
     logged_by_user_id: athlete,
-    week_start_date: normalised.week_start_date,
+    week_start_date: weekStartDate,
     energy_level: normalised.energy_level,
     motivation_level: normalised.motivation_level,
     sleep_quality: normalised.sleep_quality,

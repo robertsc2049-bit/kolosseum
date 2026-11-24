@@ -52,6 +52,20 @@ function isRecord(value: unknown): value is JsonRecord {
 }
 
 // Exported for tests: the latest log per exercise and set wins (a re-logged set replaces the earlier one).
+// The latest rating of each exercise (a corrected one replaces the earlier).
+export function latestRatings(raw: unknown, key: string, valid: (value: unknown) => boolean): JsonRecord[] {
+  if (!Array.isArray(raw)) return [];
+  const latest = new Map<string, JsonRecord>();
+  for (const entry of raw) {
+    if (!isRecord(entry) || typeof entry.exercise_id !== "string" || !valid(entry[key])) continue;
+    const prior = latest.get(entry.exercise_id);
+    if (!prior || Number(entry.seq) > Number(prior.seq)) latest.set(entry.exercise_id, entry);
+  }
+  return [...latest.values()]
+    .sort((a, b) => String(a.exercise_id).localeCompare(String(b.exercise_id)))
+    .map(({ seq: _seq, ...rest }) => rest);
+}
+
 export function latestSetLogs(raw: unknown): JsonRecord[] {
   if (!Array.isArray(raw)) return [];
   const latest = new Map<string, JsonRecord>();
@@ -1429,7 +1443,8 @@ export async function loadCoachAthleteDetail(
           json_agg(
             DISTINCT jsonb_build_object(
               'exercise_id', re.event->>'exercise_id',
-              'rpe_value', (re.event->>'rpe_value')::int
+              'rpe_value', (re.event->>'rpe_value')::int,
+              'seq', re.seq
             )
           ) FILTER (
             WHERE re.event->>'type' = 'RPE_REPORT'
@@ -1441,7 +1456,8 @@ export async function loadCoachAthleteDetail(
           json_agg(
             DISTINCT jsonb_build_object(
               'exercise_id', re.event->>'exercise_id',
-              'borg_value', (re.event->>'borg_value')::int
+              'borg_value', (re.event->>'borg_value')::int,
+              'seq', re.seq
             )
           ) FILTER (
             WHERE re.event->>'type' = 'BORG_REPORT'
@@ -1453,7 +1469,8 @@ export async function loadCoachAthleteDetail(
           json_agg(
             DISTINCT jsonb_build_object(
               'exercise_id', re.event->>'exercise_id',
-              'cr10_value', (re.event->>'cr10_value')::numeric
+              'cr10_value', (re.event->>'cr10_value')::numeric,
+              'seq', re.seq
             )
           ) FILTER (
             WHERE re.event->>'type' = 'CR10_REPORT'
@@ -1772,38 +1789,11 @@ export async function loadCoachAthleteDetail(
                 )
               : [],
           rpe_reports:
-            Array.isArray(
-              row.session_rpe_reports
-            )
-              ? row.session_rpe_reports.filter(
-                  (entry: unknown) =>
-                    isRecord(entry) &&
-                    typeof entry.exercise_id === "string" &&
-                    Number.isInteger(entry.rpe_value)
-                )
-              : [],
+            latestRatings(row.session_rpe_reports, "rpe_value", Number.isInteger),
           borg_reports:
-            Array.isArray(
-              row.session_borg_reports
-            )
-              ? row.session_borg_reports.filter(
-                  (entry: unknown) =>
-                    isRecord(entry) &&
-                    typeof entry.exercise_id === "string" &&
-                    Number.isInteger(entry.borg_value)
-                )
-              : [],
+            latestRatings(row.session_borg_reports, "borg_value", Number.isInteger),
           cr10_reports:
-            Array.isArray(
-              row.session_cr10_reports
-            )
-              ? row.session_cr10_reports.filter(
-                  (entry: unknown) =>
-                    isRecord(entry) &&
-                    typeof entry.exercise_id === "string" &&
-                    Number.isFinite(entry.cr10_value)
-                )
-              : [],
+            latestRatings(row.session_cr10_reports, "cr10_value", Number.isFinite),
           extra_set_reports:
             Array.isArray(
               row.session_extra_set_reports

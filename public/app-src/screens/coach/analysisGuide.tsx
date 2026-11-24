@@ -93,7 +93,7 @@ export const GUIDE: Readonly<Record<string, GuideEntry>> = {
       "A rising line means their estimated max is going up. Small dips in heavy or deload weeks are common.",
       "Real change only: every lift wobbles week to week (a good day, a bad night's sleep). Each lift's own normal variation is measured, and Rising or Falling needs a change bigger than 1.5× that wobble (never under 2%). The lift list shows the wobble as '±x% is normal week-to-week variation'.",
       "× bodyweight is the estimated max divided by their latest bodyweight - the number weight-class and team-sport coaches compare (e.g. a 1.8× bodyweight squat). The tested max is the latest max in their strength profile, next to the estimate: a big gap means the recorded max and the estimate disagree.",
-      "Rising: up by more than the smallest worthwhile change on their best from at least 4 weeks earlier. Steady: within that. Plateau: no new best for 6 weeks or more while still training the lift. Falling: their last 2 weeks are 5% or more below their peak, or down 5% or more in 4 weeks.",
+      "Rising: up by more than the smallest worthwhile change on their best from at least 4 weeks earlier. Steady: within that. Plateau: no new best for 6 weeks or more while still training the lift. Falling: their last 2 weeks are 5% or more below their peak, or down 5% or more in 4 weeks. A week of unrated sets done exactly as you set them never counts as falling or a plateau - a lighter block isn't a weaker athlete.",
       "Main lifts are the ones you marked as the primary lift in a session. Accessories are listed in the numbers for reference but are never flagged - an accessory kept at one weight on purpose isn't a plateau."
     ],
     how: [
@@ -173,7 +173,7 @@ export const GUIDE: Readonly<Record<string, GuideEntry>> = {
       "Strain (in the numbers): weekly load × monotony. Foster found illness in athletes often followed weeks of high strain (Foster 1998)."
     ],
     how: [
-      "Session load (Foster's session-RPE method) = session effort × minutes, in load points (the research calls them arbitrary units, AU). Measured: the athlete rates the whole session (0-10) and says how long it took when they finish it. Estimated, if they don't: the average of their exercise ratings × the minutes from starting the session to the last thing they logged (capped at 4 hours). The Load section says how many sessions were measured.",
+      "Session load (Foster's session-RPE method) = session effort × minutes, in load points (the research calls them arbitrary units, AU). Measured: the athlete rates the whole session (0-10) and says how long it took when they finish it. Estimated, if they don't: the average of their exercise ratings × the minutes from starting the session to the last thing they logged (capped at 4 hours). A session they didn't rate counts as their own average rated session (that week and the 28 days before); a week with less than half its sessions rated has no load figure. The Load section says how many sessions were measured.",
       "Practice, matches and conditioning the athlete logs add their own effort × minutes.",
       "Load ratio = this week's load ÷ the mean of the 4 previous weeks' loads. Monotony = the week's average daily load ÷ the standard deviation of its 7 daily loads (rest days count as 0). Strain = weekly load × monotony."
     ],

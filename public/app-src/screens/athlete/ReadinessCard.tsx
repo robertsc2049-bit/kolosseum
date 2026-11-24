@@ -27,6 +27,8 @@ export function ReadinessCard({ selfDirected = false }: { selfDirected?: boolean
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [today, setToday] = useState<JsonRecord | null>(null);
   const [low, setLow] = useState(false);
+  // "Saved" only while what's on screen is what was saved.
+  const [savedNow, setSavedNow] = useState(false);
   const [lightening, setLightening] = useState<{ own: boolean; coach_on: boolean }>({ own: false, coach_on: false });
   const [switching, setSwitching] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -39,6 +41,7 @@ export function ReadinessCard({ selfDirected = false }: { selfDirected?: boolean
     setLow(result.low === true);
     const rule = (result.lightening as JsonRecord | undefined) ?? {};
     setLightening({ own: rule.own === true, coach_on: rule.coach_on === true });
+    setSavedNow(Boolean(check));
     if (check) {
       setAnswers({ sleep: Number(check.sleep), soreness: Number(check.soreness), stress: Number(check.stress), ...(typeof check.fatigue === "number" ? { fatigue: check.fatigue } : {}), ...(typeof check.mood === "number" ? { mood: check.mood } : {}) });
       setReadings({ resting_hr: typeof check.resting_hr === "number" ? String(check.resting_hr) : "", hrv_ms: typeof check.hrv_ms === "number" ? String(check.hrv_ms) : "" });
@@ -54,21 +57,29 @@ export function ReadinessCard({ selfDirected = false }: { selfDirected?: boolean
     return () => { cancelled = true; };
   }, []);
 
+  // Watches often give HRV to a decimal: rounded, never dropped.
+  const reading = (value: string) => (value.trim() !== "" && Number.isFinite(Number(value)) ? Math.round(Number(value)) : undefined);
+  const changed = () => { setSavedNow(false); setError(null); };
+
   async function save() {
+    const hr = reading(readings.resting_hr);
+    const hrv = reading(readings.hrv_ms);
+    if (hr !== undefined && (hr < 30 || hr > 120)) { setSavedNow(false); setError("Resting heart rate: enter 30 to 120 bpm, or leave it blank."); return; }
+    if (hrv !== undefined && (hrv < 5 || hrv > 300)) { setSavedNow(false); setError("HRV: enter 5 to 300 ms, or leave it blank."); return; }
     setSaving(true);
     setError(null);
     try {
       const account = await loadAccountDetail();
       const csrf = typeof account.csrf_token === "string" ? account.csrf_token : "";
-      const reading = (value: string) => (value.trim() !== "" && Number.isInteger(Number(value)) ? Number(value) : undefined);
       apply(await saveReadiness({
         sleep: answers.sleep, soreness: answers.soreness, stress: answers.stress,
         ...(answers.fatigue ? { fatigue: answers.fatigue } : {}), ...(answers.mood ? { mood: answers.mood } : {}),
-        ...(reading(readings.resting_hr) !== undefined ? { resting_hr: reading(readings.resting_hr) } : {}),
-        ...(reading(readings.hrv_ms) !== undefined ? { hrv_ms: reading(readings.hrv_ms) } : {})
+        ...(hr !== undefined ? { resting_hr: hr } : {}),
+        ...(hrv !== undefined ? { hrv_ms: hrv } : {})
       }, csrf));
     }
     catch {
+      setSavedNow(false);
       setError("Your check-in could not be saved. Try again.");
     }
     finally {
@@ -113,8 +124,8 @@ export function ReadinessCard({ selfDirected = false }: { selfDirected?: boolean
           ? "Your coach has turned on a rule for your sessions: a low check-in takes one set off each exercise and makes it a little lighter."
           : "Your check-in doesn't change your sessions unless your coach turns that on."}</p>
       )}
-      {today ? (
-        <p className="muted" role="status">{low && ruleOn ? "Saved - today's session will be lighter." : "Saved."}</p>
+      {today && savedNow ? (
+        <p className="muted" role="status">{low && ruleOn ? "Saved - today's session will be lighter, if you haven't opened it yet." : "Saved."}</p>
       ) : null}
       {error ? <p className="field-error" role="alert">{error}</p> : null}
       {QUESTIONS.map(([key, label, lowText, highText]) => (
@@ -123,7 +134,7 @@ export function ReadinessCard({ selfDirected = false }: { selfDirected?: boolean
           <div className="choice-chips readiness-scale">
             {[1, 2, 3, 4, 5].map((n) => (
               <label key={n} className="choice-chip readiness-option">
-                <input type="radio" name={`readiness-${key}`} aria-label={`${label} ${n}`} checked={answers[key] === n} onChange={() => setAnswers((current) => ({ ...current, [key]: n }))} />
+                <input type="radio" name={`readiness-${key}`} aria-label={`${label} ${n}`} checked={answers[key] === n} onChange={() => { changed(); setAnswers((current) => ({ ...current, [key]: n })); }} />
                 <span>{n}</span>
               </label>
             ))}
@@ -140,7 +151,7 @@ export function ReadinessCard({ selfDirected = false }: { selfDirected?: boolean
               <div className="choice-chips readiness-scale">
                 {[1, 2, 3, 4, 5].map((n) => (
                   <label key={n} className="choice-chip readiness-option">
-                    <input type="radio" name={`readiness-${key}`} aria-label={`${label} ${n}`} checked={answers[key] === n} onChange={() => setAnswers((current) => ({ ...current, [key]: n }))} />
+                    <input type="radio" name={`readiness-${key}`} aria-label={`${label} ${n}`} checked={answers[key] === n} onChange={() => { changed(); setAnswers((current) => ({ ...current, [key]: n })); }} />
                     <span>{n}</span>
                   </label>
                 ))}
@@ -149,8 +160,8 @@ export function ReadinessCard({ selfDirected = false }: { selfDirected?: boolean
             </fieldset>
           ))}
           <div className="readiness-readings">
-            <label className="field"><span>Resting heart rate (bpm)</span><input type="number" inputMode="numeric" min={30} max={120} value={readings.resting_hr} onChange={(event) => setReadings({ ...readings, resting_hr: event.target.value })} /></label>
-            <label className="field"><span>HRV (ms)</span><input type="number" inputMode="numeric" min={5} max={300} value={readings.hrv_ms} onChange={(event) => setReadings({ ...readings, hrv_ms: event.target.value })} /></label>
+            <label className="field"><span>Resting heart rate (bpm)</span><input type="number" inputMode="numeric" min={30} max={120} value={readings.resting_hr} onChange={(event) => { changed(); setReadings({ ...readings, resting_hr: event.target.value }); }} /></label>
+            <label className="field"><span>HRV (ms)</span><input type="number" inputMode="decimal" min={5} max={300} step="any" value={readings.hrv_ms} onChange={(event) => { changed(); setReadings({ ...readings, hrv_ms: event.target.value }); }} /></label>
           </div>
           <small className="muted">Take these first thing in the morning, the same way each day, from your watch or strap.</small>
         </div>

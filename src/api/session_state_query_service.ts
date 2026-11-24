@@ -17,6 +17,7 @@ import {
   type PlannedSession,
   buildCoachSessionDecisionSummaryFromRunId,
   ensureReturnDecisionContract,
+  loadSessionEffortRatings,
   loadSessionSetLogs,
   loadSessionStateRow,
   projectSessionStatePayload,
@@ -55,7 +56,12 @@ export async function getSessionStateQuery(session_id: string) {
     // per exercise and set), so the session screen shows logged sets after a
     // reload. Present only once something has been logged.
     const setLogs = await loadSessionSetLogs(client, session_id);
-    const payload = Object.keys(setLogs).length ? { ...projected, set_logs: setLogs } : projected;
+    const ratings = await loadSessionEffortRatings(client, session_id);
+    const payload = {
+      ...projected,
+      ...(Object.keys(setLogs).length ? { set_logs: setLogs } : {}),
+      ...(Object.keys(ratings).length ? { effort_ratings: ratings } : {})
+    };
 
     writeCachedSessionState(session_id, payload);
     return payload;
