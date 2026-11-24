@@ -324,7 +324,6 @@ button:focus-visible,
 .button:focus-visible,
 [role="button"]:focus-visible,
 [role="menuitem"]:focus-visible,
-summary:focus-visible,
 [tabindex]:focus-visible {
   outline: 3px solid var(--k-focus);
   outline-offset: 2px;
@@ -5204,7 +5203,7 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
 .analysis-roster td { vertical-align: middle; }
 .analysis-roster-findings { min-width: 260px; }
 .analysis-athlete-link { padding: 0; border: 0; background: none; color: var(--k-accent-bright); font: inherit; font-weight: 700; text-align: left; cursor: pointer; min-height: 44px; }
-.analysis-numbers > summary { cursor: pointer; color: var(--k-accent-bright); font-weight: 600; display: list-item; padding: 11px 0; line-height: 22px; }
+.analysis-numbers > summary { cursor: pointer; color: var(--k-text); font-weight: 600; display: list-item; padding: 11px 0; line-height: 22px; }
 .analysis-numbers[open] { display: grid; gap: var(--k-space-3); }
 .analysis-method { padding: var(--k-space-3); border-radius: var(--k-radius-s); background: var(--k-surface-1); font-size: 0.86rem; color: var(--k-text-secondary); }
 .analysis-method p { margin: 0 0 var(--k-space-2); }
@@ -5318,7 +5317,7 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
 /* "What this means" (analysisGuide.tsx): a plain-English explanation folded
    under every part of Analysis and the progress reports. */
 .analysis-explain { border: 1px dashed var(--k-border); border-radius: var(--k-radius-m); padding: 0 var(--k-space-3); }
-.analysis-explain > summary { cursor: pointer; padding: 11px 0; line-height: 22px; font-size: 0.85rem; color: var(--k-accent-bright); }
+.analysis-explain > summary { cursor: pointer; padding: 11px 0; line-height: 22px; font-size: 0.85rem; color: var(--k-text); }
 .analysis-explain-body { padding-bottom: var(--k-space-3); font-size: 0.9rem; line-height: 1.5; color: var(--k-text-secondary); }
 .analysis-explain-body > p:first-child { margin-top: 0; color: var(--k-text); }
 .analysis-explain-body ul { margin: 0 0 var(--k-space-2); padding-left: 1.1em; display: grid; gap: 4px; }
@@ -5657,6 +5656,7 @@ input[type="checkbox"] { border-radius: 4px; }
 .badge { font-family: var(--k-font-body); }
 summary { color: var(--k-text); }
 summary::marker { color: var(--k-accent); }
+.button.link { border: 0; background: transparent; color: var(--k-link); text-decoration: underline; text-decoration-color: var(--k-accent); text-decoration-thickness: 2px; text-underline-offset: 4px; }
 .large-avatar, .avatar { flex: none; }
 .analysis-athlete-link { min-width: 44px; color: var(--k-link); text-decoration: underline; text-decoration-color: var(--k-accent); text-decoration-thickness: 2px; text-underline-offset: 4px; text-align: left; }
 .account-card > :not(.large-avatar) { min-width: 0; overflow-wrap: anywhere; }
@@ -5690,6 +5690,11 @@ summary::marker { color: var(--k-accent); }
 .sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
 .skip-link { position: fixed; z-index: 100; top: 8px; left: 8px; padding: 12px 18px; border: 0; border-radius: var(--k-radius-s); background: var(--k-primary); color: var(--k-on-primary); font-weight: 700; transform: translateY(-200%); }
 .skip-link:focus { transform: none; }
+summary:focus-visible { outline: 3px solid var(--k-focus); outline-offset: 2px; }
+/* Gym console (public/org). */
+.org-page > section.panel { margin-top: 16px; }
+.org-page form .field { margin-bottom: 14px; }
+.org-page [data-theme-choice] { margin: 1rem 0; }
 .appearance-panel { margin-top: var(--k-space-4); }
 .entry-form-wrap [data-theme-choice] { margin-top: var(--k-space-6); }
 

@@ -105,7 +105,7 @@
 }
 
 /* "Higher contrast" (accessibility preferences), in either mode. */
-:root[data-a11y-high-contrast="true"][data-a11y-high-contrast] {
+html[data-a11y-high-contrast="true"][data-a11y-high-contrast] {
   --k-canvas: #000000;
   --k-surface-1: #0A0A0A;
   --k-surface-2: #141414;
@@ -123,7 +123,7 @@
   --k-link: #FFFFFF;
   --k-focus: #D4FF66;
 }
-:root[data-theme="light"][data-a11y-high-contrast="true"][data-a11y-high-contrast] {
+html[data-theme="light"][data-a11y-high-contrast="true"][data-a11y-high-contrast] {
   --k-canvas: #FFFFFF;
   --k-surface-1: #FFFFFF;
   --k-surface-2: #FFFFFF;

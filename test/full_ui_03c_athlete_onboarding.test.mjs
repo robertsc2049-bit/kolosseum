@@ -373,14 +373,17 @@ test("FULL-UI-03C declared accessibility preferences are actually applied to the
   // exact data attribute the UI sets - not just a declared-but-empty rule.
   for (const [attribute, mustContain] of [
     ["data-a11y-reduced-motion", "animation-duration"],
-    ["data-a11y-high-contrast", "--stone"],
+    ["data-a11y-high-contrast", "--k-text: #FFFFFF"],
     ["data-a11y-larger-text", "font-size"],
     ["data-a11y-screen-reader-optimised", "--stone-dim"]
   ]) {
     const selector = `html[${attribute}="true"]`;
-    const start = css.indexOf(selector);
+    // Colours (higher contrast) live in theme.css, the rest in styles.css.
+    const sheets = `${css}
+${fs.readFileSync(new URL("../public/app/theme.css", import.meta.url), "utf8")}`;
+    const start = sheets.indexOf(selector);
     assert.ok(start >= 0, `Expected a CSS rule for ${selector}`);
-    const block = css.slice(start, css.indexOf("}", start) + 1);
+    const block = sheets.slice(start, sheets.indexOf("}", start) + 1);
     assert.match(block, new RegExp(mustContain.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&"), "u"));
   }
 });
