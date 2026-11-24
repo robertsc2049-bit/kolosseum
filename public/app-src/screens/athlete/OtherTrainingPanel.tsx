@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { accountMayBeAthlete, loadAccountDetail } from "../../api/client";
 import { request, type JsonRecord } from "../../api/transport";
 import { ENTRY_AUTH_SUCCEEDED_EVENT } from "../entry/useEntryAuth";
+import { formatDate } from "../../utils/format";
 
 // Training outside your sessions here - team practice, matches,
 // conditioning, another sport: when, how long and how hard. Your coach sees
@@ -116,8 +117,8 @@ export function OtherTrainingPanel() {
         <ul className="other-training-list">
           {recent.map((entry) => (
             <li key={String(entry.id)}>
-              <span><strong>{kindLabel(entry.kind)}</strong>{` · ${String(entry.date)} · ${entry.minutes} min · ${entry.srpe}/10${typeof entry.jumps === "number" ? ` · ${entry.jumps} jumps` : ""}${typeof entry.balls_bowled === "number" ? ` · ${entry.balls_bowled} balls` : ""}${entry.note ? ` · ${String(entry.note)}` : ""}`}</span>
-              <button type="button" className="text-button" disabled={busy} onClick={() => void remove(String(entry.id))}>Remove</button>
+              <span><strong>{kindLabel(entry.kind)}</strong>{` · ${formatDate(entry.date)} · ${entry.minutes} min · ${entry.srpe}/10${typeof entry.jumps === "number" ? ` · ${entry.jumps} jumps` : ""}${typeof entry.balls_bowled === "number" ? ` · ${entry.balls_bowled} balls` : ""}${entry.note ? ` · ${String(entry.note)}` : ""}`}</span>
+              <button type="button" className="text-button" disabled={busy} aria-label={`Remove ${kindLabel(entry.kind)}, ${formatDate(entry.date)}`} onClick={() => void remove(String(entry.id))}>Remove</button>
             </li>
           ))}
         </ul>

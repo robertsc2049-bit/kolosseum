@@ -133,7 +133,7 @@ test("opening the panel loads and displays a notification with its resolved subj
   });
   render(<NotificationBellPanel />);
   await act(async () => {
-    fireEvent.click(screen.getByLabelText("Open notifications"));
+    fireEvent.click(screen.getByLabelText(/^Open notifications/u));
   });
 
   // With a name, the row is one sentence (walkthrough 10).
@@ -145,7 +145,7 @@ test("shows a factual unavailable state with a retry action when the service fai
   installMocks({ notificationsUnavailable: true });
   render(<NotificationBellPanel />);
   await act(async () => {
-    fireEvent.click(screen.getByLabelText("Open notifications"));
+    fireEvent.click(screen.getByLabelText(/^Open notifications/u));
   });
 
   await screen.findByText("Notifications are unavailable right now.");
@@ -156,7 +156,7 @@ test("shows a factual empty state when there are no notifications", async () => 
   installMocks({ notifications: [] });
   render(<NotificationBellPanel />);
   await act(async () => {
-    fireEvent.click(screen.getByLabelText("Open notifications"));
+    fireEvent.click(screen.getByLabelText(/^Open notifications/u));
   });
 
   await screen.findByText("No notifications yet.");
@@ -166,7 +166,7 @@ test("marking a notification read calls the read endpoint and refreshes the list
   installMocks({ unreadCount: 1, notifications: [notification()] });
   render(<NotificationBellPanel />);
   await act(async () => {
-    fireEvent.click(screen.getByLabelText("Open notifications"));
+    fireEvent.click(screen.getByLabelText(/^Open notifications/u));
   });
   await screen.findByText("Mark read");
 
@@ -190,7 +190,7 @@ test("marking all read calls the mark-all-read endpoint", async () => {
   installMocks({ unreadCount: 1, notifications: [notification()] });
   render(<NotificationBellPanel />);
   await act(async () => {
-    fireEvent.click(screen.getByLabelText("Open notifications"));
+    fireEvent.click(screen.getByLabelText(/^Open notifications/u));
   });
   await screen.findByText("Mark all read");
 
@@ -214,7 +214,7 @@ test("opening a notification with an unavailable target does not dispatch a navi
   installMocks({ notifications: [notification({ target_available: false })] });
   render(<NotificationBellPanel />);
   await act(async () => {
-    fireEvent.click(screen.getByLabelText("Open notifications"));
+    fireEvent.click(screen.getByLabelText(/^Open notifications/u));
   });
   await screen.findByText("This item is no longer available");
 
@@ -272,7 +272,7 @@ test("an already-open panel refetches its full content (not just the count) when
   installMocks({ unreadCount: 0, notifications: [] });
   render(<NotificationBellPanel />);
   await act(async () => {
-    fireEvent.click(screen.getByLabelText("Open notifications"));
+    fireEvent.click(screen.getByLabelText(/^Open notifications/u));
   });
   await screen.findByText("No notifications yet.");
 
@@ -303,7 +303,7 @@ test("opening a notification with a real target dispatches the navigation bridge
   installMocks({ notifications: [notification()] });
   render(<NotificationBellPanel />);
   await act(async () => {
-    fireEvent.click(screen.getByLabelText("Open notifications"));
+    fireEvent.click(screen.getByLabelText(/^Open notifications/u));
   });
   await screen.findByText("A connected athlete accepted your invitation");
 

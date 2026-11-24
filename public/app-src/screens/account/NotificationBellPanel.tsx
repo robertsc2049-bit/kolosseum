@@ -106,7 +106,7 @@ export function NotificationBellPanel() {
       <button
         className="icon-button notification-bell"
         type="button"
-        aria-label="Open notifications"
+        aria-label={unreadCount > 0 ? `Open notifications, ${unreadCount} unread` : "Open notifications"}
         aria-haspopup="true"
         aria-expanded={panelOpen}
         onClick={(event) => {

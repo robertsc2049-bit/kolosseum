@@ -5778,4 +5778,11 @@ summary:focus-visible { outline: 3px solid var(--k-focus); outline-offset: 2px; 
   .review-back { display: inline-flex; margin-bottom: var(--k-space-3); }
   .review-layout[data-open="false"] > .review-detail { display: none; }
   .review-layout[data-open="true"] > :first-child { display: none; }
+  .panel:has(> .review-layout[data-open="true"]) > :is(.page-heading, .review-bulk) { display: none; }
 }
+.set-log-row > .tick-button { margin-left: auto; }
+.exercise-focus .exercise-detail-row { margin: 0 0 var(--k-space-4); gap: 2px 14px; }
+.exercise-focus .exercise-detail { min-height: 0; padding: 0; border: 0; background: none; color: var(--k-text); font-size: 1.1rem; font-weight: 600; }
+
+/* A question open under the sets: its own button is the one to press. */
+.current-work:has(.pain-report-panel, .skip-reason-panel, .substitution-panel) > .session-next { display: none; }

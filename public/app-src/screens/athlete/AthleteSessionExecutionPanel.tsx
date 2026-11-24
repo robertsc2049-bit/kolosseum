@@ -557,9 +557,6 @@ export function AthleteSessionExecutionPanel() {
                       <button id="finishSessionNowButton" className="text-button" type="button" disabled={session.busy} onClick={() => { session.finishNow().catch(() => {}); }}>Finish session now</button>
                     </div>
                   </details>
-                  <div className="session-next">
-                    <button id="completeExerciseButton" className="button primary wide" type="button" disabled={session.busy} onClick={() => session.completeStep()}>Mark exercise complete{nextName ? <small>{`Next: ${nextName}`}</small> : null}</button>
-                  </div>
                 </>
               )}
             </div>
@@ -738,6 +735,11 @@ export function AthleteSessionExecutionPanel() {
               {`${session.offlineDropped} ${session.offlineDropped === 1 ? "entry" : "entries"} saved on this phone couldn't be recorded - check this session's sets and log ${session.offlineDropped === 1 ? "it" : "them"} again if needed.`}
             </p>
           ) : null}
+          {step && step.type !== "RETURN_DECISION" && step.type !== "GROUP_WORKOUT" && started ? (
+            <div className="session-next">
+              <button id="completeExerciseButton" className="button primary wide" type="button" disabled={session.busy} onClick={() => session.completeStep()}>Mark exercise complete{nextName ? <small>{`Next: ${nextName}`}</small> : null}</button>
+            </div>
+          ) : null}
         </article>
 
       </div>
@@ -746,6 +748,7 @@ export function AthleteSessionExecutionPanel() {
         <article id="sessionCompletionSummary" className="panel session-completion-summary">
           <div className="panel-header">
             <div>
+              <p className="eyebrow">Session ended</p>
               <h3>{executionStatus === "completed" ? "Session complete" : "Session partially completed"}</h3>
             </div>
           </div>

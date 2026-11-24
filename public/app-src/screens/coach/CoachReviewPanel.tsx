@@ -126,7 +126,7 @@ function ReviewCard({
   const flags = flagsOf(record);
   return (
     <article className={`review-row${selected ? " selected" : ""}${flags.length ? " has-flags" : ""}`}>
-      <button className="review-row-open" type="button" aria-label={`View details: ${named}`} aria-current={selected ? "true" : undefined} onClick={() => onSelect(String(record.session_id))}>
+      <button className="review-row-open" type="button" aria-label={[`View details: ${named}`, String(record.done_summary ?? ""), ...flags].filter(Boolean).join(". ")} aria-current={selected ? "true" : undefined} onClick={() => onSelect(String(record.session_id))}>
         <span className="review-row-name"><strong>{athleteName}</strong> <span className="review-row-title">{title}</span></span>
         <span className="review-row-meta">{[dateLabel, String(record.done_summary ?? ""), record.self_directed === true ? "Self-directed" : "", notes > 0 ? `${notes} note${notes === 1 ? "" : "s"}` : "", status === "open" ? "Training now" : ""].filter(Boolean).join(" · ")}</span>
         {flags.map((flag) => <span key={flag} className="review-row-flag">{flag}</span>)}
@@ -495,7 +495,7 @@ export function CoachReviewPanel() {
                 <div className="panel empty-state">
                   <div className="empty-icon">R</div>
                   <h3>No matching sessions</h3>
-                  <p>Finished sessions appear here for you to review.</p>
+                  <p>Finished sessions appear here for you to review, and open read-only sessions while an athlete is training.</p>
                 </div>
               )
             ) : (
@@ -506,7 +506,7 @@ export function CoachReviewPanel() {
                   athleteName={reviewAthleteName(record, athleteNamesById)}
                   selected={String(record.session_id) === selectedSessionId}
                   marking={marking}
-                  onSelect={(sessionId) => { setSelectedSessionId(sessionId); setOpen(true); }}
+                  onSelect={(sessionId) => { setSelectedSessionId(sessionId); setOpen(true); if (window.matchMedia?.("(max-width: 900px)").matches) window.scrollTo?.(0, 0); }}
                   onMark={handleMark}
                 />
               ))

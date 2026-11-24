@@ -347,7 +347,7 @@ const targets = [
         "public/app-src/screens/coach/CoachReviewPanel.tsx",
         [
           "Open · read only",
-          "live read-only status"
+          "you're seeing it live, read-only"
         ]
       ],
       [

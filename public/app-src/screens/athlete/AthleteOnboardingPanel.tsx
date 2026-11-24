@@ -711,7 +711,7 @@ function CompletedView({ api }: { api: OnboardingApi }) {
                 <h3>Your setup now</h3>
         <p>Version {String(current.declaration_version)} · effective {formatDate(current.effective_at_iso8601)}</p>
         <DeclarationFacts fields={fields} promptPosition />
-        <p className="onboarding-boundary">This isn't an assessment of your ability, health or fitness to train.</p>
+        <p className="onboarding-boundary">This does not indicate ability, safety, readiness, suitability, risk or medical clearance.</p>
         <div className="onboarding-actions">
           <button className="button primary" type="button" onClick={openWorkspace}>Open training workspace</button>
           <button className="button secondary" type="button" onClick={startEditing}>Edit preferences</button>

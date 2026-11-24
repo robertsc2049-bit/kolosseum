@@ -67,7 +67,7 @@ export function reviewSignals(plannedSession: unknown, events: readonly unknown[
   const plannedSets = planned.reduce((sum, exercise) => sum + (num(exercise.sets) ?? 0), 0);
   const parts = [
     sets.size > 0 && plannedSets > 0 ? `${Math.min(sets.size, plannedSets)} of ${plannedSets} sets` : "",
-    rating ? `rated ${rating.srpe}/10, ${rating.minutes} min` : ""
+    rating ? (rating.srpe >= 9 ? `${rating.minutes} min` : `rated ${rating.srpe}/10, ${rating.minutes} min`) : ""
   ].filter(Boolean);
   return Object.freeze({ summary: parts.join(" · "), flags: Object.freeze(flags) });
 }

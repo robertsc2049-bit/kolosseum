@@ -305,7 +305,7 @@ test("FULL-UI-03C UI distinguishes all required product states", () => {
     "Check your answers",
     "Draft saved",
     "Setup complete",
-    "Current declaration",
+    "Your setup now",
     "Superseded declaration",
     "Not available right now",
     "Only training level, competition event, training plan, accessibility, instruction-density, training-focus and position preferences can be changed after confirmation",
