@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { accountMayBeAthlete, loadAccountDetail } from "../../api/client";
 import { loadWeeklyCheckins, submitWeeklyCheckin, type WeeklyCheckinInput } from "../../api/athleteWeeklyCheckinsClient";
-import { type JsonRecord } from "../../api/transport";
+import { ApiRequestError, type JsonRecord } from "../../api/transport";
 import { ENTRY_AUTH_SUCCEEDED_EVENT } from "../entry/useEntryAuth";
 
 // DEV NOTE: FULL-UI-64 athlete's own weekly check-in self-report -
@@ -19,6 +19,12 @@ export type WeeklyCheckinsState = {
   checkins: JsonRecord[];
   submitting: boolean;
   submitError: string | null;
+};
+
+const SUBMIT_ERRORS: Record<string, string> = {
+  weekly_checkin_already_submitted_for_week: "You've already checked in for that week.",
+  weekly_checkin_week_not_started: "That week hasn't started yet.",
+  weekly_checkin_week_start_date_invalid: "Choose a date in the week you're checking in for."
 };
 
 const initialState: WeeklyCheckinsState = {
@@ -61,11 +67,12 @@ export function useWeeklyCheckins() {
       await refresh();
       return true;
     }
-    catch {
+    catch (error) {
+      const code = error instanceof ApiRequestError ? String((error.payload as { error?: unknown } | null)?.error ?? "") : "";
       setState((current) => ({
         ...current,
         submitting: false,
-        submitError: "Check-in could not be submitted."
+        submitError: SUBMIT_ERRORS[code] ?? "Check-in could not be submitted."
       }));
       return false;
     }

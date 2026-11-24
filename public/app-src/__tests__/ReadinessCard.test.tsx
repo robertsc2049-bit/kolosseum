@@ -51,7 +51,7 @@ test("a self-directed lifter who turned the rule on answers after a bad night an
   });
   await waitFor(() => assert.equal(saves.length, 1));
   assert.deepEqual(saves[0], { sleep: 1, soreness: 3, stress: 3 });
-  await screen.findByText("Saved - today's session will be lighter.");
+  await screen.findByText("Saved - today's session will be lighter, if you haven't opened it yet.");
 });
 
 test("a saved good day just says saved", async () => {
@@ -65,7 +65,7 @@ test("off by default: a bad night is recorded, and the session is not lightened 
   installMocks({ today: { date: "2026-09-27", sleep: 1, soreness: 3, stress: 3 }, low: true, lightening: { own: false, coach_on: false } });
   render(<ReadinessCard />);
   await screen.findByText("Saved.");
-  assert.equal(screen.queryByText("Saved - today's session will be lighter."), null);
+  assert.equal(screen.queryByText("Saved - today's session will be lighter, if you haven't opened it yet."), null);
   assert.ok(screen.getByText("Your check-in doesn't change your sessions unless your coach turns that on."));
   assert.equal(screen.queryByText("Lighten my sessions after a low check-in"), null, "a coached athlete doesn't choose - their coach does");
 });
@@ -73,7 +73,7 @@ test("off by default: a bad night is recorded, and the session is not lightened 
 test("a coached athlete sees that her coach turned the rule on", async () => {
   installMocks({ today: { date: "2026-09-27", sleep: 1, soreness: 3, stress: 3 }, low: true, lightening: { own: false, coach_on: true } });
   render(<ReadinessCard />);
-  await screen.findByText("Saved - today's session will be lighter.");
+  await screen.findByText("Saved - today's session will be lighter, if you haven't opened it yet.");
   assert.ok(screen.getByText(/Your coach has turned on a rule for your sessions/));
 });
 
@@ -108,4 +108,21 @@ test("a pro winger adds tiredness, mood, resting HR and HRV from her strap", asy
   });
   await waitFor(() => assert.equal(saves.length, 1));
   assert.deepEqual(saves[0], { sleep: 4, soreness: 4, stress: 4, fatigue: 2, mood: 4, resting_hr: 52, hrv_ms: 61 });
+});
+
+test("an HRV with a decimal is rounded and saved, an impossible reading says why, and an edit clears Saved", async () => {
+  const saves = installMocks({ today: { date: "2026-09-27", sleep: 4, soreness: 4, stress: 4 }, low: false, lightening: { own: false, coach_on: false } });
+  render(<ReadinessCard />);
+  await screen.findByText("Saved.");
+  fireEvent.click(screen.getByText("Add more (optional): tiredness, mood, heart rate, HRV"));
+  fireEvent.change(screen.getByLabelText("HRV (ms)"), { target: { value: "61.5" } });
+  assert.equal(screen.queryAllByText("Saved.").length, 0);
+  fireEvent.change(screen.getByLabelText("Resting heart rate (bpm)"), { target: { value: "25" } });
+  await act(async () => { fireEvent.click(screen.getByText("Save check-in")); });
+  await screen.findByText("Resting heart rate: enter 30 to 120 bpm, or leave it blank.");
+  assert.equal(saves.length, 0);
+  fireEvent.change(screen.getByLabelText("Resting heart rate (bpm)"), { target: { value: "54" } });
+  await act(async () => { fireEvent.click(screen.getByText("Save check-in")); });
+  await waitFor(() => assert.equal(saves.length, 1));
+  assert.deepEqual(saves[0], { sleep: 4, soreness: 4, stress: 4, resting_hr: 54, hrv_ms: 62 });
 });

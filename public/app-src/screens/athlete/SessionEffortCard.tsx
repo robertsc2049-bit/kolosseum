@@ -57,7 +57,7 @@ export function SessionEffortCard({ sessionId }: { sessionId: string }) {
   return (
     <section className="session-effort" data-testid="session-effort">
       <h4>How was that session?</h4>
-      <p className="muted small">How hard was the whole session, start to finish? Your coach uses this with how long it took to see your real training load.</p>
+      <p className="muted small">How hard was the whole session, start to finish? With how long it took, this gives your real training load - if you have a coach, they see it.</p>
       <div className="session-effort-scale" role="radiogroup" aria-label="How hard was the whole session (0-10)">
         {SCALE.map(([value, label]) => (
           <button

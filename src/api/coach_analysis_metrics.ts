@@ -172,6 +172,18 @@ export function ratingOf(event: AnalysisEvent): { scale: EffortScale; raw: numbe
   if (event.type === "BORG_REPORT" && finite(event.borg)) return { scale: "borg", raw: event.borg, value10: ((event.borg - 6) / 14) * 10 };
   return null;
 }
+// An edited set or a corrected rating is logged again: only the latest log of
+// each set, and the latest rating of each exercise in each scale, counts.
+export function latestEntries(events: readonly AnalysisEvent[]): AnalysisEvent[] {
+  const keyOf = (event: AnalysisEvent): string | null => {
+    if (!event.exercise_id) return null;
+    if (event.type === "SET_LOG_REPORT") return finite(event.set_index) ? `set|${event.exercise_id}|${event.set_index}` : null;
+    return ratingOf(event) ? `${event.type}|${event.exercise_id}` : null;
+  };
+  const last = new Map<string, AnalysisEvent>();
+  for (const event of events) { const key = keyOf(event); if (key) last.set(key, event); }
+  return events.filter((event) => { const key = keyOf(event); return key === null || last.get(key) === event; });
+}
 // The tests a coach can record, each with its unit, which way is better,
 // and its smallest worthwhile change (about the test's typical error in
 // trained athletes): a change smaller than that is noise.
@@ -297,7 +309,7 @@ export function analyseAthlete(input: AnalysisInput): Json {
   const loadWeeks = weekStarts(input.today, input.weeks + 4);
   const sessionDay = (session: AnalysisSession) => day(session.events.find((event) => event.type === "START_SESSION")?.at ?? session.events[0]?.at ?? session.created_at);
   const inRange = (date: string) => (!input.from || date >= input.from) && (!input.to || date <= input.to);
-  const allSessions = [...input.sessions].sort((a, b) => sessionDay(a).localeCompare(sessionDay(b)));
+  const allSessions = input.sessions.map((session) => ({ ...session, events: latestEntries(session.events) })).sort((a, b) => sessionDay(a).localeCompare(sessionDay(b)));
   const sessions = allSessions.filter((session) => inRange(sessionDay(session)));
 
   // --- load ---
@@ -310,12 +322,28 @@ export function analyseAthlete(input: AnalysisInput): Json {
   const addLoad = (map: Map<string, number>, date: string, load: number) => map.set(date, (map.get(date) ?? 0) + load);
   const reports = input.session_reports ?? {};
   const sessionRows: Json[] = [];
-  for (const session of allSessions.filter(done)) {
+  const gymDone = allSessions.filter(done).map((session) => {
     const report = reports[session.session_id];
     const measured = Boolean(report && finite(report.srpe) && finite(report.minutes) && report.minutes > 0);
-    const load = measured ? round(report!.srpe * Math.min(report!.minutes, 300), 0) : sessionLoad(session.events);
-    const date = sessionDay(session);
-    if (load !== null) { addLoad(dailyLoad, date, load); addLoad(dailyGym, date, load); }
+    return { session, report, measured, date: sessionDay(session), load: measured ? round(report!.srpe * Math.min(report!.minutes, 300), 0) : sessionLoad(session.events) };
+  });
+  // A session the athlete didn't rate isn't zero load: it counts as their own
+  // average rated session (that week's and the 28 days before it). A week
+  // with less than half its sessions rated has no load figure at all.
+  const ratedGym = gymDone.filter((entry) => entry.load !== null);
+  const usualLoad = (date: string): number | null => {
+    const near = ratedGym.filter((entry) => weekStart(entry.date) === weekStart(date) || (entry.date < date && entry.date >= addDays(date, -28)));
+    return near.length ? mean(near.map((entry) => Number(entry.load))) : null;
+  };
+  const gymWeeks = new Map<string, { total: number; unrated: number; unknown: number }>();
+  for (const { session, report, measured, date, load } of gymDone) {
+    const counted = load ?? usualLoad(date);
+    const week = gymWeeks.get(weekStart(date)) ?? { total: 0, unrated: 0, unknown: 0 };
+    week.total += 1;
+    if (load === null) week.unrated += 1;
+    if (counted === null) week.unknown += 1;
+    gymWeeks.set(weekStart(date), week);
+    if (counted !== null) { addLoad(dailyLoad, date, counted); addLoad(dailyGym, date, counted); }
     if (!inRange(date)) continue;
     sessionRows.push({
       session_id: session.session_id, date, title: session.title ?? null, status: session.status, kind: "gym", measured,
@@ -337,12 +365,18 @@ export function analyseAthlete(input: AnalysisInput): Json {
   const weeklyLoadAll = loadWeeks.map((start) => {
     // Before their first session there is no load history: "no data", not 0.
     if (firstTrainedWeek === null || start < firstTrainedWeek) return null;
+    const gym = gymWeeks.get(start);
+    // (an athlete who never rates gym sessions is followed on their other training)
+    if (gym && ratedGym.length && (gym.unknown > 0 || gym.unrated * 2 > gym.total)) return null;
     const days = Array.from({ length: 7 }, (_, index) => addDays(start, index));
     const rated = days.some((date) => dailyLoad.has(date));
     const trained = trainedDates.some((date) => weekStart(date) === start);
-    return rated ? days.reduce((sum, date) => sum + (dailyLoad.get(date) ?? 0), 0) : trained ? null : 0;
+    return rated ? round(days.reduce((sum, date) => sum + (dailyLoad.get(date) ?? 0), 0), 0) : trained ? null : 0;
   });
-  const sumWeek = (map: Map<string, number>, start: string) => Array.from({ length: 7 }, (_, offset) => map.get(addDays(start, offset)) ?? 0).reduce((sum, value) => sum + value, 0);
+  // The EWMA remembers the weeks before it, so a week without a load figure
+  // in the last four leaves it unknown.
+  const ewmaKnown = (index: number) => Array.from({ length: 4 }, (_, back) => index - back).every((at) => at < 0 || weeklyLoadAll[at] !== null || firstTrainedWeek === null || loadWeeks[at] < firstTrainedWeek);
+  const sumWeek = (map: Map<string, number>, start: string) => round(Array.from({ length: 7 }, (_, offset) => map.get(addDays(start, offset)) ?? 0).reduce((sum, value) => sum + value, 0), 0);
   // EWMA acute:chronic at each week's end (or today), from the first training day.
   const ewma = ewmaRatios(dailyLoad, trainedDates[0] ?? null, weeks.map((start) => (addDays(start, 6) > input.today ? input.today : addDays(start, 6))));
   // Jumps and balls bowled logged with sport sessions, weekly, against the
@@ -373,7 +407,8 @@ export function analyseAthlete(input: AnalysisInput): Json {
       gym_load: weekly === null ? null : sumWeek(dailyGym, start), sport_load: weekly === null ? null : sumWeek(dailySport, start),
       matches: other.filter((entry) => entry.kind === "match" && weekStart(entry.date) === start).length,
       ...countsFor(start, index),
-      acute_chronic: acuteChronic(weeklyLoadAll, index), ewma_ratio: ewma[weekIndex], monotony: mono, strain: weekly && mono ? round(weekly * mono, 0) : null
+      gym_sessions: gymWeeks.get(start)?.total ?? 0, unrated_sessions: gymWeeks.get(start)?.unrated ?? 0,
+      acute_chronic: acuteChronic(weeklyLoadAll, index), ewma_ratio: ewmaKnown(index) ? ewma[weekIndex] : null, monotony: mono, strain: weekly && mono ? round(weekly * mono, 0) : null
     };
   });
   const gymRows = sessionRows.filter((row) => row.kind === "gym");
@@ -468,6 +503,16 @@ export function analyseAthlete(input: AnalysisInput): Json {
 
   // --- strength (estimated max per lift, weekly best) ---
   const liftWeeks = new Map<string, Map<string, { value: number; method: string; reps: number; load: number }>>();
+  // Weeks that show what the athlete could do on a lift: they rated it, came
+  // short of the programme, went past it, or picked the weight themselves.
+  // A week of unrated sets done exactly as set only repeats the programme: a
+  // lighter block isn't a weaker athlete.
+  const tellingWeeks = new Map<string, Set<string>>();
+  // Weeks of unrated sets at a weight the athlete picked: telling only for a
+  // lift they never rate (a rated and an unrated estimate don't compare).
+  const pickedWeeks = new Map<string, Set<string>>();
+  const ratedLifts = new Set<string>();
+  const addWeek = (map: Map<string, Set<string>>, lift: string, week: string) => map.set(lift, (map.get(lift) ?? new Set<string>()).add(week));
   // Not past the window's last day: a report on a week that has ended
   // never reads the weeks after it.
   for (const session of sessions.filter((s) => done(s) && sessionDay(s) <= input.today)) {
@@ -493,12 +538,22 @@ export function analyseAthlete(input: AnalysisInput): Json {
       const estimate = estimatedMax(log.load_kg, log.reps, log.load_kg === heaviest ? ratingFor.get(lift) ?? null : null);
       if (!estimate) continue;
       const week = weekStart(sessionDay(session));
+      const planned = session.planned.find((entry) => entry.exercise_id === raw.exercise_id && (entry.segment || "working") === "working");
+      const target = planned ? targetRepsFor(planned, raw.set_index) : null;
+      const setWeight = planned && planned.intensity_type !== "bodyweight" && finite(planned.load_kg) && planned.load_kg > 0 ? planned.load_kg : null;
+      const top = planned && finite(planned.load_kg_max) && setWeight !== null && planned.load_kg_max > setWeight ? planned.load_kg_max : setWeight;
+      const asSet = setWeight !== null && target !== null && finite(raw.load_kg) && raw.load_kg >= setWeight * 0.99 && raw.load_kg <= Number(top) * 1.01 && log.reps === target;
+      const rating = ratingFor.get(lift);
+      if (rating !== undefined && rating >= 6) { ratedLifts.add(lift); addWeek(tellingWeeks, lift, week); }
+      else if (setWeight === null) addWeek(pickedWeeks, lift, week);
+      else if (!asSet) addWeek(tellingWeeks, lift, week);
       const byWeek = liftWeeks.get(lift) ?? new Map();
       const best = byWeek.get(week);
       if (!best || estimate.value > best.value) byWeek.set(week, { ...estimate, reps: log.reps, load: log.load_kg });
       liftWeeks.set(lift, byWeek);
     }
   }
+  for (const [lift, picked] of pickedWeeks) if (!ratedLifts.has(lift)) for (const week of picked) addWeek(tellingWeeks, lift, week);
   const roleCount = new Map<string, { primary: number; total: number }>();
   for (const session of sessions) {
     for (const planned of session.planned) {
@@ -528,18 +583,21 @@ export function analyseAthlete(input: AnalysisInput): Json {
     .map(({ lift }, rank) => {
       const byWeek = liftWeeks.get(lift)!;
       const bodyweightLift = Boolean(input.is_bodyweight_lift?.(lift) && finite(input.bodyweight_kg) && input.bodyweight_kg > 0);
-      const series = weeks.map((start) => ({ week_start: start, e1rm: byWeek.get(start)?.value ?? null, method: byWeek.get(start)?.method ?? null, from: byWeek.has(start) ? `${byWeek.get(start)!.load} kg x ${byWeek.get(start)!.reps}${bodyweightLift ? " (bodyweight + added)" : ""}` : null }));
-      const points = series.filter((point) => point.e1rm !== null) as Array<{ week_start: string; e1rm: number }>;
+      const series = weeks.map((start) => ({ week_start: start, e1rm: byWeek.get(start)?.value ?? null, method: byWeek.get(start)?.method ?? null, from: byWeek.has(start) ? `${byWeek.get(start)!.load} kg x ${byWeek.get(start)!.reps}${bodyweightLift ? " (bodyweight + added)" : ""}` : null, ...(byWeek.has(start) && !tellingWeeks.get(lift)?.has(start) ? { as_planned: true } : {}) }));
+      const points = series.filter((point) => point.e1rm !== null) as Array<{ week_start: string; e1rm: number; as_planned?: boolean }>;
       const latest = points[points.length - 1];
       const earlier = points.filter((point) => point.week_start <= addDays(latest.week_start, -28));
       const baseline = earlier.length ? earlier[earlier.length - 1] : points[0];
-      const change = baseline && baseline !== latest ? round(((latest.e1rm - baseline.e1rm) / baseline.e1rm) * 100, 1) : null;
+      const rawChange = baseline && baseline !== latest ? round(((latest.e1rm - baseline.e1rm) / baseline.e1rm) * 100, 1) : null;
+      // Down only because the programme was lighter: not a change in them.
+      const change = rawChange !== null && rawChange < 0 && latest.as_planned ? null : rawChange;
       const peak = points.reduce((best, point) => (point.e1rm > best.e1rm ? point : best), points[0]);
       const weeksSincePeak = Math.round((Date.parse(latest.week_start) - Date.parse(peak.week_start)) / (7 * DAY_MS));
       // The last two weeks: this one and the one before.
       const recent = points.filter((point) => point.week_start >= addDays(weekStart(input.today), -7));
       const recentBest = recent.length ? Math.max(...recent.map((point) => point.e1rm)) : null;
-      const offPeak = recentBest !== null ? round(((recentBest - peak.e1rm) / peak.e1rm) * 100, 1) : null;
+      const tellingRecent = recent.some((point) => !point.as_planned);
+      const offPeak = recentBest !== null && tellingRecent ? round(((recentBest - peak.e1rm) / peak.e1rm) * 100, 1) : null;
       // A real change, not noise: the lift's own week-to-week variation
       // (typical error = SD of week-to-week % changes / sqrt 2), and the
       // smallest change worth calling a change - 1.5x that, at least 2%.
@@ -547,12 +605,13 @@ export function analyseAthlete(input: AnalysisInput): Json {
       const noise = weekly.length >= 3 ? round(standardDeviation(weekly) / Math.SQRT2, 1) : null;
       const swc = Math.max(2, noise !== null ? round(noise * 1.5, 1) : 2);
       const fallLimit = Math.max(5, swc);
-      const status = (offPeak !== null && offPeak <= -fallLimit) || (change !== null && change <= -fallLimit) ? "falling" : weeksSincePeak >= 6 && recent.length > 0 ? "plateau" : change !== null && change >= swc ? "rising" : "steady";
+      const status = (offPeak !== null && offPeak <= -fallLimit) || (change !== null && change <= -fallLimit) ? "falling" : weeksSincePeak >= 6 && tellingRecent ? "plateau" : change !== null && change >= swc ? "rising" : "steady";
       const tested = [...(input.tested_maxes ?? [])].filter((entry) => entry.exercise_id === lift && finite(entry.value_kg)).sort((a, b) => a.date.localeCompare(b.date));
       const bodyweight = finite(input.bodyweight_kg) && input.bodyweight_kg > 0 ? input.bodyweight_kg : null;
       return {
         exercise_id: lift, name: input.exercise_name(lift), main: isMain(lift, rank), series, latest: latest.e1rm, change_pct: change, change_from_week: baseline?.week_start ?? null,
         peak: peak.e1rm, peak_week: peak.week_start, weeks_since_peak: weeksSincePeak, recent_off_peak_pct: offPeak, status,
+        ...(latest.as_planned && latest.e1rm < peak.e1rm ? { plan_limited: true } : {}),
         noise_pct: noise, swc_pct: swc, real_change: change !== null && Math.abs(change) >= swc,
         relative_to_bodyweight: bodyweight ? round(latest.e1rm / bodyweight, 2) : null,
         tested_max: tested.length ? { value_kg: tested[tested.length - 1].value_kg, date: tested[tested.length - 1].date } : null,
@@ -702,19 +761,21 @@ export function analyseAthlete(input: AnalysisInput): Json {
   const velocity = velocitySummary(velocitySets, input.exercise_name, addDays(first, Math.round((Date.parse(`${input.today}T00:00:00Z`) - Date.parse(`${first}T00:00:00Z`)) / DAY_MS / 2)));
 
   // Effort creep: the same exercise at about the same top weight (within
-  // 2.5%), rated in the first half of the window and again in the second, in
+  // 2.5%) for the same reps, rated in the first half of the window and again in the second, in
   // the same scale (RPE, Borg or CR10).
-  const rated = new Map<string, Array<{ date: string; load: number; raw: number; value10: number }>>();
+  const rated = new Map<string, Array<{ date: string; load: number; reps: number | null; raw: number; value10: number }>>();
   for (const session of sessions.filter((s) => done(s) && inWindow(sessionDay(s)))) {
     for (const event of session.events) {
       const rating = event.exercise_id ? ratingOf(event) : null;
       if (!rating) continue;
       const lift = baseExercise(event.exercise_id!);
-      const loads = setLogs(session).filter((log) => log.exercise_id && baseExercise(log.exercise_id) === lift && finite(log.load_kg) && log.load_kg > 0).map((log) => log.load_kg as number);
-      if (!loads.length) continue;
+      const loaded = setLogs(session).filter((log) => log.exercise_id && baseExercise(log.exercise_id) === lift && finite(log.load_kg) && log.load_kg > 0);
+      if (!loaded.length) continue;
+      const topLoad = Math.max(...loaded.map((log) => log.load_kg as number));
+      const topReps = loaded.filter((log) => log.load_kg === topLoad).map((log) => log.reps).filter(finite);
       const key = `${lift}|${rating.scale}`;
       const list = rated.get(key) ?? [];
-      list.push({ date: sessionDay(session), load: Math.max(...loads), raw: rating.raw, value10: rating.value10 });
+      list.push({ date: sessionDay(session), load: topLoad, reps: topReps.length ? Math.max(...topReps) : null, raw: rating.raw, value10: rating.value10 });
       rated.set(key, list);
     }
   }
@@ -725,7 +786,7 @@ export function analyseAthlete(input: AnalysisInput): Json {
     const late = list.filter((entry) => entry.date >= midpoint);
     let best: Json | null = null;
     for (const e of early) {
-      const matches = late.filter((l) => Math.abs(l.load - e.load) / e.load <= 0.025);
+      const matches = late.filter((l) => Math.abs(l.load - e.load) / e.load <= 0.025 && l.reps === e.reps);
       if (!matches.length) continue;
       const lateRaw = round(mean(matches.map((m) => m.raw)), 1);
       const delta10 = round(mean(matches.map((m) => m.value10)) - e.value10, 1);
@@ -1040,7 +1101,7 @@ export function analyseAthlete(input: AnalysisInput): Json {
     volume: { rows: volumeRows },
     muscle_volume: muscleVolume,
     strength: { lifts, bodyweight: bodyweightLifts, grinds },
-    execution: { rows: executionRows, most_missed: mostMissed, effort_creep: effortCreep.slice(0, 5), effort_targets: effortTargetRows, intensity },
+    execution: { rows: executionRows, most_missed: mostMissed, effort_creep: [...effortCreep.filter((row) => Number(row.effort_change) >= 1), ...effortCreep.filter((row) => Number(row.effort_change) < 1)].slice(0, 5), effort_targets: effortTargetRows, intensity },
     adherence: { rows: adherenceRows, planned_days_per_week: expected, by_weekday: byWeekday, most_skipped: mostSkipped },
     readiness: { rows: readinessRows, days: readinessDays.filter((entry) => inWindow(entry.date) && inRange(entry.date)), checkins: checkinRows },
     pain: { rows: painRows, areas: painAreas, weeks_with_pain_on_load_spike: painOnSpikes },
@@ -1164,6 +1225,9 @@ export function weekLabel(week: string, currentWeek: string): string {
   return `the week of ${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]}`;
 }
 
+// "last week", or "in the week of 28 Sep".
+const inWeek = (week: string, currentWeek: string) => { const label = weekLabel(week, currentWeek); return label.startsWith("the week") ? `in ${label}` : label; };
+
 export function findings(analysis: Json): Finding[] {
   const out: Finding[] = [];
   const a = analysis as Record<string, Json>;
@@ -1205,9 +1269,14 @@ export function findings(analysis: Json): Finding[] {
 
   // Load: this week's acute:chronic ratio.
   // Load and execution read the latest complete week: the current one is
-  // only partly trained.
+  // only partly trained. An older week's figure never stands in for it.
   const complete = (rows: Json[]) => rows.filter((row) => row.partial_week !== true);
-  const acwr = lastValue(complete(a.load.rows as Json[]), (row) => row.acute_chronic as number | null);
+  // The last two weeks shown (this one and the one before).
+  const recentWeeks = new Set(weeksShown.slice(-2));
+  const recent = (rows: Json[]) => rows.filter((row) => recentWeeks.has(String(row.week_start)));
+  const loadComplete = complete(a.load.rows as Json[]);
+  const lastLoadWeek = loadComplete[loadComplete.length - 1];
+  const acwr = finite(lastLoadWeek?.acute_chronic) ? { value: lastLoadWeek.acute_chronic as number } : null;
   if (acwr) {
     const pct = Math.round((acwr.value - 1) * 100);
     if (acwr.value > 1.5) out.push({ id: "load", section: "load", level: "alert", text: `Training load jumped ${pct}% above their 4-week normal (ratio ${acwr.value}).` });
@@ -1216,9 +1285,9 @@ export function findings(analysis: Json): Finding[] {
     else out.push({ id: "load", section: "load", level: "good", text: `Training load is in line with their 4-week normal (ratio ${acwr.value}).` });
   }
   // A spike in the last 3 complete weeks, if the latest week isn't it.
-  const recentRows = complete(a.load.rows as Json[]).slice(-3);
+  const recentRows = loadComplete.slice(-3);
   const spike = recentRows.filter((row) => Number(row.acute_chronic) > 1.5).sort((x, y) => Number(y.acute_chronic) - Number(x.acute_chronic))[0];
-  if (spike && (!acwr || spike !== complete(a.load.rows as Json[])[acwr.index])) {
+  if (spike && spike !== lastLoadWeek) {
     out.push({ id: "load_spike", section: "load", level: "watch", text: `Training load spiked to ${spike.acute_chronic}x their 4-week normal in ${weekLabel(String(spike.week_start), currentWeek)}.` });
   }
   // Most gym loads estimated: say so, and how to fix it.
@@ -1226,26 +1295,31 @@ export function findings(analysis: Json): Finding[] {
   if (quality && Number(quality.gym_sessions) >= 3 && Number(quality.measured_pct) < 50) {
     out.push({ id: "load_estimated", section: "load", level: "info", text: `${100 - Number(quality.measured_pct)}% of gym session loads are estimated from the app's timings - the athlete didn't rate them when they finished.` });
   }
-  const mono = lastValue(complete(a.load.rows as Json[]), (row) => row.monotony as number | null);
+  // Most of last week's sessions not rated: no load figure for it.
+  if (lastLoadWeek && lastLoadWeek.load === null && Number(lastLoadWeek.unrated_sessions) > 0 && Number(quality?.measured) > 0) {
+    out.push({ id: "load_unrated", section: "load", level: "info", text: `${lastLoadWeek.unrated_sessions} of ${lastLoadWeek.gym_sessions} gym sessions ${inWeek(String(lastLoadWeek.week_start), currentWeek)} weren't rated, so that week's load isn't known.` });
+  }
+  const mono = finite(lastLoadWeek?.monotony) ? { value: lastLoadWeek.monotony as number } : null;
   if (mono && mono.value > 2) out.push({ id: "monotony", section: "load", level: "watch", text: `Training has been very samey day to day (monotony ${mono.value}; above 2 is high).` });
 
-  // Readiness against their own normal (the latest week with check-ins).
-  const readiness = lastValue(a.readiness.rows as Json[], (row) => row.z as number | null);
+  // Readiness against their own normal: this week's check-ins or last week's.
+  const readinessRecent = recent(a.readiness.rows as Json[]);
+  const readiness = lastValue(readinessRecent, (row) => row.z as number | null);
   if (readiness && readiness.value <= -1) {
-    const row = (a.readiness.rows as Json[])[readiness.index];
+    const row = readinessRecent[readiness.index];
     const when = weekLabel(String(row.week_start), currentWeek);
-    out.push({ id: "readiness", section: "readiness", level: readiness.value <= -1.5 ? "alert" : "watch", text: `Readiness well below their normal ${when} (sleep ${row.sleep}, soreness ${row.soreness}, stress ${row.stress} out of 5).` });
+    out.push({ id: "readiness", section: "readiness", level: readiness.value <= -1.5 ? "alert" : "watch", text: `Readiness well below their normal ${when} (sleep ${row.sleep}, soreness ${row.soreness}, stress ${row.stress} - each from 1 poor to 5 great).` });
   }
 
   // HRV well below, or resting HR well above, their own normal.
-  const physiology = lastValue(a.readiness.rows as Json[], (row) => row.hrv_z as number | null);
+  const physiology = lastValue(readinessRecent, (row) => row.hrv_z as number | null);
   if (physiology && physiology.value <= -1.5) {
-    const row = (a.readiness.rows as Json[])[physiology.index];
+    const row = readinessRecent[physiology.index];
     out.push({ id: "hrv_low", section: "readiness", level: "watch", text: `HRV well below their normal ${weekLabel(String(row.week_start), currentWeek)} (${row.hrv_ms} ms on average).` });
   }
-  const rhr = lastValue(a.readiness.rows as Json[], (row) => row.resting_hr_delta as number | null);
+  const rhr = lastValue(readinessRecent, (row) => row.resting_hr_delta as number | null);
   if (rhr && rhr.value >= 5) {
-    const row = (a.readiness.rows as Json[])[rhr.index];
+    const row = readinessRecent[rhr.index];
     out.push({ id: "rhr_high", section: "readiness", level: "watch", text: `Resting heart rate ${rhr.value} bpm above their normal ${weekLabel(String(row.week_start), currentWeek)}.` });
   }
   // High-speed running jumping against their usual (GPS).
@@ -1256,10 +1330,11 @@ export function findings(analysis: Json): Finding[] {
   const checkins = (a.readiness.checkins as Json[]);
   for (const [key, label] of [["energy", "Energy"], ["sleep", "Sleep"], ["motivation", "Motivation"]] as const) {
     const rated = checkins.filter((row) => row[key] !== null && row[key] !== undefined);
-    if (rated.length < 4) continue;
-    const recent = rated.slice(-2).map((row) => Number(row[key]));
+    // Not once they've stopped checking in (none in the last 3 weeks).
+    if (rated.length < 4 || !weeksShown.slice(-3).includes(String(rated[rated.length - 1].week_start))) continue;
+    const lastTwoRated = rated.slice(-2).map((row) => Number(row[key]));
     const before = rated.slice(0, -2).map((row) => Number(row[key]));
-    const recentMean = mean(recent);
+    const recentMean = mean(lastTwoRated);
     const beforeMean = mean(before);
     if (beforeMean - recentMean >= 1.5) {
       out.push({ id: `checkin_${key}`, section: "readiness", level: "watch", text: `${label} rated ${round(recentMean, 1)}/5 in their last 2 weekly check-ins (usually ${round(beforeMean, 1)}).` });
@@ -1277,8 +1352,9 @@ export function findings(analysis: Json): Finding[] {
   // Execution.
   const reps = lastValue(complete(a.execution.rows as Json[]), (row) => row.reps_hit_pct as number | null);
   if (reps && reps.value < 80) out.push({ id: "execution", section: "execution", level: reps.value < 65 ? "alert" : "watch", text: `Hit the prescribed reps on ${reps.value}% of sets in their latest training week.` });
-  const creep = (a.execution.effort_creep as Json[])[0];
-  if (creep && Number(creep.effort_change) >= 1) out.push({ id: "creep", section: "execution", level: "watch", exercise_id: String(creep.exercise_id), text: `${creep.name} feels harder at the same weight: ${creep.scale_label} ${creep.early} → ${creep.late} at about ${creep.load_kg} kg.` });
+  // (a bigger drop on another lift doesn't hide it)
+  const creep = (a.execution.effort_creep as Json[]).find((row) => Number(row.effort_change) >= 1);
+  if (creep) out.push({ id: "creep", section: "execution", level: "watch", exercise_id: String(creep.exercise_id), text: `${creep.name} feels harder at the same weight: ${creep.scale_label} ${creep.early} → ${creep.late} at about ${creep.load_kg} kg.` });
   // Effort against an RPE, Borg or CR10 target (at least 3 ratings).
   const targets = ((a.execution.effort_targets ?? []) as Json[]).filter((row) => Number(row.ratings) >= 3);
   const over = targets.find((row) => Number(row.diff_10) >= 1);
@@ -1320,8 +1396,8 @@ export function findings(analysis: Json): Finding[] {
   {
     const done = (a.load.rows as Json[]).filter((row) => row.partial_week !== true);
     const last = done[done.length - 1];
-    if (last && Number(last.jumps_ratio) > 1.5 && Number(last.jumps) >= 100) out.push({ id: "jumps_spike", section: "load", level: "watch", text: `Jumps jumped to ${last.jumps_ratio}x their usual in ${weekLabel(String(last.week_start), currentWeek)} (${last.jumps} jumps).` });
-    if (last && Number(last.balls_ratio) > 1.5 && Number(last.balls_bowled) >= 60) out.push({ id: "bowling_spike", section: "load", level: "alert", text: `Balls bowled jumped to ${last.balls_ratio}x their usual in ${weekLabel(String(last.week_start), currentWeek)} (${last.balls_bowled} balls).` });
+    if (last && Number(last.jumps_ratio) > 1.5 && Number(last.jumps) >= 100) out.push({ id: "jumps_spike", section: "load", level: "watch", text: `Jumps jumped to ${last.jumps_ratio}x their usual ${inWeek(String(last.week_start), currentWeek)} (${last.jumps} jumps).` });
+    if (last && Number(last.balls_ratio) > 1.5 && Number(last.balls_bowled) >= 60) out.push({ id: "bowling_spike", section: "load", level: "alert", text: `Balls bowled jumped to ${last.balls_ratio}x their usual ${inWeek(String(last.week_start), currentWeek)} (${last.balls_bowled} balls).` });
   }
   if (a.injuries) out.push(...(injuryFindings(a.injuries, String((a.injuries as Json).as_of)) as Finding[]));
   for (const lift of (((a.velocity as Json | undefined)?.lifts ?? []) as Json[])) {

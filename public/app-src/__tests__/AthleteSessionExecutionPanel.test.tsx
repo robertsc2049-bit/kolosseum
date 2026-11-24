@@ -369,6 +369,16 @@ test("the RPE panel shows a live reps-in-the-tank hint next to the raw 1-10 valu
   assert.ok(screen.getByText("RPE 10 - 0 reps in the tank - maximum effort"));
 });
 
+test("what the athlete has rated an exercise is shown, and stays after they rate it again", async () => {
+  seedActiveSession("session_1");
+  installMocks({ sessionState: { ...baseSessionState({ started: true }), effort_ratings: { back_squat: { rpe: 9, borg: 15 } } } });
+  render(<AthleteSessionExecutionPanel />);
+  await waitFor(() => screen.getByText("Your rating: RPE 9, Borg 15. Rate it again to change it."));
+  await act(async () => { fireEvent.click(screen.getByText("Report RPE")); });
+  await act(async () => { fireEvent.click(await screen.findByText("Record RPE")); });
+  await waitFor(() => screen.getByText("Your rating: RPE 8, Borg 15. Rate it again to change it."));
+});
+
 test("the Borg panel shows a live anchor hint next to the raw 6-20 value", async () => {
   seedActiveSession("session_1");
   installMocks({ sessionState: baseSessionState({ started: true }) });

@@ -80,28 +80,28 @@ export function AthleteSelfWeeklyCheckinsPanel() {
         <div>
           <p className="eyebrow">Weekly check-in</p>
           <h3>Weekly check-in</h3>
-          <p className="muted">Rate your energy, motivation and sleep each week to track how they trend.</p>
+          <p className="muted">Rate your energy, motivation and sleep once a week to track how they trend. Weeks run Monday to Sunday.</p>
         </div>
       </div>
 
       <form className="athlete-detail-note-form" onSubmit={handleSubmit}>
         <label className="field">
-          <span>Week starting</span>
+          <span>Week (any day in it)</span>
           <input type="date" required value={weekStartDate} onChange={(event) => setWeekStartDate(event.target.value)} />
         </label>
 
         <label className="field">
-          <span>Energy (1-5)</span>
+          <span>Energy (1 very low - 5 great)</span>
           <input type="number" min={1} max={5} step={1} required value={energyLevel} onChange={(event) => setEnergyLevel(event.target.value)} />
         </label>
 
         <label className="field">
-          <span>Motivation (1-5)</span>
+          <span>Motivation (1 very low - 5 very high)</span>
           <input type="number" min={1} max={5} step={1} required value={motivationLevel} onChange={(event) => setMotivationLevel(event.target.value)} />
         </label>
 
         <label className="field">
-          <span>Sleep quality (1-5)</span>
+          <span>Sleep quality (1 very poor - 5 great)</span>
           <input type="number" min={1} max={5} step={1} required value={sleepQuality} onChange={(event) => setSleepQuality(event.target.value)} />
         </label>
 

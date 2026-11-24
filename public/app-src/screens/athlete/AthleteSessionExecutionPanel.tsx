@@ -230,6 +230,16 @@ function painLeftOutNote(leftOut: JsonRecord[]): string | null {
     : `Left out today because ${why} and there's nothing that trains the same without loading it: ${names.join(", ")}.`;
 }
 
+// What they've rated this exercise, so a rating is never a guess ("did that
+// save?") and a wrong one is easy to see and rate again.
+function EffortRatingNote({ ratings }: { ratings: JsonRecord }) {
+  const said = [["rpe", "RPE"], ["borg", "Borg"], ["cr10", "CR10"]]
+    .filter(([key]) => typeof ratings[key] === "number")
+    .map(([key, label]) => `${label} ${String(ratings[key])}`);
+  if (!said.length) return null;
+  return <p className="muted small" role="status" data-testid="effort-rating-note">{`Your rating: ${said.join(", ")}. Rate it again to change it.`}</p>;
+}
+
 export function AthleteSessionExecutionPanel() {
   const session = useAthleteSessionExecution();
   const [painArea, setPainArea] = useState("");
@@ -462,6 +472,7 @@ export function AthleteSessionExecutionPanel() {
                     logSet={session.logSet}
                   />
                 ) : null}
+                {currentId ? <EffortRatingNote ratings={{ ...((sessionState.effort_ratings as JsonRecord | undefined)?.[currentId] as JsonRecord | undefined), ...session.effortRatings[currentId] }} /> : null}
               </div>
             )}
           </div>
@@ -511,7 +522,7 @@ export function AthleteSessionExecutionPanel() {
               {session.actionPanel === "rpe" ? (
                 <div className="pain-report-panel">
                   <h3>Report RPE for this exercise?</h3>
-                  <p>This only records your own effort rating for this exercise. It doesn't judge your readiness or risk, or change your programme.</p>
+                  <p>This records your own effort rating for this exercise. It doesn't judge your readiness or risk. A coach's programme isn't changed by it; in sessions the app plans for you, a 10 makes this exercise a little lighter next time.</p>
                   <label><span>RPE (1-10)<InfoTooltip label="About RPE">RPE stands for Rate of Perceived Exertion - how hard this set felt to you, on a 1-10 scale.</InfoTooltip></span><input type="number" min={1} max={10} step={1} value={session.rpeValue} onChange={(event) => session.setRpeValue(Number(event.target.value))} /></label>
                   <p className="muted small">RPE {session.rpeValue} - {rpeReserveLabel(session.rpeValue)}</p>
                   <div className="button-row">

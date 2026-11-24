@@ -374,6 +374,20 @@ test(
     assertStatus(duplicateWeek, 409, "resubmission for an already-submitted week is rejected");
     assert.equal(duplicateWeek.json?.error, "weekly_checkin_already_submitted_for_week");
 
+    // Another day of the same week is the same week; a week that hasn't
+    // started and a date that doesn't exist are refused.
+    const sameWeek = await request(baseUrl, "POST", "/weekly-checkins", {
+      week_start_date: "2026-08-20", energy_level: 1, motivation_level: 1, sleep_quality: 1
+    }, { cookie: athlete.cookie, csrf: athlete.csrf });
+    assertStatus(sameWeek, 409, "another day of an already-submitted week is rejected");
+    for (const [week_start_date, error] of [["2099-03-02", "weekly_checkin_week_not_started"], ["2026-02-31", "weekly_checkin_week_start_date_invalid"]]) {
+      const refused = await request(baseUrl, "POST", "/weekly-checkins", {
+        week_start_date, energy_level: 1, motivation_level: 1, sleep_quality: 1
+      }, { cookie: athlete.cookie, csrf: athlete.csrf });
+      assertStatus(refused, 400, week_start_date);
+      assert.equal(refused.json?.error, error);
+    }
+
     // ============================================================
     // A different week succeeds and is stored as its own row, with no
     // optional note.

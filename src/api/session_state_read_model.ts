@@ -72,6 +72,27 @@ export async function loadSessionSetLogs(client: any, session_id: string): Promi
   return setLogs;
 }
 
+// How hard the athlete rated each exercise (the latest rating in each scale),
+// keyed by exercise_id; empty when nothing is rated.
+export async function loadSessionEffortRatings(client: any, session_id: string): Promise<Record<string, Record<string, number>>> {
+  const result = await client.query(
+    `SELECT DISTINCT ON (event->>'exercise_id', event->>'type')
+       event->>'exercise_id' AS exercise_id, event->>'type' AS type,
+       COALESCE(event->>'rpe_value', event->>'borg_value', event->>'cr10_value')::numeric AS value
+     FROM runtime_events
+     WHERE session_id = $1 AND event->>'type' IN ('RPE_REPORT', 'BORG_REPORT', 'CR10_REPORT')
+     ORDER BY event->>'exercise_id', event->>'type', seq DESC`,
+    [session_id]
+  );
+  const scales: Record<string, string> = { RPE_REPORT: "rpe", BORG_REPORT: "borg", CR10_REPORT: "cr10" };
+  const ratings: Record<string, Record<string, number>> = {};
+  for (const row of result.rows ?? []) {
+    if (!row.exercise_id || row.value === null) continue;
+    (ratings[row.exercise_id] ??= {})[scales[row.type]] = Number(row.value);
+  }
+  return ratings;
+}
+
 export function uniqStable(ids: unknown): string[] {
   const arr = Array.isArray(ids) ? ids : [];
   const seen = new Set<string>();
