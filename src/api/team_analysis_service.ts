@@ -31,7 +31,9 @@ export async function availabilityOf(athleteUserId: string, today = new Date().t
     getAthletePainFlags(athleteUserId).catch(() => ({ flags: [] })),
     loadInjuries(athleteUserId).catch(() => [])
   ]);
-  if (standDown) return { status: "unavailable", reason: standDown.reason === "head_injury" ? "Head injury stand-down" : "Medical stand-down", until: standDown.until_date };
+  // After a head injury there is no end date, only clearance.
+  if (standDown?.reason === "head_injury") return { status: "unavailable", reason: "Head injury stand-down, until medically cleared" };
+  if (standDown) return { status: "unavailable", reason: "Medical stand-down", until: standDown.until_date };
   // An injury the coach logged: out is unavailable, modified is modified.
   const injury = analyseInjuries(injuries, today, today).availability as Json | null;
   if (injury?.status === "unavailable") return injury;

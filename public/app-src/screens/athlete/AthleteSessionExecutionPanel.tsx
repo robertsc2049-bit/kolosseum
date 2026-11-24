@@ -337,11 +337,9 @@ export function AthleteSessionExecutionPanel() {
     : null;
   const reentry = runReentry ?? (isRecord(cycle?.reentry) ? (cycle?.reentry as JsonRecord) : null);
   const reentryNote = reentry && reentry.reentry_week === true
-    ? reentry.after_head_injury === true
-      ? `Your first week back after a head injury: a lighter re-entry week with no jumping, sprinting, cutting or neck loading.${runReentry ? " Your programme carries on from here, a set fewer and lighter this week." : ""} Follow your medical professional's return-to-play plan.`
-      : runReentry
-        ? programmeReentryNote(reentry)
-        : `Welcome back - this is your first week back after ${Number(reentry.gap_days)} days away, so it's a lighter re-entry week. Your training blocks restart from week 1 next week.`
+    ? runReentry
+      ? programmeReentryNote(reentry)
+      : `Welcome back - this is your first week back after ${Number(reentry.gap_days)} days away, so it's a lighter re-entry week. Your training blocks restart from week 1 next week.`
     : null;
 
   const rows: { exercise: JsonRecord; status: "complete" | "current" | "remaining" | "dropped" }[] = [

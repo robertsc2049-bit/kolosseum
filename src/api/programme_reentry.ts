@@ -7,8 +7,8 @@
 // Applied after the athlete's weights are worked out, so it lightens what they
 // would actually lift:
 // - one set fewer on everything (never below one);
-// - a worked-out weight 10% lighter, or 20% after a long layoff (28+ days) or
-//   a head injury - rounded down to the athlete's plate increment;
+// - a worked-out weight 10% lighter, or 20% after a long layoff (28+ days) -
+//   rounded down to the athlete's plate increment;
 // - % of 1RM 10 (or 20) points lower; effort targets 1 (or 2) RPE easier,
 //   never below RPE 5;
 // - a first session on a lift (choose a technique weight) and bodyweight
@@ -21,7 +21,7 @@ const isRecord = (v: unknown): v is Json => !!v && typeof v === "object" && !Arr
 const num = (v: unknown): number | null => (typeof v === "number" && Number.isFinite(v) ? v : null);
 
 export function reentryCut(reentry: Reentry): { percent: number; rpe: number } {
-  return reentry.long_layoff || reentry.after_head_injury ? { percent: 20, rpe: 2 } : { percent: 10, rpe: 1 };
+  return reentry.long_layoff ? { percent: 20, rpe: 2 } : { percent: 10, rpe: 1 };
 }
 
 const floorTo = (value: number, step: number) => Number((Math.floor(value / step + 1e-9) * step).toFixed(3));

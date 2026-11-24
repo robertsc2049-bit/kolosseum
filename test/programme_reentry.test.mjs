@@ -8,7 +8,6 @@ const { lighterForReentry, reentryCut } = await import(new URL("../dist/src/api/
 
 const twoWeeks = { returned_on: "2026-10-05", gap_days: 14, long_layoff: false, reentry_week: true };
 const sixWeeks = { returned_on: "2026-10-05", gap_days: 42, long_layoff: true, reentry_week: true };
-const headInjury = { returned_on: "2026-10-05", gap_days: 9, long_layoff: false, reentry_week: true, after_head_injury: true };
 
 test("a fighter back after two weeks off: the 85% trap bar triple from their max is a set fewer and 10 points lighter, rounded down to a plate", () => {
   const [lift] = lighterForReentry([{
@@ -35,9 +34,8 @@ test("in pounds the weight rounds down to 5 lb", () => {
   assert.equal(bench.intensity.value, 165, "166.5 lb rounds down to 165");
 });
 
-test("after six weeks away, or a head injury, it's 20% lighter and 2 RPE easier", () => {
+test("after six weeks away it's 20% lighter and 2 RPE easier", () => {
   assert.deepEqual(reentryCut(sixWeeks), { percent: 20, rpe: 2 });
-  assert.deepEqual(reentryCut(headInjury), { percent: 20, rpe: 2 });
   const [squat, pull] = lighterForReentry([
     { exercise_id: "back_squat", sets: 4, intensity: { type: "load", value: 100, unit: "kg" } },
     { exercise_id: "pull_up", sets: 3, intensity: { type: "rpe", value: 8 } }

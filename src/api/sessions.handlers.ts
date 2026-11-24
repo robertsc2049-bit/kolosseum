@@ -7,7 +7,9 @@
 // src/api/sessions.handlers.ts
 import type { Request, Response } from "express";
 
+import { pool } from "../db/pool.js";
 import { badRequest } from "./http_errors.js";
+import { activeStandDown } from "./medical_stand_down_service.js";
 import {
   appendRuntimeEventMutation,
   extractClientRequestIdFromBody,
@@ -384,6 +386,12 @@ export async function planSession(req: Request, res: Response) {
 export async function startSession(req: Request, res: Response) {
   const session_id = asString(req.params?.session_id);
   if (!session_id) throw badRequest("Missing session_id");
+
+  // A session created before a stand-down isn't started during it. One already
+  // under way can still be finished and its sets saved.
+  const owner = await pool.query("SELECT beta_subject_user_id AS user_id FROM sessions WHERE session_id = $1 AND status = 'created'", [session_id]);
+  const standDown = owner.rows?.[0]?.user_id ? await activeStandDown(String(owner.rows[0].user_id)) : null;
+  if (standDown) throw badRequest("Medical stand-down", { failure_token: "medical_stand_down", details: { until_date: standDown.until_date, reason: standDown.reason } });
 
   const result = await startSessionMutation(session_id);
   return res.status(200).json(result);

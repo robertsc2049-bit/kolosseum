@@ -1,7 +1,8 @@
 // DEV NOTE: What the app changed about a session on its own, in a line a coach
 // can read on the review screen: weeks skipped or held to time a taper to the
 // competition (peak_timing.ts), and a lighter first week back after time away
-// or a head injury (programme_reentry.ts, head_injury_return.ts). Pure - reads
+// (programme_reentry.ts). Sessions created before 2026-11-24 can also carry a
+// head-injury return the app no longer applies; it's still shown. Pure - reads
 // only the session's own stamps.
 
 type Json = Record<string, unknown>;

@@ -1486,6 +1486,10 @@ async function createSession(options = {}) {
       }
       if (phase4Token === "medical_stand_down") {
         const until = error?.payload?.details?.details?.until_date ?? "";
+        if (error?.payload?.details?.details?.reason === "head_injury") {
+          showNotice("You're stood down after a head injury: no sessions until a medical professional has cleared you. Once they have, confirm it in Training details, under Medical stand-down.", "error");
+          return;
+        }
         showNotice(`You are stood down from training${until ? ` until ${until}` : ""}. Follow your medical professional's return-to-play plan.`, "error");
         return;
       }

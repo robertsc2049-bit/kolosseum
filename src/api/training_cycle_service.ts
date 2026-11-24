@@ -6,7 +6,6 @@ import type { TrainingCycle } from "@kolosseum/engine/phases/phase4.js";
 import { pool } from "../db/pool.js";
 import { getAthleteTrainingPlan } from "./athlete_onboarding_service.js";
 import { computeTrainingCycle, reentryFor, weekStartMs, type Reentry } from "./training_cycle.js";
-import { headInjuryReturn } from "./medical_stand_down_service.js";
 import { LONG_LAYOFF_DAYS } from "./training_cycle.js";
 
 // A return from 10+ days away from training (the gap between sessions), for
@@ -31,12 +30,7 @@ export async function trainingCycleForAthlete(userId: string, now: Date = new Da
     [userId, new Date(weekStartMs(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))).toISOString()]
   );
   const sessionsThisWeek = Number(result.rows?.[0]?.n ?? 0);
-  const gapReentry = await gapReentryForAthlete(userId, now);
-  // The first week back after a head injury is a re-entry week whatever the gap.
-  const headInjury = await headInjuryReturn(userId, now.toISOString().slice(0, 10));
-  const reentry: Reentry | null = headInjury
-    ? { returned_on: headInjury.returned_on, gap_days: headInjury.stood_down_days, long_layoff: headInjury.stood_down_days >= LONG_LAYOFF_DAYS, reentry_week: true, after_head_injury: true }
-    : gapReentry;
+  const reentry = await gapReentryForAthlete(userId, now);
   const cycle = computeTrainingCycle(plan, now, sessionsThisWeek, reentry);
   return reentry ? { ...cycle, reentry } : cycle;
 }
