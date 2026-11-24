@@ -8,7 +8,8 @@ import { Router } from "express";
 
 import { asyncHandler } from "./async_handler.js";
 import { cookieValue } from "./coach_session_auth.js";
-import { forbidden, notFound, unauthorized } from "./http_errors.js";
+import { badRequest, forbidden, notFound, unauthorized } from "./http_errors.js";
+import { standDownHoldingSession } from "./medical_stand_down_service.js";
 import {
   PRODUCT_SESSION_COOKIE,
   ProductAccountError,
@@ -134,7 +135,14 @@ sessionsRouter.post(
 
 sessionsRouter.post("/plan", asyncHandler(planSession));
 sessionsRouter.get("/decision-summary/:run_id", asyncHandler(getDecisionSummaryByRunId));
-sessionsRouter.post("/:session_id/start", asyncHandler(startSession));
+sessionsRouter.post(
+  "/:session_id/start",
+  asyncHandler(async (request, response) => {
+    const standDown = await standDownHoldingSession(String(request.params.session_id ?? ""));
+    if (standDown) throw badRequest("Medical stand-down", { failure_token: "medical_stand_down", details: { until_date: standDown.until_date, reason: standDown.reason } });
+    return startSession(request, response);
+  })
+);
 sessionsRouter.post("/:session_id/events", asyncHandler(appendRuntimeEvent));
 sessionsRouter.get("/:session_id/events", asyncHandler(listRuntimeEvents));
 sessionsRouter.get("/:session_id/state", asyncHandler(getSessionState));

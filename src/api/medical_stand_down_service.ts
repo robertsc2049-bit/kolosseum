@@ -128,6 +128,14 @@ export async function endStandDown(athleteUserId: string, input: unknown, endedB
   return describeStandDown(athleteUserId);
 }
 
+// The stand-down that holds back starting this session: one created before it
+// isn't started during it. A session already under way isn't held back - it
+// can still be finished and its sets saved.
+export async function standDownHoldingSession(sessionId: string): Promise<StandDown | null> {
+  const owner = await pool.query("SELECT beta_subject_user_id AS user_id FROM sessions WHERE session_id = $1 AND status = 'created'", [sessionId]);
+  return owner.rows?.[0]?.user_id ? activeStandDown(String(owner.rows[0].user_id)) : null;
+}
+
 // The athlete's own coach, or the medical lead of a team they're on.
 async function requireCoach(coachUserId: string, athleteUserId: string) {
   try { await requireCoachAthleteAccess(coachUserId, athleteUserId); }
