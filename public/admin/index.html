@@ -4,27 +4,16 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="robots" content="noindex, nofollow" />
-  <meta name="theme-color" content="#0A0C0A" />
+  <meta name="theme-color" content="#1B2026" />
   <title>Kolosseum Founder/Admin Operations</title>
   <link rel="icon" href="/app/icons/icon-192.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap" />
+  <script src="/app/theme.js"></script>
+  <link rel="stylesheet" href="/app/theme.css" />
   <style>
     :root {
-      color-scheme: dark;
-      --k-canvas: #0A0C0A;
-      --k-surface-1: #121614;
-      --k-surface-2: #191F1C;
-      --k-border: #303A34;
-      --k-text: #E8EEE6;
-      --k-text-secondary: #A0A8A0;
-      --k-accent: #7EB800;
-      --k-accent-bright: #9AD600;
-      --k-danger: #D85B4A;
-      --k-danger-deep: #7D332B;
-      --k-danger-text: #F1B1A5;
-      --k-warning: #D6A84B;
       --k-font-body: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       --k-font-display: Rajdhani, "Roboto Condensed", "Arial Narrow", sans-serif;
       --k-space-1: 4px;
@@ -37,12 +26,14 @@
       --k-radius-s: 8px;
       --k-radius-m: 12px;
       --k-radius-l: 16px;
-      --k-shadow-1: 0 8px 24px rgba(0, 0, 0, 0.28);
     }
     *, *::before, *::after { box-sizing: border-box; }
     body { font-family: var(--k-font-body); max-width: 960px; margin: 2rem auto; padding: 0 1rem; background: var(--k-canvas); color: var(--k-text); }
-    section { border: 1px solid rgba(232, 238, 230, 0.12); border-radius: var(--k-radius-l); padding: 1.2rem; margin-bottom: 1.5rem; background: var(--k-surface-1); box-shadow: var(--k-shadow-1); }
-    h1, h2 { letter-spacing: -0.025em; line-height: 1.08; margin-top: 0; }
+    section { border: 1px solid var(--k-hairline); border-radius: var(--k-radius-l); padding: 1.2rem; margin-bottom: 1.5rem; background: var(--k-surface-1); }
+    a { color: var(--k-link); }
+    .admin-brand { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 1rem; }
+    .admin-brand svg { width: 38px; height: 38px; border-radius: 22%; }
+    h1, h2 { font-family: var(--k-font-display); letter-spacing: 0; line-height: 1.08; margin-top: 0; }
     h1 { font-family: var(--k-font-display); font-weight: 600; font-size: 1.5rem; }
     h2 { font-weight: 700; font-size: 1.15rem; }
     table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; }
@@ -51,13 +42,13 @@
     .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
     .table-scroll table { min-width: 34rem; }
     .table-scroll--wide table { min-width: 50rem; }
-    input, select, textarea { padding: 0.4rem; margin: 0.2rem 0; border: 1px solid var(--k-border); border-radius: var(--k-radius-m); background: var(--k-surface-1); color: var(--k-text); min-height: 44px; max-width: 100%; }
-    input:focus, select:focus, textarea:focus { border-color: var(--k-accent); box-shadow: 0 0 0 3px rgba(126, 184, 0, 0.45); outline: none; }
-    button { padding: 0.65rem 1rem; min-height: 44px; cursor: pointer; border: 1px solid var(--k-border); border-radius: var(--k-radius-m); background: var(--k-surface-2); color: var(--k-text); font: inherit; font-weight: 800; letter-spacing: 0.01em; }
-    button:focus-visible { outline: 3px solid var(--k-accent-bright); outline-offset: 2px; }
-    button.primary { background: var(--k-accent); border-color: var(--k-accent); color: var(--k-canvas); }
-    button.danger { background: var(--k-danger); color: var(--k-canvas); border: none; }
-    button.confirm { background: var(--k-danger-deep); color: var(--k-text); border: none; }
+    input, select, textarea { padding: 0.4rem; margin: 0.2rem 0; border: 1px solid var(--k-control-border); border-radius: var(--k-radius-s); background: var(--k-surface-1); color: var(--k-text); min-height: 44px; max-width: 100%; font: inherit; }
+    input:focus, select:focus, textarea:focus { border-color: var(--k-focus); box-shadow: 0 0 0 3px color-mix(in srgb, var(--k-focus) 45%, transparent); outline: none; }
+    button { padding: 0.65rem 1rem; min-height: 44px; cursor: pointer; border: 1px solid var(--k-control-border); border-radius: var(--k-radius-s); background: var(--k-surface-2); color: var(--k-text); font: inherit; font-weight: 800; letter-spacing: 0.01em; }
+    button:focus-visible { outline: 3px solid var(--k-focus); outline-offset: 2px; }
+    button.primary { background: var(--k-primary); border-color: var(--k-primary); color: var(--k-on-primary); }
+    button.danger { background: var(--k-danger-fill); color: var(--k-on-danger-fill); border: none; }
+    button.confirm { background: var(--k-danger-deep); color: var(--k-danger-text); border: none; }
     /* A second heading inside a card (e.g. Deletion-request review under the
        export table) starts its own block instead of touching the table above. */
     section h2:not(:first-child) { margin-top: 1.6rem; padding-top: 1.2rem; border-top: 1px solid var(--k-border); }
@@ -65,7 +56,7 @@
     input[type="text"], input[type="email"], input[type="password"], input[type="url"] { width: min(100%, 26rem); }
     input[type="search"] { width: min(100%, 34rem); }
     details.fold > summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; font-weight: 700; }
-    details.fold > summary:focus-visible { outline: 3px solid var(--k-accent-bright); outline-offset: 2px; border-radius: var(--k-radius-s); }
+    details.fold > summary:focus-visible { outline: 3px solid var(--k-focus); outline-offset: 2px; border-radius: var(--k-radius-s); }
     .muted { color: var(--k-text-secondary); }
     .error-text { color: var(--k-danger); }
     .server-error-kinds { overflow-wrap: anywhere; padding-left: 1.2rem; }
@@ -91,6 +82,8 @@
   </style>
 </head>
 <body>
+  <div class="admin-brand"><svg viewBox="0 0 192 192" aria-hidden="true" focusable="false"><path fill="#0E120B" d="M0 0h192v192H0z"/><path fill="#9AD600" d="M16 15h36v162H16zM146 15h30L81 96l95 81h-30L51 96z"/></svg><strong>Kolosseum</strong></div>
+  <div data-theme-choice style="margin-bottom: 1rem"></div>
   <h1>Founder / Admin Operations</h1>
   <p class="muted">A minimum lawful operations workspace, scoped to individual accounts only. No engine, session, or runtime-event editing.</p>
 
@@ -160,11 +153,11 @@
   <section id="accountSearchSection" hidden>
     <h2>Account search</h2>
     <form id="accountSearchForm">
-      <input id="accountSearchQuery" type="text" placeholder="Search by user id, email or name" />
+      <input id="accountSearchQuery" type="text" aria-label="Search accounts" placeholder="Search by user id, email or name" />
       <button type="submit" class="primary">Search</button>
     </form>
     <div class="table-scroll">
-      <table id="accountSearchTable">
+      <table aria-label="Account search" id="accountSearchTable">
         <thead><tr><th>User ID</th><th>Email</th><th>Name</th><th>Actor</th><th>State</th></tr></thead>
         <tbody id="accountSearchResults"></tbody>
       </table>
@@ -193,7 +186,7 @@
 
     <h3>Account event history</h3>
     <div class="table-scroll">
-      <table>
+      <table aria-label="Account search">
         <thead><tr><th>Event</th><th>Occurred</th></tr></thead>
         <tbody id="accountEventHistory"></tbody>
       </table>
@@ -203,11 +196,11 @@
   <section id="orgOwnerAccountSearchSection" hidden>
     <h2>Org owner account search</h2>
     <form id="orgOwnerAccountSearchForm">
-      <input id="orgOwnerAccountSearchQuery" type="text" placeholder="Search by user id, email or name" />
+      <input id="orgOwnerAccountSearchQuery" type="text" aria-label="Search organisation owner accounts" placeholder="Search by user id, email or name" />
       <button type="submit" class="primary">Search</button>
     </form>
     <div class="table-scroll">
-      <table id="orgOwnerAccountSearchTable">
+      <table aria-label="Org owner account search" id="orgOwnerAccountSearchTable">
         <thead><tr><th>User ID</th><th>Email</th><th>Name</th><th>State</th></tr></thead>
         <tbody id="orgOwnerAccountSearchResults"></tbody>
       </table>
@@ -227,7 +220,7 @@
 
     <h3>Organisations owned</h3>
     <div class="table-scroll">
-      <table>
+      <table aria-label="Org owner account search">
         <thead><tr><th>Org ID</th><th>Name</th><th>State</th><th>Seat limit</th><th>Visibility</th></tr></thead>
         <tbody id="orgOwnerOrganisationsOwned"></tbody>
       </table>
@@ -238,7 +231,7 @@
     <h2>Coach entitlement and payment review</h2>
     <label>Search entitlement records<br /><input id="commercialRecordsSearch" type="search" placeholder="User ID, record type or billing state" /></label>
     <div class="table-scroll">
-      <table>
+      <table aria-label="Coach entitlement and payment review">
         <thead><tr><th>User ID</th><th>Record type</th><th>Billing access state</th><th>Effective at</th></tr></thead>
         <tbody id="commercialRecordsList"></tbody>
       </table>
@@ -249,7 +242,7 @@
     <h2>Support and error-record review</h2>
     <label>Search support requests<br /><input id="supportRequestsSearch" type="search" placeholder="Correlation ID, user ID, description or status" /></label>
     <div class="table-scroll">
-      <table>
+      <table aria-label="Support and error-record review">
         <thead><tr><th>Correlation ID</th><th>User</th><th>Description</th><th>Status</th><th>Actions</th></tr></thead>
         <tbody id="supportRequestsList"></tbody>
       </table>
@@ -260,7 +253,7 @@
     <h2>Org owner support and error-record review</h2>
     <label>Search support requests<br /><input id="orgOwnerSupportRequestsSearch" type="search" placeholder="Correlation ID, user ID, description or status" /></label>
     <div class="table-scroll">
-      <table>
+      <table aria-label="Org owner support and error-record review">
         <thead><tr><th>Correlation ID</th><th>User</th><th>Description</th><th>Status</th><th>Actions</th></tr></thead>
         <tbody id="orgOwnerSupportRequestsList"></tbody>
       </table>
@@ -271,7 +264,7 @@
     <h2>Export-request review</h2>
     <label>Search export requests<br /><input id="exportRequestsSearch" type="search" placeholder="Request ID, user ID or status" /></label>
     <div class="table-scroll table-scroll--wide">
-      <table>
+      <table aria-label="Export-request review">
         <thead><tr><th>Export request</th><th>User</th><th>Status</th><th>Requested</th><th>Ready</th><th>Expires</th><th>Downloaded</th></tr></thead>
         <tbody id="exportRequestsList"></tbody>
       </table>
@@ -281,7 +274,7 @@
     <p id="deletionDeadlineSummary" class="muted" aria-live="polite"></p>
     <label>Search deletion requests<br /><input id="deletionRequestsSearch" type="search" placeholder="Request ID, user ID, reason or status" /></label>
     <div class="table-scroll">
-      <table>
+      <table aria-label="Deletion-request review">
         <thead><tr><th>Erase by</th><th>Deletion request</th><th>User</th><th>Reason</th><th>Queue status</th><th>Requested</th><th>Erase</th></tr></thead>
         <tbody id="deletionRequestsList"></tbody>
       </table>
@@ -292,7 +285,7 @@
     <h2>Org owner export-request review</h2>
     <label>Search export requests<br /><input id="orgOwnerExportRequestsSearch" type="search" placeholder="Request ID, user ID or status" /></label>
     <div class="table-scroll table-scroll--wide">
-      <table>
+      <table aria-label="Org owner export-request review">
         <thead><tr><th>Export request</th><th>User</th><th>Status</th><th>Requested</th><th>Ready</th><th>Expires</th><th>Downloaded</th></tr></thead>
         <tbody id="orgOwnerExportRequestsList"></tbody>
       </table>
@@ -302,7 +295,7 @@
     <p id="orgOwnerDeletionDeadlineSummary" class="muted" aria-live="polite"></p>
     <label>Search deletion requests<br /><input id="orgOwnerDeletionRequestsSearch" type="search" placeholder="Request ID, user ID, reason or status" /></label>
     <div class="table-scroll">
-      <table>
+      <table aria-label="Org owner deletion-request review">
         <thead><tr><th>Erase by</th><th>Deletion request</th><th>User</th><th>Reason</th><th>Queue status</th><th>Requested</th><th>Erase</th></tr></thead>
         <tbody id="orgOwnerDeletionRequestsList"></tbody>
       </table>
@@ -324,7 +317,7 @@
     <h2>Operational audit records</h2>
     <label>Search audit records<br /><input id="auditRecordsSearch" type="search" placeholder="Actor, action, target or correlation id" /></label>
     <div class="table-scroll table-scroll--wide">
-      <table>
+      <table aria-label="Operational audit records">
         <thead><tr><th>Actor</th><th>Action</th><th>Target</th><th>Before</th><th>After</th><th>Correlation</th><th>When</th></tr></thead>
         <tbody id="auditRecordsList"></tbody>
       </table>
@@ -358,7 +351,7 @@
     </label>
     <p id="gymListingResult" class="muted" role="status" hidden></p>
     <div class="table-scroll">
-      <table>
+      <table aria-label="Gym listings">
         <thead><tr><th>Gym</th><th>Area</th><th>Owner</th><th>Equipment</th><th>Status</th><th>Actions</th></tr></thead>
         <tbody id="gymListingList"></tbody>
       </table>
@@ -377,7 +370,7 @@
     <details id="exerciseDemoVideoFold" class="fold">
       <summary id="exerciseDemoVideoSummary">Show all default demos</summary>
       <div class="table-scroll">
-        <table>
+        <table aria-label="Exercise demo videos">
           <thead><tr><th>Exercise</th><th>Video</th><th></th></tr></thead>
           <tbody id="exerciseDemoVideoList"></tbody>
         </table>

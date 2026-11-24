@@ -1,23 +1,12 @@
 /* Kolosseum legal pages: Terms of Service and Privacy Notice. Plain, readable,
-   printable; follows the system light/dark preference. */
+   printable; colours from theme.css. */
 :root {
-  --legal-bg: #ffffff;
-  --legal-text: #1d232a;
-  --legal-muted: #56616d;
-  --legal-rule: #d9dee4;
-  --legal-accent: #8a5a12;
-  --legal-note-bg: #fbf5ea;
-  color-scheme: light dark;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --legal-bg: #12161b;
-    --legal-text: #e6e9ed;
-    --legal-muted: #a3adb8;
-    --legal-rule: #2c343d;
-    --legal-accent: #e0b35c;
-    --legal-note-bg: #1f1a12;
-  }
+  --legal-bg: var(--k-canvas);
+  --legal-text: var(--k-text);
+  --legal-muted: var(--k-text-secondary);
+  --legal-rule: var(--k-border);
+  --legal-accent: var(--k-accent);
+  --legal-note-bg: var(--k-surface-1);
 }
 * { box-sizing: border-box; }
 body {
@@ -56,7 +45,9 @@ ol.sub { list-style: lower-alpha; padding-left: 1.6em; text-indent: 0; }
 table { width: 100%; border-collapse: collapse; margin: 0.8em 0; font-size: 0.95rem; }
 th, td { text-align: left; vertical-align: top; padding: 8px; border-bottom: 1px solid var(--legal-rule); }
 nav.toc { columns: 2; column-gap: 24px; font-size: 0.95rem; }
-nav.toc a, a { color: var(--legal-accent); }
+nav.toc a, a { color: var(--k-link); text-decoration-color: var(--k-accent); text-underline-offset: 3px; }
+a:focus-visible { outline: 3px solid var(--k-focus); outline-offset: 2px; }
+.legal-theme { margin: 0 0 18px; }
 .back { display: inline-block; margin-bottom: 18px; }
 @media (max-width: 560px) { nav.toc { columns: 1; } th, td { padding: 6px 4px; } }
 @media print { .back, .draft { display: none; } body { background: #fff; color: #000; } }

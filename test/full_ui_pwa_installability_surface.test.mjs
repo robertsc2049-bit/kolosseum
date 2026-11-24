@@ -37,8 +37,8 @@ test("manifest.json is valid and declares a standalone, installable app", () => 
   assert.equal(manifest.start_url, "/app/");
   assert.equal(manifest.scope, "/app/");
   assert.equal(manifest.display, "standalone");
-  assert.equal(manifest.background_color, "#0A0C0A");
-  assert.equal(manifest.theme_color, "#0A0C0A");
+  assert.equal(manifest.background_color, "#1B2026");
+  assert.equal(manifest.theme_color, "#1B2026");
 
   assert.ok(Array.isArray(manifest.icons) && manifest.icons.length === 3);
 

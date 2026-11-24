@@ -1015,6 +1015,20 @@ function viewTitle(view) {
   return titles[view] ?? "Kolosseum";
 }
 
+// A new screen: the page's title says which, and focus moves to its heading so
+// a keyboard or screen reader carries on from there rather than from the menu.
+// Never on the first screen, and never out of something being typed in.
+let announcedView = null;
+function announceView(view) {
+  document.title = viewTitle(view) === "Kolosseum" ? "Kolosseum" : `${viewTitle(view)} - Kolosseum`;
+  const first = announcedView === null;
+  const same = announcedView === view;
+  announcedView = view;
+  if (first || same || elements.appShell?.hidden) return;
+  if (/^(INPUT|SELECT|TEXTAREA)$/u.test(document.activeElement?.tagName ?? "")) return;
+  elements.topbarTitle.focus({ preventScroll: true });
+}
+
 function setView(view) {
   if (!confirmCoachNoteDeparture()) {
     return false;
@@ -1045,10 +1059,13 @@ function setView(view) {
 
   for (const button of document.querySelectorAll(".nav-item, .tab-item[data-view]")) {
     button.classList.toggle("active", button.dataset.view === view);
+    if (button.dataset.view === view) button.setAttribute("aria-current", "page");
+    else button.removeAttribute("aria-current");
   }
 
   elements.topbarTitle.textContent = viewTitle(view);
   setNavigationDrawerOpen(false);
+  announceView(view);
 
   if (view === "today" && state.role === "athlete") {
     loadAthleteToday().catch(handleError);
@@ -6360,18 +6377,32 @@ document.addEventListener("kolosseum:open-notification-target", (event) => {
 // The sidebar is a drawer on phones and tablets: opened from the menu
 // button or the tab bar's More, closed by choosing a screen, tapping
 // outside it or pressing Escape.
-function setNavigationDrawerOpen(open) {
+const drawerMedia = window.matchMedia("(max-width: 900px)");
+function setNavigationDrawerOpen(open, { focusMenu = false, returnFocus = false } = {}) {
   elements.sidebar.classList.toggle("open", open);
   document.body.classList.toggle("nav-drawer-open", open);
-  document.getElementById("tabMoreButton")?.setAttribute("aria-expanded", String(open));
+  const more = document.getElementById("tabMoreButton");
+  more?.setAttribute("aria-expanded", String(open));
+  // Closed on a phone the menu is only slid off screen: inert keeps it out of
+  // the keyboard's and a screen reader's way, and open it's the only way on.
+  elements.sidebar.inert = drawerMedia.matches && !open;
+  for (const behind of document.querySelectorAll(".topbar, .views")) behind.inert = drawerMedia.matches && open;
+  if (open && focusMenu) {
+    const items = [...elements.sidebar.querySelectorAll(".nav-item")].filter((item) => item.offsetParent !== null);
+    (items.find((item) => item.classList.contains("active")) ?? items[0])?.focus();
+  }
+  if (!open && returnFocus) more?.focus();
 }
+drawerMedia.addEventListener("change", () => setNavigationDrawerOpen(false));
+setNavigationDrawerOpen(false);
 
 elements.menuButton.addEventListener("click", () => {
-  setNavigationDrawerOpen(!elements.sidebar.classList.contains("open"));
+  setNavigationDrawerOpen(!elements.sidebar.classList.contains("open"), { focusMenu: true });
 });
 document.getElementById("tabMoreButton")?.addEventListener("click", () => {
-  setNavigationDrawerOpen(!elements.sidebar.classList.contains("open"));
+  setNavigationDrawerOpen(!elements.sidebar.classList.contains("open"), { focusMenu: true });
 });
+document.getElementById("skipToContent")?.addEventListener("click", () => document.getElementById("mainContent")?.focus());
 document.addEventListener("click", (event) => {
   if (!elements.sidebar.classList.contains("open")) return;
   const target = event.target;
@@ -6380,7 +6411,7 @@ document.addEventListener("click", (event) => {
   setNavigationDrawerOpen(false);
 });
 document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape" && elements.sidebar.classList.contains("open")) setNavigationDrawerOpen(false);
+  if (event.key === "Escape" && elements.sidebar.classList.contains("open")) setNavigationDrawerOpen(false, { returnFocus: true });
 });
 
 elements.topbarAccount.addEventListener("click", () => setView("account"));

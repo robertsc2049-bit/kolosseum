@@ -34,7 +34,7 @@ test("every focusable control gets a visible keyboard-only focus ring, distinct 
     css,
     /a:focus-visible,\s*\n\s*button:focus-visible,\s*\n\s*\.button:focus-visible,\s*\n\s*\[role="button"\]:focus-visible,\s*\n\s*\[role="menuitem"\]:focus-visible,\s*\n\s*\[tabindex\]:focus-visible\s*\{\s*\n\s*outline: 3px solid var\(--bronze-light\);/u
   );
-  assert.match(css, /input:focus, select:focus, textarea:focus \{[\s\S]*?box-shadow: 0 0 0 3px rgba\(126, 184, 0, 0\.45\);/u);
+  assert.match(css, /input:focus, select:focus, textarea:focus \{[\s\S]*?box-shadow: 0 0 0 3px color-mix\(in srgb, var\(--k-focus\) 45%, transparent\);/u);
 });
 
 test("prefers-reduced-motion collapses animation and transition duration everywhere, not just on one hand-picked element", () => {

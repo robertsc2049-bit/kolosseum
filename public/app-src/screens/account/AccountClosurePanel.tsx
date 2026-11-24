@@ -43,6 +43,7 @@ export function AccountClosurePanel({ csrfToken }: { csrfToken: string }) {
         <input
           autoComplete="off"
           placeholder="Type CLOSE"
+          aria-label="Type CLOSE to confirm"
           required
           value={confirmation}
           onChange={(event) => setConfirmation(event.target.value)}

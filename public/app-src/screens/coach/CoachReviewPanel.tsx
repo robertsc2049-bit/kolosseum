@@ -69,12 +69,14 @@ function StatusBadge({ record }: { record: ReviewRecord }) {
 
 function ReviewActions({
   record,
+  athleteName,
   compact,
   marking,
   onMark,
   onNote
 }: {
   record: ReviewRecord;
+  athleteName?: string;
   compact: boolean;
   marking: boolean;
   onMark: (record: ReviewRecord, status: "reviewed" | "unreviewed") => void;
@@ -82,14 +84,16 @@ function ReviewActions({
 }) {
   const status = reviewRecordStatus(record);
   const size = compact ? " small-button" : "";
+  // A list of these says whose session each is for.
+  const named = (action: string) => (athleteName ? { "aria-label": `${action}: ${athleteName}, ${String(record.session_title ?? "Training session")}, ${formatDate(reviewRecordDate(record))}` } : {});
   return (
     <>
       {status === "unreviewed" ? (
-        <button className={`button primary${size}`} type="button" disabled={marking} onClick={() => onMark(record, "reviewed")}>Mark reviewed</button>
+        <button className={`button primary${size}`} type="button" disabled={marking} {...named("Mark reviewed")} onClick={() => onMark(record, "reviewed")}>Mark reviewed</button>
       ) : status === "reviewed" ? (
-        <button className={`button secondary${size}`} type="button" disabled={marking} onClick={() => onMark(record, "unreviewed")}>Mark unreviewed</button>
+        <button className={`button secondary${size}`} type="button" disabled={marking} {...named("Mark unreviewed")} onClick={() => onMark(record, "unreviewed")}>Mark unreviewed</button>
       ) : null}
-      <button className={`button secondary${size}`} type="button" onClick={() => onNote(record)}>Add note</button>
+      <button className={`button secondary${size}`} type="button" {...named("Add note")} onClick={() => onNote(record)}>Add note</button>
     </>
   );
 }
@@ -128,8 +132,8 @@ function ReviewCard({
         <StatusBadge record={record} />
         {record.self_directed === true ? <span className="badge neutral">Self-directed</span> : null}
         <span className="badge neutral">{notes} note{notes === 1 ? "" : "s"}</span>
-        <button className="button secondary small-button" type="button" onClick={() => onSelect(String(record.session_id))}>View details</button>
-        <ReviewActions record={record} compact marking={marking} onMark={onMark} onNote={onNote} />
+        <button className="button secondary small-button" type="button" aria-label={`View details: ${athleteName}, ${String(record.session_title ?? "Training session")}, ${formatDate(reviewRecordDate(record))}`} onClick={() => onSelect(String(record.session_id))}>View details</button>
+        <ReviewActions record={record} athleteName={athleteName} compact marking={marking} onMark={onMark} onNote={onNote} />
       </div>
       <ProgrammeAdjustments record={record} />
     </article>

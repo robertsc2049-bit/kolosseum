@@ -204,6 +204,8 @@ export function SetLogger({ exercise, setLogs, busy, logSet }: {
   return (
     <section className="set-logger" aria-label="Log your sets">
       <p className="eyebrow">{mostSets > sets ? `Sets logged: ${loggedCount} of ${sets}–${mostSets}` : `Sets logged: ${loggedCount} of ${sets}`}</p>
+      {/* Said aloud as each set is saved; the rows show it. */}
+      <p className="sr-only" role="status">{loggedCount > 0 ? `${loggedCount} of ${sets} sets logged` : ""}</p>
       <ul className="set-log-list">
         {Array.from({ length: mostSets }, (_, i) => i + 1).map((setIndex) => (
           <SetRow

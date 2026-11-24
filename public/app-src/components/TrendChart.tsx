@@ -31,7 +31,7 @@ export type TrendChartProps = Readonly<{
   emptyLabel?: string;
 }>;
 
-const COLORS = ["var(--k-accent)", "var(--k-warning)", "#6aa8ff", "#d98bff", "var(--k-danger)", "#7fd6c2"];
+const COLORS = ["var(--k-accent)", "var(--k-warning)", "var(--k-chart-3)", "var(--k-chart-4)", "var(--k-danger)", "var(--k-chart-6)"];
 // Drawn at the width it is shown at (measured), so labels stay readable on a phone.
 const DEFAULT_WIDTH = 640;
 const PAD = { left: 44, right: 10, top: 10, bottom: 22 };

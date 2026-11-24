@@ -53,7 +53,7 @@ function Method({ children }: { children: React.ReactNode }) {
 function WeekTable({ weeks, columns }: { weeks: string[]; columns: Array<{ label: string; cell: (index: number) => React.ReactNode }> }) {
   return (
     <div className="analysis-table-wrap">
-      <table className="analysis-table">
+      <table className="analysis-table" aria-label={`Week by week: ${columns.slice(0, 3).map((column) => column.label).join(", ")}${columns.length > 3 ? " and more" : ""}`}>
         <thead><tr><th>Week of</th>{columns.map((column) => <th key={column.label}>{column.label}</th>)}</tr></thead>
         <tbody>
           {weeks.map((week, index) => (
@@ -196,7 +196,7 @@ function AthleteAnalysis({ athleteUserId, onBack, initialView = "trends", initia
               <div className="analysis-attempts" data-testid="analysis-attempts">
                 <h4>{`Meet attempts - ${attempts.days_out} days out`}</h4>
                 <div className="analysis-table-wrap">
-                  <table className="analysis-table">
+                  <table aria-label="Meet attempts" className="analysis-table">
                     <thead><tr><th>Lift</th><th>Projected max</th><th>Opener</th><th>Second</th><th>Third</th></tr></thead>
                     <tbody>{rows(attempts.rows).map((row) => { const kg = (value: unknown) => (attempts.added_weight ? `+${value} kg` : `${value} kg`); return <tr key={String(row.exercise_id)}><td>{String(row.name)}</td><td>{`${row.projected_max} kg`}</td><td>{kg(row.opener)}</td><td>{kg(row.second)}</td><td>{`${kg(row.third)} to ${kg(row.third_good_day)}`}</td></tr>; })}</tbody>
                   </table>
@@ -297,7 +297,7 @@ function AthleteAnalysis({ athleteUserId, onBack, initialView = "trends", initia
               <div className="analysis-ahead" data-testid="analysis-ahead">
                 <h4>The next weeks of the plan</h4>
                 <div className="analysis-table-wrap">
-                  <table className="analysis-table">
+                  <table aria-label="The next weeks of the plan" className="analysis-table">
                     <thead><tr><th>Week</th><th>Working sets</th><th>Tonnage (kg)</th><th>vs lately</th></tr></thead>
                     <tbody>
                       {rows(ahead.rows).map((week) => (
@@ -460,7 +460,7 @@ function AthleteAnalysis({ athleteUserId, onBack, initialView = "trends", initia
               {rows(intensity.by_exercise).length ? <ul className="analysis-plain-list">{rows(intensity.by_exercise).map((row) => <li key={String(row.exercise_id)}>{`${row.name}: ${row.sets} sets, ${row.average_pct}% of max on average, heaviest ${row.top_pct}%`}</li>)}</ul> : <p className="muted small">No sets against a % of max in this period.</p>}
               {rows(intensity.by_exercise).some((row) => rows(row.zones).length) ? (
                 <div className="analysis-table-wrap">
-                  <table className="analysis-table" data-testid="analysis-lift-zones">
+                  <table aria-label="Sets by percentage of max" className="analysis-table" data-testid="analysis-lift-zones">
                     <thead><tr><th>Lift</th>{rows(rows(intensity.by_exercise)[0]?.zones).map((zone) => <th key={String(zone.zone)}>{String(zone.zone)}</th>)}</tr></thead>
                     <tbody>{rows(intensity.by_exercise).map((row) => <tr key={String(row.exercise_id)}><td>{String(row.name)}</td>{rows(row.zones).map((zone) => <td key={String(zone.zone)}>{show(zone.sets)}</td>)}</tr>)}</tbody>
                   </table>
@@ -468,7 +468,7 @@ function AthleteAnalysis({ athleteUserId, onBack, initialView = "trends", initia
               ) : null}
               {rows(intensity.prilepin).length ? (
                 <div className="analysis-table-wrap">
-                  <table className="analysis-table" data-testid="analysis-prilepin">
+                  <table aria-label="Reps by heavy session" className="analysis-table" data-testid="analysis-prilepin">
                     <thead><tr><th>Session</th><th>Lift</th><th>Reps by zone (Prilepin range)</th></tr></thead>
                     <tbody>{rows(intensity.prilepin).map((entry, index) => <tr key={`${entry.date}-${entry.exercise_id}-${index}`}><td>{new Date(`${String(entry.date)}T00:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" })}</td><td>{String(entry.name)}</td><td>{rows(entry.zones).map((zone) => `${zone.zone}: ${zone.reps} (${zone.range})${zone.verdict === "above" ? " - above" : zone.verdict === "below" ? " - below" : ""}`).join(" · ")}</td></tr>)}</tbody>
                   </table>
@@ -484,7 +484,7 @@ function AthleteAnalysis({ athleteUserId, onBack, initialView = "trends", initia
           {velocityLifts.length ? (
             <Section id="velocity" title="Bar speed" headline={null}>
               <div className="analysis-table-wrap">
-                <table className="analysis-table" data-testid="analysis-velocity">
+                <table aria-label="Bar speed" className="analysis-table" data-testid="analysis-velocity">
                   <thead><tr><th>Lift</th><th>At</th><th>Earlier</th><th>Lately</th><th>Change</th><th>Speed lost across sets</th><th>Latest</th></tr></thead>
                   <tbody>{velocityLifts.map((lift) => {
                     const latest = (lift.latest ?? {}) as JsonRecord;
@@ -575,7 +575,7 @@ export function CoachAnalysisPanel() {
       {roster && !athletes.length ? <div className="empty-state"><h3>No athletes yet</h3><p className="muted">Once athletes train with you, their patterns show here.</p></div> : null}
       {athletes.length ? (
         <div className="analysis-table-wrap">
-          <table className="analysis-table analysis-roster" data-testid="analysis-roster">
+          <table aria-label="Athletes by flags" className="analysis-table analysis-roster" data-testid="analysis-roster">
             <thead>
               <tr><th>Athlete</th><th>Status</th><th>What stands out</th><th title="Planned sessions done, latest complete week">Sessions</th><th title="This week's load against their usual (1.0× = a normal week; 0.8-1.3× is normal)">Load vs usual</th><th title="Readiness against their own normal (z)">Readiness</th><th>Main lifts</th></tr>
             </thead>

@@ -114,7 +114,7 @@ export function NotificationBellPanel() {
           toggle();
         }}
       >
-        <span aria-hidden="true">&#128276;</span>
+        <svg className="bell-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 10a6 6 0 0 1 12 0c0 5 2 6.5 2 6.5H4S6 15 6 10M10 20a2.2 2.2 0 0 0 4 0" /></svg>
         <span className="notification-unread-badge" hidden={unreadCount <= 0}>
           {unreadCount > 99 ? "99+" : String(unreadCount)}
         </span>

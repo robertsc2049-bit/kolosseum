@@ -82,7 +82,7 @@ export function SquadTesting({ testing }: { testing: JsonRecord[] }) {
               {positions.length ? ` Position averages: ${positions.map((p) => `${words(p.position)} ${p.average}`).join(", ")}.` : ""}
             </p>
             <div className="analysis-table-wrap">
-              <table className="analysis-table">
+              <table aria-label="Squad entry" className="analysis-table">
                 <thead><tr><th>Athlete</th><th>Position</th><th>Result</th><th>Percentile</th><th>vs position</th><th>Date</th></tr></thead>
                 <tbody>
                   {rows(test.results).map((result) => (

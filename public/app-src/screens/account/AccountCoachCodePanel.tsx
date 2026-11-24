@@ -66,6 +66,7 @@ export function AccountCoachCodePanel() {
         <input
           autoComplete="off"
           placeholder="Coach account code"
+          aria-label="Coach account code"
           value={code}
           onChange={(event) => setCode(event.target.value)}
         />

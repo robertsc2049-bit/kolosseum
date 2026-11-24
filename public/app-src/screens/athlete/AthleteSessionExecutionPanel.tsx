@@ -637,6 +637,7 @@ export function AthleteSessionExecutionPanel() {
             </>
           )}
 
+          <p className="sr-only" role="status">{session.restRemainingSeconds === null ? "" : session.restDone ? "Rest complete" : "Rest started"}</p>
           {session.restRemainingSeconds !== null ? (
             <div className={`rest-timer-panel${session.restDone ? " rest-timer-done" : ""}`}>
               <p className="eyebrow">Resting</p>

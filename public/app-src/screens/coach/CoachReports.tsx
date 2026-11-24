@@ -134,7 +134,7 @@ export function ReportBody({ report, typeTitle, printing = false }: { report: Js
         <h4>Strength</h4>
         {strength.length ? (
           <div className="analysis-table-wrap">
-            <table className="analysis-table">
+            <table aria-label="Strength" className="analysis-table">
               <thead><tr><th>Lift</th><th>Start</th><th>End</th><th>Best</th><th>Change</th><th>vs last report</th></tr></thead>
               <tbody>
                 {strength.map((lift) => (
@@ -166,7 +166,7 @@ export function ReportBody({ report, typeTitle, printing = false }: { report: Js
           <Explain id="report_weeks" />
           <TrendChart markers={rows(analysis.markers) as unknown as TrendMarker[]} title="Weekly training load (load points): gym and sport" weeks={weeks} series={[{ id: "gym", label: "Gym", kind: "bar", values: loadRows.map((row) => num(row.gym_load)) }, { id: "sport", label: "Practice, matches, conditioning", kind: "bar", values: loadRows.map((row) => num(row.sport_load)) }]} emptyLabel="No rated sessions in this period." height={140} />
           <div className="analysis-table-wrap">
-            <table className="analysis-table">
+            <table aria-label="Training load by week" className="analysis-table">
               <thead><tr><th>Week of</th><th>Sessions</th><th>Turned up</th><th>Sets</th><th>Tonnage</th><th>Load (points)</th><th>Sport</th><th>vs usual</th><th>Monotony</th></tr></thead>
               <tbody>
                 {weeks.map((week, index) => (
@@ -219,7 +219,7 @@ export function ReportBody({ report, typeTitle, printing = false }: { report: Js
         <Explain id="report_exercises" />
         {exercises.length ? (
           <div className="analysis-table-wrap">
-            <table className="analysis-table">
+            <table aria-label="Exercises" className="analysis-table">
               <thead><tr><th>Exercise</th><th>Sessions</th><th>Sets</th><th>Reps</th><th>Tonnage</th><th>Best</th><th>% of max</th><th>Avg effort</th></tr></thead>
               <tbody>
                 {exercises.map((row) => (
@@ -280,7 +280,7 @@ export function ReportBody({ report, typeTitle, printing = false }: { report: Js
         <Explain id="report_sessions" />
         {sessionLog.length ? (
           <div className="analysis-table-wrap">
-            <table className="analysis-table">
+            <table aria-label="Sessions" className="analysis-table">
               <thead><tr><th>Date</th><th>Session</th><th>Status</th><th>Sets</th><th>Minutes</th><th>Effort</th><th>Load</th><th>Notes</th></tr></thead>
               <tbody>
                 {sessionLog.map((row) => (

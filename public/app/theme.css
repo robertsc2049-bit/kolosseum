@@ -1,0 +1,150 @@
+/* Kolosseum colours, light and dark ("Iron"), for every page: the app, the gym
+   console, admin and the legal pages. Dark is the base; theme.js puts
+   data-theme="light" or "dark" on <html> (the person's choice, or their
+   device's setting), and the media query covers pages before it runs.
+
+   Kolosseum green is kept for three things: the K, the main action on a screen
+   (--k-primary) and done/chosen (--k-accent). Labels, outlines and links are
+   neutral. Text pairs are 4.5:1 or better, control outlines 3:1 or better. */
+:root {
+  color-scheme: dark;
+  --k-canvas: #1B2026;
+  --k-surface-1: #232A31;
+  --k-surface-2: #2B333B;
+  --k-surface-3: #36404A;
+  --k-inset: #1F252B;
+  --k-border: #47525D;
+  --k-hairline: #3A444E;
+  --k-control-border: #8793A0;
+  --k-text: #F1F4F6;
+  --k-text-secondary: #BAC4CD;
+  --k-text-subtle: #A7B2BD;
+  --k-primary: #8CCB00;
+  --k-primary-hover: #9FE200;
+  --k-on-primary: #10150A;
+  --k-accent: #9AD600;
+  --k-accent-bright: #A9E31A;
+  --k-on-accent: #10150A;
+  --k-accent-deep: #3F5F0A;
+  --k-on-accent-deep: #F1F7E2;
+  --k-accent-tint: #2C361F;
+  --k-link: #F1F4F6;
+  --k-focus: #C7F25A;
+  --k-warning: #F2B84B;
+  --k-warning-deep: #5C430F;
+  --k-on-warning-deep: #FFE9BD;
+  --k-danger: #FF9186;
+  --k-danger-fill: #C5392D;
+  --k-on-danger-fill: #FFFFFF;
+  --k-danger-deep: #6B2721;
+  --k-danger-text: #FFC4BC;
+  --k-chart-3: #7FB2FF;
+  --k-chart-4: #DDA6FF;
+  --k-chart-6: #7FDCC8;
+  --k-scrim: rgba(8, 10, 12, 0.66);
+  --k-shadow-1: 0 8px 24px rgba(0, 0, 0, 0.32);
+  --k-shadow-2: 0 16px 48px rgba(0, 0, 0, 0.42);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --k-canvas: #F0F1F1;
+  --k-surface-1: #FFFFFF;
+  --k-surface-2: #F3F4F4;
+  --k-surface-3: #E4E6E8;
+  --k-inset: #F6F7F7;
+  --k-border: #C3C8CD;
+  --k-hairline: #DCDFE2;
+  --k-control-border: #747C85;
+  --k-text: #1B2026;
+  --k-text-secondary: #4B545D;
+  --k-text-subtle: #59626B;
+  --k-primary: #8CCB00;
+  --k-primary-hover: #7EB800;
+  --k-on-primary: #10150A;
+  --k-accent: #3F6600;
+  --k-accent-bright: #3F6600;
+  --k-on-accent: #FFFFFF;
+  --k-accent-deep: #D6EBA6;
+  --k-on-accent-deep: #243A00;
+  --k-accent-tint: #EEF6DD;
+  --k-link: #1B2026;
+  --k-focus: #1B2026;
+  --k-warning: #7A4E00;
+  --k-warning-deep: #FBE3B0;
+  --k-on-warning-deep: #4A2F00;
+  --k-danger: #B3261E;
+  --k-danger-fill: #B3261E;
+  --k-on-danger-fill: #FFFFFF;
+  --k-danger-deep: #FADAD6;
+  --k-danger-text: #8E1B14;
+  --k-chart-3: #1B5CB8;
+  --k-chart-4: #7A2FA8;
+  --k-chart-6: #0B6E5C;
+  --k-scrim: rgba(27, 32, 38, 0.5);
+  --k-shadow-1: 0 8px 24px rgba(27, 32, 38, 0.12);
+  --k-shadow-2: 0 16px 48px rgba(27, 32, 38, 0.18);
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    color-scheme: light;
+    --k-canvas: #F0F1F1;
+    --k-surface-1: #FFFFFF;
+    --k-surface-2: #F3F4F4;
+    --k-surface-3: #E4E6E8;
+    --k-border: #C3C8CD;
+    --k-hairline: #DCDFE2;
+    --k-control-border: #747C85;
+    --k-text: #1B2026;
+    --k-text-secondary: #4B545D;
+    --k-link: #1B2026;
+    --k-focus: #1B2026;
+    --k-danger: #B3261E;
+  }
+}
+
+/* "Higher contrast" (accessibility preferences), in either mode. */
+:root[data-a11y-high-contrast="true"][data-a11y-high-contrast] {
+  --k-canvas: #000000;
+  --k-surface-1: #0A0A0A;
+  --k-surface-2: #141414;
+  --k-surface-3: #1E1E1E;
+  --k-inset: #000000;
+  --k-border: #FFFFFF;
+  --k-hairline: #8F8F8F;
+  --k-control-border: #FFFFFF;
+  --k-text: #FFFFFF;
+  --k-text-secondary: #E6E6E6;
+  --k-text-subtle: #E6E6E6;
+  --k-primary: #BAFF00;
+  --k-accent: #BAFF00;
+  --k-accent-bright: #D4FF66;
+  --k-link: #FFFFFF;
+  --k-focus: #D4FF66;
+}
+:root[data-theme="light"][data-a11y-high-contrast="true"][data-a11y-high-contrast] {
+  --k-canvas: #FFFFFF;
+  --k-surface-1: #FFFFFF;
+  --k-surface-2: #FFFFFF;
+  --k-surface-3: #EDEDED;
+  --k-inset: #FFFFFF;
+  --k-border: #000000;
+  --k-hairline: #6B6B6B;
+  --k-control-border: #000000;
+  --k-text: #000000;
+  --k-text-secondary: #1F1F1F;
+  --k-text-subtle: #1F1F1F;
+  --k-accent: #2B4700;
+  --k-accent-bright: #2B4700;
+  --k-link: #000000;
+  --k-focus: #000000;
+}
+
+/* The choice itself (theme.js fills every [data-theme-choice]). */
+.theme-choice { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0; padding: 0; border: 0; min-width: 0; }
+.theme-choice legend { margin: 0 0 8px; padding: 0; font-weight: 600; font-size: 0.9rem; color: var(--k-text-secondary); }
+.theme-choice label { display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border: 1px solid var(--k-control-border); border-radius: 8px; background: var(--k-surface-1); color: var(--k-text); font-size: 0.95rem; font-weight: 600; cursor: pointer; }
+.theme-choice input { position: absolute; width: 1px; height: 1px; min-height: 0; margin: 0; opacity: 0; }
+.theme-choice label:has(input:checked) { border-color: var(--k-accent); background: var(--k-accent-tint); box-shadow: inset 0 0 0 1px var(--k-accent); }
+.theme-choice label:has(input:focus-visible) { outline: 3px solid var(--k-focus); outline-offset: 2px; }
