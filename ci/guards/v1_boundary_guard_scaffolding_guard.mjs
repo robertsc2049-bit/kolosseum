@@ -95,6 +95,8 @@ const explicitLaterSliceAllowedChangedPaths =
     "public/app/section_tabs_bootstrap.js",
     "public/app/styles.css",
     "public/app/sw.js",
+    "public/app/theme.css",
+    "public/app/theme.js",
     "replay/suite/beta_phase1_8/production_beta_rehearsal_manifest.json",
     "test/api_handlers_compile_block_persistence_args_contract.test.mjs",
     "test/api_handlers_compile_block_persistence_delegation.test.mjs",
