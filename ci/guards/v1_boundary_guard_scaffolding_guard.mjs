@@ -97,6 +97,7 @@ const explicitLaterSliceAllowedChangedPaths =
     "public/app/legal/privacy.html",
     "public/app/legal/terms.html",
     "public/app/manifest.json",
+    "public/app/opening.js",
     "public/app/pwa_bootstrap.js",
     "public/app/route_bootstrap.js",
     "public/app/section_tabs_bootstrap.js",

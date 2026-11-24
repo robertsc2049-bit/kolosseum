@@ -45,9 +45,13 @@ async function request(
   // A read: shared with the React panels' identical reads (kolosseumSharedGet
   // in app-src/api/transport.ts), so one screen asks the server once.
   const sharedGet = method === "GET" ? globalThis.kolosseumSharedGet : undefined;
+  const opened = method === "GET" && typeof sharedGet !== "function" ? await globalThis.kolosseumOpeningRead?.(`GET ${path}`) : null;
   let response;
   if (typeof sharedGet === "function") {
     response = await sharedGet(path);
+  }
+  else if (opened) {
+    response = { ok: opened.status >= 200 && opened.status < 300, status: opened.status, payload: opened.payload };
   }
   else {
     const fetched = await fetch(path, {

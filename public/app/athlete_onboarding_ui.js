@@ -38,15 +38,30 @@ async function request(method, path, body) {
   // go back to the server, both while it runs and once it has landed.
   const changesData = method !== "GET" && method !== "HEAD";
   if (changesData) globalThis.document?.dispatchEvent(new Event("kolosseum:data-changed"));
-  const response = await fetch(path, {
-    method, credentials: "same-origin", headers,
-    body: body === undefined ? undefined : JSON.stringify(body)
-  });
-  if (changesData) globalThis.document?.dispatchEvent(new Event("kolosseum:data-changed"));
-  const text = await response.text().catch(() => "");
+  // A read: shared with the React panels once they've loaded, or already on
+  // its way with the rest of the first screen (opening.js).
+  const sharedGet = method === "GET" ? globalThis.kolosseumSharedGet : undefined;
+  const opened = method === "GET" && typeof sharedGet !== "function" ? await globalThis.kolosseumOpeningRead?.(`GET ${path}`) : null;
+  let response;
   let payload = null;
-  try { payload = text ? JSON.parse(text) : null; }
-  catch { payload = { raw: text }; }
+  if (typeof sharedGet === "function") {
+    response = await sharedGet(path);
+    payload = response.payload;
+  }
+  else if (opened) {
+    response = { ok: opened.status >= 200 && opened.status < 300, status: opened.status };
+    payload = opened.payload;
+  }
+  else {
+    response = await fetch(path, {
+      method, credentials: "same-origin", headers,
+      body: body === undefined ? undefined : JSON.stringify(body)
+    });
+    if (changesData) globalThis.document?.dispatchEvent(new Event("kolosseum:data-changed"));
+    const text = await response.text().catch(() => "");
+    try { payload = text ? JSON.parse(text) : null; }
+    catch { payload = { raw: text }; }
+  }
   if (!response.ok) {
     const error = new Error(String(payload?.error ?? `athlete_onboarding_request_${response.status}`));
     error.status = response.status;
@@ -82,10 +97,20 @@ function applyAccessibilityPreferences(fields) {
 
 function visible() {
   for (const view of document.querySelectorAll(".view")) view.hidden = view.id !== "view-onboarding";
-  for (const button of document.querySelectorAll(".nav-item")) button.classList.toggle("active", button.id === "athleteOnboardingNav");
+  // The same as any other screen (app.js's setView): which one is current is
+  // marked, the page's title says it, and focus moves to its heading.
+  const opening = document.getElementById("athleteOnboardingNav")?.getAttribute("aria-current") !== "page";
+  for (const item of document.querySelectorAll(".nav-item, .tab-item[data-view]")) {
+    const current = item.id === "athleteOnboardingNav";
+    item.classList.toggle("active", current);
+    if (current) item.setAttribute("aria-current", "page");
+    else item.removeAttribute("aria-current");
+  }
+  document.title = "Training details - Kolosseum";
   const title = document.getElementById("topbarTitle");
   if (title) title.textContent = "Training details";
-  document.getElementById("sidebar")?.classList.remove("open");
+  document.dispatchEvent(new CustomEvent("kolosseum:close-menu"));
+  if (opening && title && !document.getElementById("appShell")?.hidden) title.focus({ preventScroll: true });
 }
 
 export async function openAthleteOnboardingView() {

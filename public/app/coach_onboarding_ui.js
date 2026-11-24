@@ -21,11 +21,21 @@ import { applyAccessibilityPreferences } from "./accessibility_preferences_ui.js
 
 function visible() {
   for (const section of document.querySelectorAll(".view")) section.hidden = section.id !== "view-coach-onboarding";
-  for (const navigation of document.querySelectorAll(".nav-item")) navigation.classList.toggle("active", navigation.id === "coachOnboardingNav");
+  // The same as any other screen (app.js's setView): which one is current is
+  // marked, the page's title says it, and focus moves to its heading.
+  const opening = document.getElementById("coachOnboardingNav")?.getAttribute("aria-current") !== "page";
+  for (const item of document.querySelectorAll(".nav-item, .tab-item[data-view]")) {
+    const current = item.id === "coachOnboardingNav";
+    item.classList.toggle("active", current);
+    if (current) item.setAttribute("aria-current", "page");
+    else item.removeAttribute("aria-current");
+  }
+  document.title = "Coach setup - Kolosseum";
   // The top bar follows the screen (app.js's viewTitle("coach-onboarding")).
   const title = document.getElementById("topbarTitle");
   if (title) title.textContent = "Coach setup";
-  document.getElementById("sidebar")?.classList.remove("open");
+  document.dispatchEvent(new CustomEvent("kolosseum:close-menu"));
+  if (opening && title && !document.getElementById("appShell")?.hidden) title.focus({ preventScroll: true });
 }
 
 export function installCoachOnboardingUi() {

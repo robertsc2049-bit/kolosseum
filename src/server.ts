@@ -44,6 +44,7 @@ import { painFlagsRouter } from "./api/pain_flags.routes.js";
 import { standDownRouter } from "./api/medical_stand_down.routes.js";
 import { attendanceEventRouter } from "./api/attendance_event.routes.js";
 import { athleteOnboardingRouter } from "./api/athlete_onboarding.routes.js";
+import { openingRouter } from "./api/opening.routes.js";
 import { coachOnboardingRouter } from "./api/coach_onboarding.routes.js";
 import { productCommercialRouter } from "./api/product_commercial.routes.js";
 import { productCommercialWebhookRouter } from "./api/product_commercial_webhook.routes.js";
@@ -185,6 +186,7 @@ app.get("/ui/decision-summary/:run_id", (req, res) => {
   return res.redirect(`/ui/decision-summary.html?run_id=${encodeURIComponent(runId)}`);
 });
 
+app.use("/account/opening", openingRouter);
 app.use("/account/commercial", productCommercialRouter);
 app.use("/account/coach-onboarding", coachOnboardingRouter);
 app.use("/account/onboarding", athleteOnboardingRouter);

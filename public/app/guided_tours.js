@@ -29,6 +29,17 @@ async function openSetup() {
 }
 
 async function getJson(path) {
+  // Shared with the panels' identical reads, so a tour check costs no request.
+  const opened = await globalThis.kolosseumOpeningRead?.(`GET ${path}`);
+  if (opened) {
+    if (opened.status !== 200) throw new Error(`${path} ${opened.status}`);
+    return opened.payload;
+  }
+  if (typeof globalThis.kolosseumSharedGet === "function") {
+    const shared = await globalThis.kolosseumSharedGet(path);
+    if (!shared.ok) throw new Error(`${path} ${shared.status}`);
+    return shared.payload;
+  }
   const response = await fetch(path, { credentials: "same-origin", headers: { accept: "application/json" } });
   if (!response.ok) throw new Error(`${path} ${response.status}`);
   return response.json();

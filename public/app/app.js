@@ -741,9 +741,15 @@ async function api(method, path, body) {
   // A read: shared with the React panels' identical reads (kolosseumSharedGet
   // in app-src/api/transport.ts), so one screen asks the server once.
   const sharedGet = method === "GET" ? globalThis.kolosseumSharedGet : undefined;
+  // ...or already on its way with the rest of the first screen (opening.js).
+  const opened = changesData || typeof sharedGet === "function" ? null
+    : await globalThis.kolosseumOpeningRead?.(method === "GET" ? `GET ${path}` : `POST ${path} ${JSON.stringify(body ?? null)}`);
   let response;
   if (typeof sharedGet === "function") {
     response = await sharedGet(path);
+  }
+  else if (opened) {
+    response = { ok: opened.status >= 200 && opened.status < 300, status: opened.status, payload: opened.payload };
   }
   else {
     const fetched = await fetch(path, {
@@ -1072,6 +1078,11 @@ function setView(view) {
 
   if (view === "today" && state.role === "athlete") {
     loadAthleteToday().catch(handleError);
+  }
+
+  // The builder's exercise list, ready before it's opened.
+  if (view === "templates" && state.role === "coach") {
+    loadTemplateExercises().catch(handleError);
   }
 
   if (view === "history" && state.role === "athlete") {
@@ -6090,17 +6101,14 @@ async function loadPersistentAccountDetail(
 // status on mount and calls /account/data-rights/* directly. No bridges
 // remain here.
 
-async function checkConnection() {
-  try {
-    const health = await api("GET", "/health");
-    elements.connectionStatus.textContent = health?.status === "ok" ? "Connected" : "Unavailable";
-    elements.connectionStatus.classList.toggle("offline", health?.status !== "ok");
-  }
-  catch {
-    elements.connectionStatus.textContent = "Offline";
-    elements.connectionStatus.classList.add("offline");
-  }
+// The first screen has just been read from the server, so it's reachable; the
+// browser says when that changes.
+function showConnection(online) {
+  elements.connectionStatus.textContent = online ? "Connected" : "Offline";
+  elements.connectionStatus.classList.toggle("offline", !online);
 }
+window.addEventListener("online", () => showConnection(true));
+window.addEventListener("offline", () => showConnection(false));
 
 // Part E - live delivery for messaging. Server->client push only: this
 // socket never sends application data, it only reflects messages already
@@ -6300,8 +6308,8 @@ async function enterApplication() {
   }
   else {
     try {
+      // (The exercise list is read when the builder or an athlete's profile opens.)
       await Promise.all([
-        loadTemplateExercises(),
         refreshTemplates({ quiet: true }),
         refreshCoachEvents({ quiet: true }),
         refreshCoachAthletes({ quiet: true }),
@@ -6318,7 +6326,7 @@ async function enterApplication() {
   }
 
   setView(state.view);
-  checkConnection();
+  showConnection(navigator.onLine !== false);
   connectMessagingSocket();
 }
 
@@ -6326,6 +6334,8 @@ function showEntry() {
   elements.bootScreen.hidden = true;
   elements.appShell.hidden = true;
   elements.entryView.hidden = false;
+  // The sign-in panel mounts now, before anything is said to it.
+  document.dispatchEvent(new CustomEvent("kolosseum:view-shown", { detail: { view: "entry" } }));
 }
 
 for (const button of document.querySelectorAll("[data-view]")) {
@@ -6397,6 +6407,7 @@ function setNavigationDrawerOpen(open, { focusMenu = false, returnFocus = false 
   if (!open && returnFocus) more?.focus();
 }
 drawerMedia.addEventListener("change", () => setNavigationDrawerOpen(false));
+document.addEventListener("kolosseum:close-menu", () => setNavigationDrawerOpen(false));
 setNavigationDrawerOpen(false);
 
 elements.menuButton.addEventListener("click", () => {

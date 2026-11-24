@@ -113,6 +113,20 @@ export function __resetSharedReadsForTests(): void {
   sharedReads.clear();
 }
 
+// The first screen's reads, already on their way (public/app/opening.js).
+type OpeningWindow = {
+  kolosseumOpeningRead?: (key: string) => Promise<{ status: number; payload: unknown } | null>;
+  kolosseumOpeningSpent?: () => void;
+};
+const openingSpent = () => (globalThis as OpeningWindow).kolosseumOpeningSpent?.();
+async function openingOr(key: string, send: () => Promise<JsonRecord>): Promise<JsonRecord> {
+  const opened = await (globalThis as OpeningWindow).kolosseumOpeningRead?.(key).catch(() => null);
+  if (!opened) return send();
+  if (opened.status >= 200 && opened.status < 300) return isRecord(opened.payload) ? opened.payload : {};
+  const record = isRecord(opened.payload) ? opened.payload : {};
+  throw new ApiRequestError(String(record.error ?? record.reason ?? record.failure_token ?? `api_request_${opened.status}`), opened.status, opened.payload);
+}
+
 export async function request(
   method: string,
   path: string,
@@ -122,6 +136,7 @@ export async function request(
   const key = readKey(method, path, body);
   if (key === null) {
     sharedReads.clear();
+    openingSpent();
     try {
       return await send(method, path, body, csrfToken);
     }
@@ -133,7 +148,7 @@ export async function request(
   if (existing && (existing.settledAt === null || Date.now() - existing.settledAt < readReuseMs())) {
     return structuredClone(await existing.promise);
   }
-  const entry: SharedRead = { promise: send(method, path, body, csrfToken), settledAt: null };
+  const entry: SharedRead = { promise: openingOr(key, () => send(method, path, body, csrfToken)), settledAt: null };
   sharedReads.set(key, entry);
   entry.promise.then(
     () => { entry.settledAt = Date.now(); },
