@@ -183,6 +183,7 @@ function ReviewDetail({
 
   return (
     <aside className="panel review-detail">
+      <h2 className="sr-only">Session</h2>
       <button className="text-button review-back" type="button" onClick={onBack}>All sessions</button>
       <div className="review-detail-heading">
         <div>

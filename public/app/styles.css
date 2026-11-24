@@ -5654,7 +5654,7 @@ input[type="checkbox"] { border-radius: 4px; }
 .set-log-row .button.primary:hover:not(:disabled) { background: var(--k-accent-deep); color: var(--k-on-accent-deep); }
 .current-exercise h2, .current-exercise h3, .metric-card strong, .large-number, .entry-brand h1 { font-weight: 700; }
 .badge { font-family: var(--k-font-body); }
-summary { color: var(--k-text); }
+summary { color: var(--k-text); padding-block: 4px; }
 summary::marker { color: var(--k-accent); }
 .button.link { border: 0; background: transparent; color: var(--k-link); text-decoration: underline; text-decoration-color: var(--k-accent); text-decoration-thickness: 2px; text-underline-offset: 4px; }
 .large-avatar, .avatar { flex: none; }
