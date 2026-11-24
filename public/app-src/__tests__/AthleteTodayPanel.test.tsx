@@ -169,15 +169,14 @@ test("an active session shows activity, title, real completed/remaining/dropped 
   await waitFor(() => screen.getByText("Heavy squat day"));
 
   assert.ok(screen.getByText("Peak Block"));
-  assert.ok(screen.getByText("Version 2"));
   assert.match(document.body.textContent ?? "", /Block: Block 2/u);
   assert.match(document.body.textContent ?? "", /Week 3/u);
   assert.match(document.body.textContent ?? "", /Session 2 of 12/u);
   assert.ok(screen.getByText("Focus on bar speed"));
-  assert.ok(screen.getByText("2"));
-  assert.ok(screen.getByText("1"));
-  assert.ok(screen.getByText("120 kg"));
-  assert.match(document.body.textContent ?? "", /Worked out from your max/u);
+  assert.ok(screen.getByText("2 of 3 exercises done"));
+  assert.match(document.body.textContent ?? "", /120 kg/u);
+  assert.ok(screen.getByText("Continue session"));
+  assert.match(document.body.textContent ?? "", /worked out from your max/u);
   assert.doesNotMatch(document.body.textContent ?? "", /training max|tested max/u, "the max itself is not shown beside the weight");
   assert.ok(screen.getByText("In progress"));
   assert.ok(screen.getByLabelText("About today's working weight"));

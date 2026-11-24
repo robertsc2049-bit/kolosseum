@@ -1111,7 +1111,7 @@ test("a grouped current exercise's badge carries the group's timing, not just it
   });
   render(<AthleteSessionExecutionPanel />);
 
-  await waitFor(() => screen.getByText("Current exercise"));
+  await waitFor(() => assert.ok(document.querySelector(".exercise-focus h3")));
   // Once in the current-work view, once in the session order.
   assert.equal(screen.getAllByText("AMRAP 1 min 30s").length, 2);
   assert.equal(screen.queryByText("1 sets"), null);
@@ -1413,4 +1413,23 @@ test("in fight camp, a cut exercise says what was planned and why", async () => 
   await waitFor(() => screen.getByText("Mark exercise complete"));
   assert.ok(screen.getByText("Fight camp (21 days out): 4 × 10 cut to keep strength without building muscle mass."));
   cleanup();
+});
+
+test("how hard it was is one tap, in the programme's own scale, and what comes next is on the button", async () => {
+  seedActiveSession("session_1");
+  const exercise = { exercise_id: "back_squat", display_name: "Back squat", sets: 3, reps: 5, intensity: { type: "borg", value: 13 }, rest_seconds: 180 };
+  installMocks({ sessionState: baseSessionState({ started: true, current_step: { type: "EXERCISE", exercise }, remaining_exercises: [exercise, { exercise_id: "row", display_name: "Barbell row", sets: 3, reps: 8 }] }) });
+  const posts: Record<string, unknown>[] = [];
+  const inner = globalThis.fetch;
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    if (init?.method === "POST" && String(input).includes("/events")) posts.push(JSON.parse(String(init.body)));
+    return inner(input, init);
+  }) as typeof fetch;
+  render(<AthleteSessionExecutionPanel />);
+  await waitFor(() => screen.getByTestId("effort-row"));
+  assert.ok(screen.getByText("How hard? (Borg)"));
+  assert.ok(screen.getByText("Next: Barbell row"));
+  await act(async () => { fireEvent.click(screen.getByLabelText("Borg 15")); });
+  await waitFor(() => assert.equal(screen.getByLabelText("Borg 15").getAttribute("aria-pressed"), "true"));
+  assert.ok(posts.some((body) => JSON.stringify(body).includes('"borg_value":15')));
 });

@@ -575,7 +575,7 @@ const targets = [
           "Complete programmes",
           "Active programmes",
           "Archived programmes",
-          "Superseded versions"
+          "Older versions"
         ]
       ],
       [

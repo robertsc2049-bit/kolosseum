@@ -153,9 +153,7 @@
         <section id="view-today" class="view">
           <div class="page-heading">
             <div>
-              <p class="eyebrow">Today</p>
-              <h2 id="todayGreeting">Training workspace</h2>
-              <p class="muted">Your current session and recent activity.</p>
+              <h2 id="todayGreeting">Today</h2>
             </div>
             <div id="athlete-today-create-session-root"></div>
           </div>
@@ -166,6 +164,9 @@
           <!-- The optional daily check-in, one line until opened (TodayReadiness.tsx). -->
           <div id="athlete-today-readiness-root"></div>
 
+          <!-- This week's check-in, until it's done (TodayWeeklyCheckin.tsx). -->
+          <div id="today-weekly-checkin-root"></div>
+
           <div id="coach-link-request-root"></div>
 
           <div id="athlete-checkins-root"></div>
@@ -175,13 +176,6 @@
           <div class="hero-grid">
             <div id="athlete-today-session-root"></div>
 
-            <article class="panel compact-panel">
-              <div class="panel-kicker"><span>Training record</span></div>
-              <strong id="today-history-count-root" class="large-number">0</strong>
-              <p class="muted">Sessions recorded for this account.</p>
-              <button class="text-button" data-view-link="history" type="button">View history →</button>
-            </article>
-
             <div id="athlete-today-event-root"></div>
           </div>
 
@@ -190,12 +184,15 @@
           <article class="panel">
             <div class="panel-header">
               <div>
-                <p class="eyebrow">Recent activity</p>
                 <h3>Latest sessions</h3>
+                <p class="muted small"><strong id="today-history-count-root">0</strong> recorded in all</p>
               </div>
+              <button class="text-button" data-view-link="history" type="button">View history</button>
             </div>
             <div id="today-recent-activity-root"></div>
           </article>
+
+          <div id="athlete-today-install-root"></div>
         </section>
 
         <section id="view-session" class="view" hidden>
@@ -206,8 +203,8 @@
           <div class="page-heading">
             <div>
               <p class="eyebrow">History</p>
-              <h2>Training record</h2>
-              <p class="muted">Your recorded session history for this account.</p>
+              <h2>Your history</h2>
+              <p class="muted">Every session you've logged.</p>
             </div>
             <div class="button-row">
               <button id="exportHistoryButton" class="button secondary" type="button">Export history</button>
@@ -249,7 +246,7 @@
           <div class="page-heading">
             <div>
               <p class="eyebrow">Athlete account</p>
-              <h2>Your training details</h2>
+              <h2>Your training setup</h2>
               <p class="muted">What you tell us here sets up your programme. It isn't an assessment of your fitness, health or readiness to train.</p>
             </div>
           </div>
@@ -260,8 +257,8 @@
           <div class="page-heading">
             <div>
               <p class="eyebrow">Coach onboarding</p>
-              <h2>Coach profile and access</h2>
-              <p class="muted">Setting up your coach profile and billing doesn't affect how training is calculated.</p>
+              <h2>Your coach profile</h2>
+              <p class="muted">Your profile, terms and display settings.</p>
             </div>
           </div>
           <div id="coach-onboarding-root"></div>
@@ -273,7 +270,7 @@
               <p class="eyebrow">Coach workspace</p>
               <h2 id="coachGreeting">Overview</h2>
               <p class="muted">
-                Your athletes, assignments, events and sessions at a glance.
+                Who needs you today.
               </p>
             </div>
 
@@ -496,7 +493,7 @@
               <div class="panel-header athlete-detail-header">
                 <div>
                   <p class="eyebrow">Athlete detail</p>
-                  <h3>Programme, event and record history</h3>
+                  <h3>Programme and history</h3>
                   <p class="muted">
                     Recorded history for this accepted coach-athlete connection.
                   </p>
@@ -571,7 +568,7 @@
                   <div class="panel-header">
                     <div>
                       <p class="eyebrow">Current</p>
-                      <h3>Event link</h3>
+                      <h3>Competition</h3>
                     </div>
                   </div>
 
@@ -598,7 +595,7 @@
                     <div>
                       <p class="eyebrow">Pain</p>
                       <h3>Open pain flags</h3>
-                      <p class="muted">Pain this athlete reported in a session, until they check in pain-free or you clear it. Records only - no diagnosis.</p>
+                      <p class="muted">Pain this athlete reported in a session, until they check in pain-free or you clear it. A record, not a diagnosis.</p>
                     </div>
                   </div>
 
@@ -612,7 +609,7 @@
                   <div class="panel-header">
                     <div>
                       <p class="eyebrow">History</p>
-                      <h3>Programme assignments</h3>
+                      <h3>Programmes assigned</h3>
                     </div>
                   </div>
 
@@ -626,7 +623,7 @@
                   <div class="panel-header">
                     <div>
                       <p class="eyebrow">History</p>
-                      <h3>Strength references</h3>
+                      <h3>Maxes</h3>
                     </div>
                   </div>
 
@@ -654,7 +651,7 @@
                   <div class="panel-header">
                     <div>
                       <p class="eyebrow">History</p>
-                      <h3>Event links</h3>
+                      <h3>Competitions</h3>
                     </div>
                   </div>
 
@@ -719,7 +716,7 @@
                     <div>
                       <p class="eyebrow">Progress</p>
                       <h3>Progress insights</h3>
-                      <p class="muted">Computed from this athlete's session, strength, habit and body-metric history over the last 30 days.</p>
+                      <p class="muted">From the last 30 days of sessions, strength, habits and body measurements.</p>
                     </div>
                   </div>
 
@@ -812,7 +809,7 @@
                   <div class="panel-header">
                     <div>
                       <p class="eyebrow">Device sync</p>
-                      <h3>Connected devices and synced metrics</h3>
+                      <h3>Connected devices</h3>
                     </div>
                   </div>
 
@@ -871,7 +868,7 @@
               <div>
                 <p class="eyebrow">Coach workspace</p>
                 <h2>Programmes</h2>
-                <p class="muted">Build complete versioned programmes from training blocks, weeks, sessions and registry-backed exercises.</p>
+                <p class="muted">Build a programme from blocks, weeks and sessions, then assign it.</p>
               </div>
               <button id="newTemplateButton" class="button primary" type="button">New programme</button>
             </div>
@@ -953,7 +950,7 @@
                 <button id="backToTemplatesButton" class="text-button back-button" type="button">← Programme library</button>
                 <p class="eyebrow">Programme builder</p>
                 <h2 id="templateBuilderTitle">New programme</h2>
-                <p class="muted">Build ordered training blocks. Each block contains weeks, each week contains sessions, and each session contains 1-12 registry-backed exercises, which can be grouped into supersets or circuits and marked as warm-up, working, or cool-down. Repetitions may be fixed or a range. Loading may use percentage of 1RM, fixed weight, bodyweight, or RPE. Percentage prescriptions resolve from the athlete profile when assigned. Each exercise may instead be prescribed by a timed hold or a distance, and reps-based exercises may carry an optional coaching tempo.</p>
+                <p class="muted">Build ordered training blocks: weeks of sessions, each with 1-12 exercises. A percentage becomes a weight from the athlete's max when you assign it.</p>
               </div>
               <div class="button-row">
                 <button id="saveTemplateButton" class="button secondary" type="button">Save draft</button>
@@ -974,7 +971,7 @@
 
               <div id="templateBuilderValidation" class="template-builder-validation warning">
                 <p class="eyebrow">Completion validation</p>
-                <h3>Resolve visible issues</h3>
+                <h3>To fix before it's ready</h3>
                 <ol id="templateBuilderValidationList" class="template-builder-validation-list"></ol>
               </div>
             </section>
@@ -1030,7 +1027,7 @@
             <div>
               <p class="eyebrow">Coach workspace</p>
               <h2>Marketplace</h2>
-              <p class="muted">Browse complete or active programmes other coaches have shared publicly. Read-only - not cloned or assigned from here.</p>
+              <p class="muted">Programmes other coaches have shared. You can read them here, not copy or assign them.</p>
             </div>
           </div>
 
@@ -1066,8 +1063,8 @@
           <div class="page-heading">
             <div>
               <p class="eyebrow">Account</p>
-              <h2>Account and access</h2>
-              <p class="muted">Persistent identity, credentials, consent history and account state.</p>
+              <h2>Your account</h2>
+              <p class="muted">Your details, password, privacy and data.</p>
             </div>
             <button id="showMeAroundButton" class="button secondary" type="button">Show me around</button>
             <button id="refreshAccountButton" class="button secondary" type="button">Refresh account</button>

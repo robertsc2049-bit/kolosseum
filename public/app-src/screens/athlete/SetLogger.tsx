@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { TickIcon } from "../../components/TickIcon";
 
 import { type JsonRecord } from "../../api/transport";
 
@@ -125,7 +126,8 @@ function SetRow({ exerciseId, setIndex, optional = false, defaults, logged, busy
       <li className="set-log-row logged" data-testid={`set-log-${setIndex}`}>
         <span>{optional ? `Set ${setIndex} (optional)` : `Set ${setIndex}`}</span>
         <strong>{formatLogged(logged)}</strong>
-        <button className="button secondary small-button" type="button" disabled={busy} onClick={() => setEditing(true)}>Edit</button>
+        <button className="text-button" type="button" disabled={busy} onClick={() => setEditing(true)}>Edit<span className="sr-only">{` set ${setIndex}`}</span></button>
+        <span className="tick-button is-done" aria-hidden="true"><TickIcon /></span>
       </li>
     );
   }
@@ -159,7 +161,7 @@ function SetRow({ exerciseId, setIndex, optional = false, defaults, logged, busy
           </select>
         </label>
       ) : null}
-      <button className="button primary small-button" type="button" disabled={busy} onClick={submit}>{`Log set ${setIndex}`}</button>
+      <button className="tick-button" type="button" disabled={busy} onClick={submit}><span className="sr-only">{`Log set ${setIndex}`}</span><TickIcon /></button>
       {error ? <p className="field-error" role="alert">{error}</p> : null}
     </li>
   );
@@ -227,7 +229,7 @@ export function SetLogger({ exercise, setLogs, busy, logSet }: {
         : !setDefaults(exercise, 1).load ? <p className="muted small set-log-hint">No weight set: leave the weight blank for bodyweight, or enter what you added (a weighted pull-up or dip) or used.</p> : null}
       <label className="set-log-speed-toggle">
         <input type="checkbox" checked={speedOn} onChange={(event) => { setSpeedOn(event.target.checked); writeSpeedSetting(event.target.checked); }} />
-        <span>Log bar speed (from a VBT device)</span>
+        <span>Log bar speed</span>
       </label>
     </section>
   );

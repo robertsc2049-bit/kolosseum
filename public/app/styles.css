@@ -5711,3 +5711,71 @@ summary:focus-visible { outline: 3px solid var(--k-focus); outline-offset: 2px; 
   .tab-item { min-height: 44px; grid-auto-flow: column; gap: 8px; }
 }
 @media print { .skip-link, [data-theme-choice] { display: none !important; } }
+
+/* One-tap tick: a set logged, a session reviewed. */
+.tick-button { display: inline-grid; place-items: center; flex: none; width: 48px; height: 48px; padding: 0; border: 2px solid var(--k-control-border); border-radius: 50%; background: var(--k-surface-1); color: var(--k-text-subtle); cursor: pointer; }
+.tick-button:hover:not(:disabled) { border-color: var(--k-accent); color: var(--k-accent); }
+.tick-button.is-done { border-color: var(--k-accent); background: var(--k-accent); color: var(--k-on-accent); }
+.tick-icon { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Session: the exercise, its sets, how hard, next. */
+.session-layout.session-layout-single { grid-template-columns: minmax(0, 46rem); }
+.current-work > .panel-kicker { margin-bottom: var(--k-space-2); }
+.current-work > .progress-track { margin-bottom: var(--k-space-4); }
+.exercise-focus h3 { font-size: clamp(1.9rem, 6vw, 2.6rem); margin-bottom: var(--k-space-2); }
+.set-log-list { gap: 0; }
+.set-log-list > .set-log-row { min-height: 60px; padding: 6px 0; border-top: 1px solid var(--k-hairline); border-radius: 0; background: none; }
+.set-log-list > .set-log-row:last-child { border-bottom: 1px solid var(--k-hairline); }
+.set-log-list > .set-log-row.logged strong { font-family: var(--k-font-display); font-size: 1.35rem; color: var(--k-text); }
+.effort-row { margin-top: var(--k-space-5); }
+.effort-row-label { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 12px; margin: 0 0 var(--k-space-2); }
+.effort-chips { display: grid; grid-template-columns: repeat(auto-fit, minmax(44px, 1fr)); gap: 6px; max-width: 34rem; }
+.effort-chip { min-height: 48px; border: 1px solid var(--k-control-border); border-radius: var(--k-radius-s); background: var(--k-surface-1); color: var(--k-text); font-family: var(--k-font-display); font-size: 1.2rem; font-weight: 700; cursor: pointer; }
+.effort-chip[aria-pressed="true"] { border-color: var(--k-accent); background: var(--k-accent); color: var(--k-on-accent); }
+.session-actions { display: block; }
+.session-quick { display: flex; flex-wrap: wrap; gap: var(--k-space-2); margin-top: var(--k-space-5); }
+.session-quick .button { flex: 1 1 8rem; }
+.session-more { margin-top: var(--k-space-2); }
+.session-more > summary { min-height: 44px; display: list-item; padding: 11px 0; line-height: 22px; font-weight: 700; cursor: pointer; }
+.session-more-list { display: grid; justify-items: start; gap: 2px; }
+.session-more-list .text-button { min-height: 44px; }
+.session-next { position: sticky; z-index: 5; bottom: 0; margin: var(--k-space-4) calc(-1 * var(--k-space-5)) calc(-1 * var(--k-space-5)); padding: var(--k-space-3) var(--k-space-5); background: var(--k-surface-1); border-top: 1px solid var(--k-hairline); border-radius: 0 0 14px 14px; }
+.session-next .button { width: 100%; min-height: 54px; display: grid; gap: 0; font-size: 1.05rem; }
+.session-next small { font-size: 0.85rem; font-weight: 600; }
+.rest-timer-panel { margin: 0 0 var(--k-space-4); }
+
+/* Today */
+.today-session-title { font-size: clamp(1.9rem, 6vw, 2.4rem); margin: 0 0 var(--k-space-2); }
+.today-exercises { list-style: none; margin: var(--k-space-3) 0; padding: 0; }
+.today-exercises li { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid var(--k-hairline); }
+.today-exercises li strong { text-align: right; white-space: nowrap; }
+.today-resolved-load-note { display: flex; align-items: center; margin: 0 0 var(--k-space-3); }
+.button.wide { width: 100%; max-width: 30rem; min-height: 52px; }
+#view-today > .hero-grid { grid-template-columns: minmax(0, 1fr) auto; }
+#view-today > .hero-grid > :empty { display: none; }
+#view-today .page-heading { min-height: 0; }
+#today-weekly-checkin-root:not(:empty), #athlete-today-install-root:not(:empty) { margin-bottom: var(--k-space-3); }
+
+/* Review */
+.review-bulk { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--k-space-3); margin-bottom: var(--k-space-4); padding: var(--k-space-3) var(--k-space-4); border-radius: var(--k-radius-m); background: var(--k-surface-2); }
+.review-bulk p { margin: 0; flex: 1 1 16rem; }
+.review-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: var(--k-space-3); border-top: 1px solid var(--k-hairline); }
+.review-row:last-child { border-bottom: 1px solid var(--k-hairline); }
+.review-row.selected { background: var(--k-surface-2); box-shadow: inset 4px 0 0 var(--k-accent); }
+.review-row-open { display: grid; gap: 2px; min-height: 60px; padding: 10px 0 10px var(--k-space-3); border: 0; background: none; color: var(--k-text); font: inherit; text-align: left; cursor: pointer; align-content: center; }
+.review-row > .tick-button { margin-right: var(--k-space-2); }
+.review-row-name strong { font-weight: 700; }
+.review-row-meta { color: var(--k-text-secondary); font-size: 0.9rem; }
+.review-row-flag { color: var(--k-danger-text); font-size: 0.9rem; font-weight: 600; }
+.review-back { display: none; }
+.record-list:has(> .review-row) { gap: 0; }
+
+@media (max-width: 900px) {
+  .session-next { bottom: calc(64px + env(safe-area-inset-bottom)); margin-inline: calc(-1 * var(--k-space-4)); padding-inline: var(--k-space-4); }
+  .set-log-list > .set-log-row { grid-template-columns: 2.6rem minmax(0, 1fr) auto minmax(0, 1fr) auto auto; }
+  .set-log-list > .set-log-row.logged { grid-template-columns: 2.6rem minmax(0, 1fr) auto auto; padding: 6px 0; }
+  #view-today > .hero-grid { grid-template-columns: minmax(0, 1fr); }
+  .review-back { display: inline-flex; margin-bottom: var(--k-space-3); }
+  .review-layout[data-open="false"] > .review-detail { display: none; }
+  .review-layout[data-open="true"] > :first-child { display: none; }
+}

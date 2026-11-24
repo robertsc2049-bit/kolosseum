@@ -18,7 +18,7 @@ test("bar speed is off until she switches it on; then it's logged with the set a
   const logSet = async (...args: unknown[]) => { calls.push(args); return true; };
   render(<SetLogger exercise={squat} setLogs={[]} busy={false} logSet={logSet} />);
   assert.equal(screen.queryByLabelText("Set 1 bar speed (m/s)"), null);
-  await act(async () => { fireEvent.click(screen.getByLabelText("Log bar speed (from a VBT device)")); });
+  await act(async () => { fireEvent.click(screen.getByLabelText("Log bar speed")); });
   await act(async () => { fireEvent.change(screen.getByLabelText("Set 1 bar speed (m/s)"), { target: { value: "0.62" } }); });
   await act(async () => { fireEvent.click(screen.getByText("Log set 1")); });
   assert.deepEqual(calls[0], ["back_squat", 1, 5, { value: 140, unit: "kg" }, 0.62, null]);

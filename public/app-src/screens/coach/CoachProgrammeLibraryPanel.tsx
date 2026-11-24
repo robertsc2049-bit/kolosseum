@@ -79,7 +79,7 @@ export function CoachProgrammeMetricsPanel() {
       <article className="panel metric-card"><span>Complete programmes</span><strong>{counts.complete}</strong></article>
       <article className="panel metric-card"><span>Active programmes</span><strong>{counts.active}</strong></article>
       <article className="panel metric-card"><span>Archived programmes</span><strong>{counts.archived}</strong></article>
-      <article className="panel metric-card"><span>Superseded versions</span><strong>{counts.superseded}</strong></article>
+      <article className="panel metric-card"><span>Older versions</span><strong>{counts.superseded}</strong></article>
     </>
   );
 }

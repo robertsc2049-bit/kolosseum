@@ -70,7 +70,7 @@ test("FULL-UI-05A exposes programme search filter sort and factual state counts"
 
   assert.match(libraryPanel, /placeholder="Name, activity, event or version"/u);
   assert.match(libraryPanel, /programme-clear-filters/u);
-  assert.match(libraryPanel, /Superseded versions/u);
+  assert.match(libraryPanel, /Older versions/u);
   assert.match(libraryHook, /function filteredProgrammeTemplates\(/u);
   assert.match(libraryHook, /function programmeDisplayState\(/u);
   assert.match(libraryPanel, /usage_desc/u);

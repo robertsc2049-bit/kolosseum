@@ -11,6 +11,7 @@ import { pool } from "../db/pool.js";
 import { asyncHandler } from "./async_handler.js";
 import { programmeAdjustments } from "./programme_adjustment.js";
 import { loadBeta17StoredCoachContext } from "./beta_product_record_store.js";
+import { reviewSignals, type ReviewSignals, type SessionRating } from "./review_signals.js";
 import { plannedSessionTitle } from "./session_title.js";
 import {
   badRequest,
@@ -20,6 +21,47 @@ import {
 } from "./http_errors.js";
 
 type JsonRecord = Record<string, unknown>;
+
+// What stands out in each session still to review, for the queue's one line.
+async function signalsFor(rows: readonly JsonRecord[]): Promise<Map<string, ReviewSignals>> {
+  const ids = rows.map((row) => String(row.session_id));
+  const out = new Map<string, ReviewSignals>();
+  if (!ids.length) return out;
+  const [events, ratings] = await Promise.all([
+    pool.query(
+      `SELECT session_id, event FROM runtime_events
+       WHERE session_id = ANY($1::text[])
+         AND event->>'type' IN ('SET_LOG_REPORT', 'RPE_REPORT', 'BORG_REPORT', 'CR10_REPORT', 'PAIN_REPORT', 'SKIP_EXERCISE')
+       ORDER BY session_id, seq`,
+      [ids]
+    ),
+    pool.query(
+      `SELECT DISTINCT ON (event_payload->>'session_id') event_payload FROM product_account_events
+       WHERE event_type = 'session_load_report' AND event_payload->>'session_id' = ANY($1::text[])
+         AND user_id = ANY($2::text[])
+       ORDER BY event_payload->>'session_id', occurred_at DESC, event_id DESC`,
+      [ids, [...new Set(rows.map((row) => String(row.beta_subject_user_id)))]]
+    )
+  ]);
+  const bySession = new Map<string, unknown[]>();
+  for (const row of events.rows ?? []) {
+    const list = bySession.get(String(row.session_id)) ?? [];
+    list.push(row.event);
+    bySession.set(String(row.session_id), list);
+  }
+  const rated = new Map<string, SessionRating>();
+  for (const row of ratings.rows ?? []) {
+    const payload = isRecord(row.event_payload) ? row.event_payload : {};
+    const srpe = Number(payload.srpe);
+    const minutes = Number(payload.minutes);
+    if (Number.isFinite(srpe) && Number.isFinite(minutes)) rated.set(String(payload.session_id), { srpe, minutes });
+  }
+  for (const row of rows) {
+    const id = String(row.session_id);
+    out.set(id, reviewSignals(row.planned_session, bySession.get(id) ?? [], cleanString(row.status), rated.get(id) ?? null));
+  }
+  return out;
+}
 
 type ReviewWriteInput = Readonly<{
   request_id: string;
@@ -698,6 +740,12 @@ async function listReviewRecords(
       ]
     );
 
+  const signals = await signalsFor(
+    accessibleRows.filter((row) =>
+      !statusIsOpen(row.status) && (cleanString(reviews.get(String(row.session_id))?.review_status) || "unreviewed") === "unreviewed"
+    )
+  );
+
   const records =
     accessibleRows.map((row) => {
       const sessionId =
@@ -805,6 +853,11 @@ async function listReviewRecords(
         // competition, a lighter week back.
         programme_adjustments:
           programmeAdjustments(plannedSession),
+        // Only for a session still to review.
+        done_summary:
+          signals.get(sessionId)?.summary ?? "",
+        review_flags:
+          signals.get(sessionId)?.flags ?? [],
         review_status:
           reviewStatus,
         awaiting_review:

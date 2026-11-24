@@ -32,7 +32,8 @@ import { AthleteSelfProgressInsightsPanel } from "./screens/athlete/AthleteSelfP
 import { AthleteSelfWeeklyCheckinsPanel } from "./screens/athlete/AthleteSelfWeeklyCheckinsPanel";
 import { AthleteSessionExecutionPanel } from "./screens/athlete/AthleteSessionExecutionPanel";
 import { AthleteTodayHistoryCountBadge, AthleteTodayRecentActivityList } from "./screens/athlete/AthleteTodayRecentActivityPanel";
-import { AthleteTodayCreateSessionButton, AthleteTodayEventCard, AthleteTodaySessionCard } from "./screens/athlete/AthleteTodayPanel";
+import { AthleteTodayInstallPrompt, AthleteTodayCreateSessionButton, AthleteTodayEventCard, AthleteTodaySessionCard } from "./screens/athlete/AthleteTodayPanel";
+import { TodayWeeklyCheckin } from "./screens/athlete/TodayWeeklyCheckin";
 import { TodayReadiness } from "./screens/athlete/TodayReadiness";
 import { PainCheckInCard } from "./screens/athlete/PainCheckInCard";
 import { AthleteDirectoryPanel } from "./screens/coach/AthleteDirectoryPanel";
@@ -231,6 +232,8 @@ mount("athlete-today-pain-check-in-root", <PainCheckInCard dueOnly />);
 mount("athlete-today-readiness-root", <TodayReadiness />);
 mount("athlete-today-session-root", <AthleteTodaySessionCard />);
 mount("athlete-today-event-root", <AthleteTodayEventCard />);
+mount("athlete-today-install-root", <AthleteTodayInstallPrompt />);
+mount("today-weekly-checkin-root", <TodayWeeklyCheckin />);
 mount("today-history-count-root", <AthleteTodayHistoryCountBadge />);
 mount("today-recent-activity-root", <AthleteTodayRecentActivityList />);
 mount("athlete-history-root", <AthleteHistoryPanel />);

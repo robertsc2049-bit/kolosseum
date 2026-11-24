@@ -341,7 +341,7 @@ test("a powerlifter without an event is prompted, and can set and later change i
     }
   });
   render(<AthleteOnboardingPanel />);
-  await screen.findByText("Current effective declaration");
+  await screen.findByText("Your setup now");
   assert.ok(screen.getByText(/Choose your competition event in Edit preferences/));
   assert.match(screen.getByText("Competition event").closest(".declaration-fact")?.textContent ?? "", /Not declared/);
 
@@ -351,7 +351,7 @@ test("a powerlifter without an event is prompted, and can set and later change i
   await screen.findByText("Edit preferences", { selector: "h3" });
   fireEvent.change(screen.getByLabelText("Competition event"), { target: { value: "push_pull" } });
   await act(async () => {
-    fireEvent.click(screen.getByText("Save new declaration"));
+    fireEvent.click(screen.getByText("Save changes"));
   });
 
   await waitFor(() => assert.equal(posted.length, 1));
@@ -371,7 +371,7 @@ test("a non-powerlifter's preferences never show or send a competition event", a
   const posted: Record<string, unknown>[] = [];
   installMocks({ initialState: completedState(fields), onPreferences: (body) => { posted.push(body); return completedState(fields); } });
   render(<AthleteOnboardingPanel />);
-  await screen.findByText("Current effective declaration");
+  await screen.findByText("Your setup now");
   assert.equal(screen.queryByText("Competition event"), null);
   await act(async () => {
     fireEvent.click(screen.getByText("Edit preferences"));
@@ -379,7 +379,7 @@ test("a non-powerlifter's preferences never show or send a competition event", a
   await screen.findByText("Edit preferences", { selector: "h3" });
   assert.equal(screen.queryByLabelText("Competition event"), null);
   await act(async () => {
-    fireEvent.click(screen.getByText("Save new declaration"));
+    fireEvent.click(screen.getByText("Save changes"));
   });
   await waitFor(() => assert.equal(posted.length, 1));
   assert.equal(Object.prototype.hasOwnProperty.call(posted[0], "competition_event"), false);
@@ -466,7 +466,7 @@ test("reaching the review stage shows all declared facts, and confirming shows t
   });
 
   await screen.findByText("Setup complete");
-  assert.ok(screen.getByText("Current effective declaration"));
+  assert.ok(screen.getByText("Your setup now"));
 });
 
 test("declared accessibility preferences are actually applied to the page immediately after confirmation", async () => {
@@ -526,7 +526,7 @@ test("the completed view shows historical (superseded) declarations, never their
     )
   });
   const { container } = render(<AthleteOnboardingPanel />);
-  await screen.findByText("Historical declarations");
+  await screen.findByText("Earlier versions");
 
   assert.ok(screen.getByText("Superseded declaration"));
   assert.ok(container.querySelector(".declaration-history")?.textContent?.includes("General strength"));
@@ -550,7 +550,7 @@ test("editing preferences pre-fills the current values, and saving applies the n
     })
   });
   render(<AthleteOnboardingPanel />);
-  await screen.findByText("Current effective declaration");
+  await screen.findByText("Your setup now");
 
   await act(async () => {
     fireEvent.click(screen.getByText("Edit preferences"));
@@ -561,11 +561,11 @@ test("editing preferences pre-fills the current values, and saving applies the n
   assert.equal((screen.getByLabelText("Strength") as HTMLInputElement).checked, true);
 
   fireEvent.click(screen.getByText("Larger text"));
-  fireEvent.change(screen.getByLabelText("Instruction density"), { target: { value: "detailed" } });
+  fireEvent.change(screen.getByLabelText("Amount of instruction"), { target: { value: "detailed" } });
   fireEvent.click(screen.getByLabelText("Power"));
 
   await act(async () => {
-    fireEvent.click(screen.getByText("Save new declaration"));
+    fireEvent.click(screen.getByText("Save changes"));
   });
 
   await waitFor(() => assert.equal(document.documentElement.dataset.instructionDensity, "detailed"));
@@ -585,7 +585,7 @@ test("training focus defaults to 'None selected' and can be set from empty, then
     }
   });
   render(<AthleteOnboardingPanel />);
-  await screen.findByText("Current effective declaration");
+  await screen.findByText("Your setup now");
 
   assert.ok(screen.getByText("None selected"));
 
@@ -598,7 +598,7 @@ test("training focus defaults to 'None selected' and can be set from empty, then
   fireEvent.click(screen.getByLabelText("Plyometric"));
 
   await act(async () => {
-    fireEvent.click(screen.getByText("Save new declaration"));
+    fireEvent.click(screen.getByText("Save changes"));
   });
 
   await waitFor(() => assert.ok(screen.queryByText("Conditioning, Plyometric")));
@@ -772,7 +772,7 @@ test("a queued (deferred) activity change shows pending status with a cancel act
 test("cancelling the preference editor discards changes without saving", async () => {
   installMocks({ initialState: completedState({ activity_id: "powerlifting" }) });
   render(<AthleteOnboardingPanel />);
-  await screen.findByText("Current effective declaration");
+  await screen.findByText("Your setup now");
 
   await act(async () => {
     fireEvent.click(screen.getByText("Edit preferences"));
@@ -860,7 +860,7 @@ test("an athlete without a training plan is prompted, and sets days and a compet
     }
   });
   render(<AthleteOnboardingPanel />);
-  await screen.findByText("Current effective declaration");
+  await screen.findByText("Your setup now");
   assert.ok(screen.getByText(/Set your training plan in Edit preferences/));
 
   await act(async () => {
@@ -870,7 +870,7 @@ test("an athlete without a training plan is prompted, and sets days and a compet
   fireEvent.change(screen.getByLabelText("Training days per week"), { target: { value: "5" } });
   fireEvent.change(screen.getByLabelText("Next competition date"), { target: { value: "2026-11-21" } });
   await act(async () => {
-    fireEvent.click(screen.getByText("Save new declaration"));
+    fireEvent.click(screen.getByText("Save changes"));
   });
 
   await waitFor(() => assert.equal(posted.length, 1));

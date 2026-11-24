@@ -4,6 +4,7 @@ import { loadAthleteHistoryDetail, loadTemplateExercises } from "../../api/coach
 import { loadSessionSummary } from "../../api/sessionSummaryClient";
 import { type JsonRecord } from "../../api/transport";
 import { PhoneDisclosure } from "../../components/PhoneDisclosure";
+import { TickIcon } from "../../components/TickIcon";
 import { formatDate, titleCase } from "../../utils/format";
 import { ReviewSessionWork, type SessionWorkState } from "./ReviewSessionWork";
 import { type ReviewRecord, useCoachReview } from "./useCoachReview";
@@ -98,14 +99,16 @@ function ReviewActions({
   );
 }
 
+const flagsOf = (record: ReviewRecord): string[] => (Array.isArray(record.review_flags) ? (record.review_flags as unknown[]).map(String).filter(Boolean) : []);
+
+// One line a session: who and what, how it went, what stands out, and a tick.
 function ReviewCard({
   record,
   athleteName,
   selected,
   marking,
   onSelect,
-  onMark,
-  onNote
+  onMark
 }: {
   record: ReviewRecord;
   athleteName: string;
@@ -113,29 +116,29 @@ function ReviewCard({
   marking: boolean;
   onSelect: (sessionId: string) => void;
   onMark: (record: ReviewRecord, status: "reviewed" | "unreviewed") => void;
-  onNote: (record: ReviewRecord) => void;
 }) {
   const notes = Number(record.note_count ?? 0);
   const status = reviewRecordStatus(record);
   const reviewedAt = reviewedAtDate(record);
-  const dateLabel = status === "reviewed" && reviewedAt
-    ? `Reviewed ${formatDate(reviewedAt)}`
-    : formatDate(reviewRecordDate(record));
+  const title = String(record.session_title ?? "Training session");
+  const dateLabel = status === "reviewed" && reviewedAt ? `Reviewed ${formatDate(reviewedAt)}` : formatDate(reviewRecordDate(record));
+  const named = `${athleteName}, ${title}, ${formatDate(reviewRecordDate(record))}`;
+  const flags = flagsOf(record);
   return (
-    <article className={`record-card review-record-card${selected ? " selected" : ""}`}>
-      <div>
-        <p className="eyebrow">{athleteName}</p>
-        <h3>{String(record.session_title ?? "Training session")}</h3>
-        <p>{dateLabel}{Number(record.planned_work_item_count ?? 0) > 0 ? ` · ${Number(record.planned_work_item_count)} exercises` : ""}</p>
-      </div>
-      <div className="record-meta review-record-actions">
-        <StatusBadge record={record} />
-        {record.self_directed === true ? <span className="badge neutral">Self-directed</span> : null}
-        <span className="badge neutral">{notes} note{notes === 1 ? "" : "s"}</span>
-        <button className="button secondary small-button" type="button" aria-label={`View details: ${athleteName}, ${String(record.session_title ?? "Training session")}, ${formatDate(reviewRecordDate(record))}`} onClick={() => onSelect(String(record.session_id))}>View details</button>
-        <ReviewActions record={record} athleteName={athleteName} compact marking={marking} onMark={onMark} onNote={onNote} />
-      </div>
-      <ProgrammeAdjustments record={record} />
+    <article className={`review-row${selected ? " selected" : ""}${flags.length ? " has-flags" : ""}`}>
+      <button className="review-row-open" type="button" aria-label={`View details: ${named}`} aria-current={selected ? "true" : undefined} onClick={() => onSelect(String(record.session_id))}>
+        <span className="review-row-name"><strong>{athleteName}</strong> <span className="review-row-title">{title}</span></span>
+        <span className="review-row-meta">{[dateLabel, String(record.done_summary ?? ""), record.self_directed === true ? "Self-directed" : "", notes > 0 ? `${notes} note${notes === 1 ? "" : "s"}` : "", status === "open" ? "Training now" : ""].filter(Boolean).join(" · ")}</span>
+        {flags.map((flag) => <span key={flag} className="review-row-flag">{flag}</span>)}
+        {Array.isArray(record.programme_adjustments) && record.programme_adjustments.length ? (
+          <span className="review-row-meta" data-testid="programme-adjustments">{(record.programme_adjustments as unknown[]).map(String).map((line) => <span key={line} className="review-row-line">{line}</span>)}</span>
+        ) : null}
+      </button>
+      {status === "unreviewed" ? (
+        <button className="tick-button" type="button" disabled={marking} aria-label={`Mark reviewed: ${named}`} onClick={() => onMark(record, "reviewed")}><TickIcon /></button>
+      ) : status === "reviewed" ? (
+        <button className="tick-button is-done" type="button" disabled={marking} aria-label={`Mark unreviewed: ${named}`} onClick={() => onMark(record, "unreviewed")}><TickIcon /></button>
+      ) : null}
     </article>
   );
 }
@@ -160,8 +163,10 @@ function ReviewDetail({
   work,
   exerciseNames,
   onMark,
-  onNote
+  onNote,
+  onBack
 }: {
+  onBack: () => void;
   record: ReviewRecord;
   athleteName: string;
   marking: boolean;
@@ -178,9 +183,9 @@ function ReviewDetail({
 
   return (
     <aside className="panel review-detail">
+      <button className="text-button review-back" type="button" onClick={onBack}>All sessions</button>
       <div className="review-detail-heading">
         <div>
-          <p className="eyebrow">Session detail</p>
           <h3>{athleteName}</h3>
           <p>{String(record.session_title ?? "Training session")}</p>
           <ProgrammeAdjustments record={record} />
@@ -261,7 +266,7 @@ function ReviewDetail({
         </dl>
   
           <section className="review-provenance">
-          <h4>Provenance</h4>
+          <h4>Where it came from</h4>
           <dl className="review-fact-grid">
             <div><dt>Assignment</dt><dd>{record.self_directed === true ? "None - the athlete ran this session themselves" : String(record.assignment_id || "Not recorded")}</dd></div>
             <div><dt>Programme</dt><dd>{String(assignment.template_name ?? assignment.template_id ?? "Not recorded")}</dd></div>
@@ -289,6 +294,7 @@ export function CoachReviewPanel() {
     refresh,
     setSelectedAthleteId,
     markReview,
+    markReviewed,
     recordNote,
     dispatchNoteDirty
   } = useCoachReview();
@@ -296,6 +302,8 @@ export function CoachReviewPanel() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("awaiting");
   const [selectedSessionId, setSelectedSessionId] = useState("");
+  // On a phone the list and a session are two screens; side by side on a laptop.
+  const [open, setOpen] = useState(false);
   const [noteRecord, setNoteRecord] = useState<ReviewRecord | null>(null);
   const [noteText, setNoteText] = useState("");
   const [noteVisibility, setNoteVisibility] = useState("coach_private");
@@ -311,7 +319,12 @@ export function CoachReviewPanel() {
       if (statusFilter === "awaiting") return status === "unreviewed";
       return status === statusFilter;
     })
-    .sort((left, right) => reviewRecordDate(right).localeCompare(reviewRecordDate(left)));
+    // What stands out first, then the newest.
+    .sort((left, right) => Number(flagsOf(right).length > 0 && reviewRecordStatus(right) === "unreviewed") - Number(flagsOf(left).length > 0 && reviewRecordStatus(left) === "unreviewed")
+      || reviewRecordDate(right).localeCompare(reviewRecordDate(left)));
+  const waitingList = filtered.filter((record) => reviewRecordStatus(record) === "unreviewed");
+  const flagged = waitingList.filter((record) => flagsOf(record).length > 0);
+  const asPlanned = waitingList.filter((record) => flagsOf(record).length === 0);
 
   const selected = reviews.find((record) => record.session_id === selectedSessionId)
     ?? (filtered.length > 0 ? filtered[0] : null);
@@ -393,6 +406,11 @@ export function CoachReviewPanel() {
     markReview(record, status);
   }
 
+  function handleMarkAll() {
+    if (!window.confirm(`Mark ${asPlanned.length} sessions with nothing flagged as reviewed?`)) return;
+    void markReviewed(asPlanned);
+  }
+
   function handleOpenNote(record: ReviewRecord) {
     setNoteRecord(record);
     setNoteText("");
@@ -419,9 +437,10 @@ export function CoachReviewPanel() {
     <section className="panel">
       <div className="page-heading">
         <div>
-          <p className="eyebrow">Coach workspace</p>
-          <h2>Review</h2>
-          <p className="muted">Review completed sessions, track live read-only status, and add private notes.</p>
+          <h2>{statusFilter !== "awaiting" ? "Sessions" : flagged.length ? `${flagged.length} ${flagged.length === 1 ? "session needs" : "sessions need"} a look` : waitingList.length ? "Nothing flagged" : "Review"}</h2>
+          <p className="dashboard-status muted" aria-live="polite">
+            {`${counts.awaiting} completed session${counts.awaiting === 1 ? "" : "s"} awaiting review.`}
+          </p>
         </div>
         <div className="review-toolbar">
           <label className="field compact-field review-search-field">
@@ -443,29 +462,25 @@ export function CoachReviewPanel() {
             <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}>
               <option value="awaiting">Awaiting review</option>
               <option value="reviewed">Reviewed</option>
-              <option value="open">Open sessions</option>
-              <option value="all">All records</option>
+              <option value="open">Training now</option>
+              <option value="all">All sessions</option>
             </select>
           </label>
-          <button className="button secondary" type="button" disabled={Object.keys(athleteNamesById).length === 0} onClick={() => refresh()}>Refresh review</button>
+          <button className="button secondary" type="button" disabled={Object.keys(athleteNamesById).length === 0} onClick={() => refresh()}>Refresh</button>
           </PhoneDisclosure>
         </div>
       </div>
 
-      <p className="dashboard-status muted" aria-live="polite">
-        {`${counts.awaiting} completed session${counts.awaiting === 1 ? "" : "s"} awaiting review.`}
-      </p>
-
-      <div className="review-summary-grid" aria-label="Review counts">
-        <article className="stat-card"><span>All records</span><strong>{counts.all}</strong></article>
-        <article className="stat-card"><span>Awaiting review</span><strong>{counts.awaiting}</strong></article>
-        <article className="stat-card"><span>Reviewed</span><strong>{counts.reviewed}</strong></article>
-        <article className="stat-card"><span>Open sessions</span><strong>{counts.open}</strong></article>
-      </div>
+      {statusFilter === "awaiting" && asPlanned.length > 1 ? (
+        <div className="review-bulk">
+          <p className="muted small">{`${asPlanned.length} went as planned: no pain, missed reps, skipped work or very hard ratings.`}</p>
+          <button className="button primary" type="button" disabled={marking} onClick={handleMarkAll}>{`Mark ${asPlanned.length} as reviewed`}</button>
+        </div>
+      ) : null}
 
       {markError ? <p className="dashboard-status" role="status" aria-live="polite">{markError}</p> : null}
 
-      <div className="review-layout">
+      <div className="review-layout" data-open={open}>
         <div>
           <div className="record-list">
             {filtered.length === 0 ? (
@@ -479,8 +494,8 @@ export function CoachReviewPanel() {
               ) : (
                 <div className="panel empty-state">
                   <div className="empty-icon">R</div>
-                  <h3>No matching review records</h3>
-                  <p>Completed sessions awaiting review, reviewed records and open read-only sessions will appear here.</p>
+                  <h3>No matching sessions</h3>
+                  <p>Finished sessions appear here for you to review.</p>
                 </div>
               )
             ) : (
@@ -491,9 +506,8 @@ export function CoachReviewPanel() {
                   athleteName={reviewAthleteName(record, athleteNamesById)}
                   selected={String(record.session_id) === selectedSessionId}
                   marking={marking}
-                  onSelect={setSelectedSessionId}
+                  onSelect={(sessionId) => { setSelectedSessionId(sessionId); setOpen(true); }}
                   onMark={handleMark}
-                  onNote={handleOpenNote}
                 />
               ))
             )}
@@ -509,6 +523,7 @@ export function CoachReviewPanel() {
             exerciseNames={exerciseNames}
             onMark={handleMark}
             onNote={handleOpenNote}
+            onBack={() => setOpen(false)}
           />
         ) : null}
       </div>

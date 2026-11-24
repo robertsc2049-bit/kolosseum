@@ -19,12 +19,12 @@ export function CoachOverviewMetricsPanel() {
       </article>
 
       <article className="panel metric-card">
-        <span>Assignments recorded</span>
+        <span>Programmes assigned</span>
         <strong>{assignmentCount}</strong>
       </article>
 
       <article className="panel metric-card">
-        <span>Session records</span>
+        <span>Sessions logged</span>
         <strong>{artefactCount}</strong>
       </article>
 

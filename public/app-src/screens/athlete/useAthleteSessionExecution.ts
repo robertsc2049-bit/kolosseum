@@ -328,17 +328,6 @@ export function useAthleteSessionExecution() {
     }
   }, []);
 
-  useEffect(() => {
-    loadCatalog();
-    // This panel mounts unconditionally regardless of route, so a fresh
-    // sign-up/sign-in completing later needs to trigger a real refetch -
-    // same bug class already fixed for useAccountDetail.ts/
-    // useCommercialAccount.ts and others.
-    document.addEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, loadCatalog);
-    return () => {
-      document.removeEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, loadCatalog);
-    };
-  }, [loadCatalog]);
 
   const stopRestTimer = useCallback(() => {
     if (restIntervalRef.current !== null) {
@@ -539,6 +528,17 @@ export function useAthleteSessionExecution() {
     setState((current) => ({ ...current, actionPanel: null, skipReasonCode: "pain_or_discomfort" }));
     return runMutation(async (sessionId, csrfToken) => {
       return postOrQueue(sessionId, { type: "PAIN_REPORT", exercise_id: exerciseId, pain_reported: true, ...(painArea ? { pain_area: painArea } : {}) }, csrfToken);
+    }, true);
+  }, [runMutation, state.sessionState]);
+
+  // One tap on the rating row under the sets.
+  const rateEffort = useCallback(async (scale: "rpe" | "borg" | "cr10", value: number) => {
+    const exerciseId = currentExerciseId(state.sessionState);
+    if (!exerciseId) return false;
+    return runMutation(async (sessionId, csrfToken) => {
+      const outcome = await postOrQueue(sessionId, { type: `${scale.toUpperCase()}_REPORT`, exercise_id: exerciseId, [`${scale}_value`]: value }, csrfToken);
+      setState((current) => ({ ...current, effortRatings: { ...current.effortRatings, [exerciseId]: { ...current.effortRatings[exerciseId], [scale]: value } } }));
+      return outcome;
     }, true);
   }, [runMutation, state.sessionState]);
 
@@ -759,7 +759,17 @@ export function useAthleteSessionExecution() {
     return ok ? isPr : null;
   }, [runMutation, maybeStartRestTimer, state.sessionState]);
 
+  // Once the list arrives, the first exercise that isn't already in the session.
+  useEffect(() => {
+    if (!state.addExercisePanelOpen || state.addExerciseSelectedId || state.exerciseCatalog.length === 0) return;
+    const planned = new Set(["completed_exercises", "remaining_exercises", "dropped_exercises"].flatMap((key) => (Array.isArray(state.sessionState?.[key]) ? (state.sessionState![key] as JsonRecord[]) : []).map((row) => String(row.exercise_id ?? row.item_id ?? ""))));
+    const first = state.exerciseCatalog.find((exercise) => !planned.has(String(exercise.exercise_id)));
+    if (first) setState((current) => ({ ...current, addExerciseSelectedId: String(first.exercise_id) }));
+  }, [state.addExercisePanelOpen, state.addExerciseSelectedId, state.exerciseCatalog, state.sessionState]);
+
   const openAddExercisePanel = useCallback((defaultExerciseId: string) => {
+    // The exercise list is read when it's first needed, not with the session.
+    if (state.exerciseCatalog.length === 0) void loadCatalog();
     setState((current) => ({
       ...current,
       addExercisePanelOpen: true,
@@ -769,7 +779,7 @@ export function useAthleteSessionExecution() {
       addExerciseJustLoggedLabel: null,
       addExerciseJustLoggedIsPr: false
     }));
-  }, []);
+  }, [state.exerciseCatalog.length, loadCatalog]);
 
   const closeAddExercisePanel = useCallback(() => {
     setState((current) => ({ ...current, addExercisePanelOpen: false }));
@@ -981,6 +991,7 @@ export function useAthleteSessionExecution() {
     confirmSkipWithReason,
     confirmPainReport,
     setRpeValue,
+    rateEffort,
     confirmRpeReport,
     setBorgValue,
     confirmBorgReport,

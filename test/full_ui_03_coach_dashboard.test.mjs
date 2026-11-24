@@ -86,8 +86,8 @@ test("FULL-UI-03 exposes the complete factual coach dashboard", () => {
 
   assert.ok(html.includes('id="coach-overview-metrics-root"'), "missing coach-overview-metrics-root");
   assert.ok(coachOverviewMetricsPanel.includes("Connected athletes"));
-  assert.ok(coachOverviewMetricsPanel.includes("Assignments recorded"));
-  assert.ok(coachOverviewMetricsPanel.includes("Session records"));
+  assert.ok(coachOverviewMetricsPanel.includes("Programmes assigned"));
+  assert.ok(coachOverviewMetricsPanel.includes("Sessions logged"));
   assert.ok(coachOverviewMetricsPanel.includes("Open sessions"));
   assert.ok(coachOverviewMetricsPanel.includes("Awaiting review"));
   assert.ok(coachOverviewMetricsPanel.includes("Upcoming events"));

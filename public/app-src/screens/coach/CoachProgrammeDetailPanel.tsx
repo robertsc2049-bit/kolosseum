@@ -162,7 +162,7 @@ export function CoachProgrammeDetailPanel() {
   return (
     <>
       <div className="programme-detail-facts">
-        <div><span>Family versions</span><strong>{versions.length}</strong></div>
+        <div><span>Versions</span><strong>{versions.length}</strong></div>
         <div><span>Blocks</span><strong>{Number(template.block_count ?? 0)}</strong></div>
         <div><span>Weeks</span><strong>{Number(template.week_count ?? 0)}</strong></div>
         <div><span>Sessions</span><strong>{Number(template.session_count ?? 0)}</strong></div>
@@ -172,7 +172,7 @@ export function CoachProgrammeDetailPanel() {
       </div>
 
       <p className="programme-detail-description muted">
-        {String(template.description ?? "").trim() || "No programme description was recorded."}
+        {String(template.description ?? "").trim() || "No description yet."}
       </p>
 
       <div className="button-row programme-detail-actions">

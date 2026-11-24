@@ -119,7 +119,7 @@ test("shows a factual placeholder description when none was recorded", async () 
   installMocks({ templates: [template({ description: "" })] });
   render(<CoachProgrammeDetailPanel />);
   await openDetail("tmpl_1_v1");
-  await screen.findByText("No programme description was recorded.");
+  await screen.findByText("No description yet.");
 });
 
 test("draft programmes show Edit draft, Check it's ready and Archive, but not Ready to send or Duplicate", async () => {
