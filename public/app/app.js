@@ -521,6 +521,7 @@ function showNotice(message, type = "success", options = {}) {
     reportButton.className = "button secondary notice-report-button";
     reportButton.textContent = "Report this problem";
     reportButton.addEventListener("click", () => {
+      setView("account");
       document.dispatchEvent(
         new CustomEvent("kolosseum:open-support-report", { detail: { failureContext: options.failureContext } })
       );
@@ -1066,6 +1067,8 @@ function setView(view) {
   elements.topbarTitle.textContent = viewTitle(view);
   setNavigationDrawerOpen(false);
   announceView(view);
+  // This screen's panels mount now, before anything below talks to them.
+  document.dispatchEvent(new CustomEvent("kolosseum:view-shown", { detail: { view } }));
 
   if (view === "today" && state.role === "athlete") {
     loadAthleteToday().catch(handleError);

@@ -134,6 +134,8 @@ const orgAppDir = path.join(publicDir, "org");
 app.get("/", (_req, res) => {
   return res.redirect(302, "/app/");
 });
+// Fonts never change under their name: kept for a year.
+app.use("/app/fonts", express.static(path.join(productAppDir, "fonts"), { immutable: true, maxAge: "365d" }));
 app.use("/app", express.static(productAppDir));
 /**
  * Founder/admin operations workspace.

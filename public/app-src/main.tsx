@@ -1,4 +1,5 @@
 import React, { StrictMode } from "react";
+import { flushSync } from "react-dom";
 import { createRoot } from "react-dom/client";
 
 import { AccountBrandingPanel } from "./screens/account/AccountBrandingPanel";
@@ -101,16 +102,51 @@ import { CoachAthleteCheckinsPanel } from "./screens/coach/CoachAthleteCheckinsP
 import { EntryAuthPanel } from "./screens/entry/EntryAuthPanel";
 import { BarbellCalculatorPanel } from "./screens/tools/BarbellCalculatorPanel";
 import { capturePendingCoachFromUrl } from "./utils/pendingCoach";
+import { readRole } from "./utils/role";
 
 // DEV NOTE: mounts once at script load into divs that always exist in
 // public/app/index.html (which the legacy router shows/hides unchanged -
 // see each panel's own event listeners for how it learns when it becomes
 // relevant). Do not mount other screens from this same entry point without
 // first re-reading the migration plan's per-screen scoping.
-function mount(containerId: string, node: React.ReactNode) {
+//
+// A screen's panels fetch when they mount, so they mount when they're first
+// needed: the other role's never, and most screens the first time they're
+// shown (app.js's setView announces each one, and mounting is synchronous so
+// an event sent straight after still finds its listener). Screens other code
+// talks to while hidden (below) mount as soon as the role is known.
+const ATHLETE_VIEWS = new Set(["view-today", "view-session", "view-history", "view-programme", "view-attendance", "view-onboarding"]);
+const COACH_VIEWS = new Set(["view-coach-overview", "view-athletes", "view-events", "view-templates", "view-marketplace", "view-review", "view-coach-progress", "view-coach-attendance", "view-coach-onboarding"]);
+const WHEN_SHOWN = new Set(["view-programme", "view-attendance", "view-onboarding", "view-marketplace", "view-coach-progress", "view-coach-attendance", "view-coach-onboarding", "view-account", "view-calculator"]);
+type Waiting = { container: HTMLElement; node: React.ReactNode; role: string | null; whenShown: boolean };
+const waiting = new Set<Waiting>();
+
+function ready({ container, role, whenShown }: Waiting): boolean {
+  const signedIn = document.getElementById("appShell")?.hidden === false;
+  if (role !== null && (!signedIn || readRole() !== role)) return false;
+  return !whenShown || (signedIn && container.closest("[hidden]") === null);
+}
+
+function mountReady(): void {
+  const due = [...waiting].filter(ready);
+  if (due.length === 0) return;
+  for (const entry of due) waiting.delete(entry);
+  flushSync(() => {
+    for (const { container, node } of due) createRoot(container).render(<StrictMode>{node}</StrictMode>);
+  });
+}
+
+function mount(containerId: string, node: React.ReactNode, { now = false }: { now?: boolean } = {}) {
   const container = document.getElementById(containerId);
   if (!container) return;
-  createRoot(container).render(<StrictMode>{node}</StrictMode>);
+  const view = container.closest(".view")?.id ?? "";
+  // History's Wellbeing tab: eight panels behind a tab.
+  const inTab = container.closest('#view-history [data-tab-panel="wellbeing"]') !== null;
+  waiting.add({
+    container, node,
+    role: ATHLETE_VIEWS.has(view) ? "athlete" : COACH_VIEWS.has(view) ? "coach" : null,
+    whenShown: !now && (WHEN_SHOWN.has(view) || inTab)
+  });
 }
 
 // A coach's share link opens /app/?coach=<slug> - keep it before anything renders.
@@ -126,7 +162,8 @@ mount("notification-bell-root", <NotificationBellPanel />);
 mount("account-data-rights-root", <AccountDataRightsPanel />);
 mount("account-support-root", <AccountSupportPanel />);
 mount("account-branding-root", <AccountBrandingPanel />);
-mount("account-commercial-root", <CommercialPanel />);
+// Back from Stripe's checkout: it reads the result from the address.
+mount("account-commercial-root", <CommercialPanel />, { now: window.location.search !== "" });
 mount("account-coach-invitations-root", <AccountCoachInvitationsPanel />);
 mount("account-coach-relationship-root", <AccountCoachRelationshipPanel />);
 mount("account-coaching-requests-root", <AthleteCoachingRequestsPanel />);
@@ -224,3 +261,9 @@ mount("athlete-self-nutrition-root", <AthleteSelfNutritionPanel />);
 mount("athlete-self-habits-root", <AthleteSelfHabitsPanel />);
 mount("athlete-self-progress-photos-root", <AthleteSelfProgressPhotosPanel />);
 mount("athlete-session-root", <AthleteSessionExecutionPanel />);
+
+mountReady();
+document.addEventListener("kolosseum:view-shown", mountReady);
+document.addEventListener("kolosseum:account-role-known", mountReady);
+// Anything shown some other way (a tab, sign-in, a section opened by hand).
+new MutationObserver(mountReady).observe(document.body, { subtree: true, attributes: true, attributeFilter: ["hidden"] });
