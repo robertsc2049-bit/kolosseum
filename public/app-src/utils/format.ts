@@ -218,6 +218,13 @@ export function restLabel(seconds: number | null | undefined): string {
 // (AthleteSessionExecutionPanel.tsx) - the exact same prescription-display
 // rules the coach template builder and athlete session view have always
 // shared, so they live here rather than duplicated a third time.
+// Back after a break on a programme, on Today and the session screen. True all
+// that week - before the first session back and after it - so it never says
+// how long ago the last session was.
+export function programmeReentryNote(reentry: JsonRecord): string {
+  return `Welcome back - this is your first week back after ${Number(reentry.gap_days)} days away, so this week's sessions are lighter: a set fewer and less weight. Your programme picks up where you left off.`;
+}
+
 export function exerciseName(exercise: JsonRecord | null | undefined): string {
   return String(exercise?.display_name ?? exercise?.exercise_name ?? exercise?.exercise_id ?? exercise?.item_id ?? "Exercise");
 }

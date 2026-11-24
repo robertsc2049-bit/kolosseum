@@ -262,7 +262,7 @@ test("back after two weeks away on a Kolosseum programme, the session says it's 
   installMocks({ sessionState: baseSessionState({ programme_run: run }) });
   render(<AthleteSessionExecutionPanel />);
   await waitFor(() => screen.getByTestId("session-reentry"));
-  assert.equal(screen.getByTestId("session-reentry").textContent, "Welcome back - it has been 14 days since your last session, so this week's sessions are lighter: a set fewer and less weight. Your programme picks up where you left off.");
+  assert.equal(screen.getByTestId("session-reentry").textContent, "Welcome back - this is your first week back after 14 days away, so this week's sessions are lighter: a set fewer and less weight. Your programme picks up where you left off.");
   assert.ok(screen.getByText("Re-entry week"));
   assert.equal(screen.getByTestId("session-cycle").textContent, "Fight camp strength · Session 9 of 15: Camp session A");
   cleanup();
@@ -277,7 +277,7 @@ test("back after 5 weeks away, the session says welcome back and flags a re-entr
   installMocks({ sessionState: baseSessionState({ training_cycle: cycle }) });
   render(<AthleteSessionExecutionPanel />);
   await waitFor(() => screen.getByTestId("session-reentry"));
-  assert.equal(screen.getByTestId("session-reentry").textContent, "Welcome back - it has been 38 days since your last session, so this week is a lighter re-entry week. Your training blocks restart from week 1 next week.");
+  assert.equal(screen.getByTestId("session-reentry").textContent, "Welcome back - this is your first week back after 38 days away, so it's a lighter re-entry week. Your training blocks restart from week 1 next week.");
   assert.ok(screen.getByText("Re-entry week"));
   assert.equal(screen.queryByText("Deload week"), null);
   cleanup();
@@ -767,7 +767,7 @@ test("a coached athlete back after 10 days is told why their coach's session is 
   installMocks({ sessionState: baseSessionState({ coach_programme_reentry: { reentry_week: true, gap_days: 10 } }) });
   render(<AthleteSessionExecutionPanel />);
   await waitFor(() => screen.getByTestId("session-reentry"));
-  assert.match(screen.getByTestId("session-reentry").textContent ?? "", /it has been 10 days since your last session/);
+  assert.match(screen.getByTestId("session-reentry").textContent ?? "", /first week back after 10 days away/);
   assert.ok(screen.getByText("Re-entry week"));
 });
 

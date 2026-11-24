@@ -469,10 +469,13 @@ test("once a self-coached athlete has built their week, the card says their sess
 // 2026-11-22 walkthrough: back after 12 days, the athlete only learned their
 // session was lighter once they had started it.
 test("back after a break, the card says the next sessions are lighter before they start", async () => {
+  // It stays up for the rest of that week, after they've trained again too, so
+  // it can't say how long ago their last session was.
   installMocks({ state: "session_already_complete", reentry: { gap_days: 12, long_layoff: false }, assignment: { template_name: "Strength block", activity_id: "powerlifting" }, session: { action: "start_next" }, event: null, notes: [] });
   render(<AthleteTodaySessionCard />);
   const note = await screen.findByTestId("today-reentry-note");
-  assert.match(note.textContent ?? "", /12 days since your last session, so your next sessions are lighter: a set fewer and less weight/u);
+  assert.match(note.textContent ?? "", /first week back after 12 days away, so this week's sessions are lighter: a set fewer and less weight/u);
+  assert.doesNotMatch(note.textContent ?? "", /since your last session/u);
 });
 
 test("no break, no welcome-back note", async () => {
