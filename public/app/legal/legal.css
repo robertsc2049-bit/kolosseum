@@ -47,7 +47,6 @@ th, td { text-align: left; vertical-align: top; padding: 8px; border-bottom: 1px
 nav.toc { columns: 2; column-gap: 24px; font-size: 0.95rem; }
 nav.toc a, a { color: var(--k-link); text-decoration-color: var(--k-accent); text-underline-offset: 3px; }
 a:focus-visible { outline: 3px solid var(--k-focus); outline-offset: 2px; }
-.legal-theme { margin: 0 0 18px; }
 .back { display: inline-block; margin-bottom: 18px; }
 @media (max-width: 560px) { nav.toc { columns: 1; } th, td { padding: 6px 4px; } }
 @media print { .back, .draft { display: none; } body { background: #fff; color: #000; } }

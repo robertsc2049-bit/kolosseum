@@ -86,6 +86,8 @@
   --k-shadow-2: 0 16px 48px rgba(27, 32, 38, 0.18);
 }
 
+/* The same light values for pages without theme.js (the legal pages run no
+   scripts, so they follow the device). Pinned equal by test. */
 @media (prefers-color-scheme: light) {
   :root:not([data-theme]) {
     color-scheme: light;
@@ -93,14 +95,38 @@
     --k-surface-1: #FFFFFF;
     --k-surface-2: #F3F4F4;
     --k-surface-3: #E4E6E8;
+    --k-inset: #F6F7F7;
     --k-border: #C3C8CD;
     --k-hairline: #DCDFE2;
     --k-control-border: #747C85;
     --k-text: #1B2026;
     --k-text-secondary: #4B545D;
+    --k-text-subtle: #59626B;
+    --k-primary: #8CCB00;
+    --k-primary-hover: #7EB800;
+    --k-on-primary: #10150A;
+    --k-accent: #3F6600;
+    --k-accent-bright: #3F6600;
+    --k-on-accent: #FFFFFF;
+    --k-accent-deep: #D6EBA6;
+    --k-on-accent-deep: #243A00;
+    --k-accent-tint: #EEF6DD;
     --k-link: #1B2026;
     --k-focus: #1B2026;
+    --k-warning: #7A4E00;
+    --k-warning-deep: #FBE3B0;
+    --k-on-warning-deep: #4A2F00;
     --k-danger: #B3261E;
+    --k-danger-fill: #B3261E;
+    --k-on-danger-fill: #FFFFFF;
+    --k-danger-deep: #FADAD6;
+    --k-danger-text: #8E1B14;
+    --k-chart-3: #1B5CB8;
+    --k-chart-4: #7A2FA8;
+    --k-chart-6: #0B6E5C;
+    --k-scrim: rgba(27, 32, 38, 0.5);
+    --k-shadow-1: 0 8px 24px rgba(27, 32, 38, 0.12);
+    --k-shadow-2: 0 16px 48px rgba(27, 32, 38, 0.18);
   }
 }
 

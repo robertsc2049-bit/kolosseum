@@ -32,7 +32,7 @@ const athleteDirectoryPanel = read("public/app-src/screens/coach/AthleteDirector
 test("every focusable control gets a visible keyboard-only focus ring, distinct from mouse-hover styling", () => {
   assert.match(
     css,
-    /a:focus-visible,\s*\n\s*button:focus-visible,\s*\n\s*\.button:focus-visible,\s*\n\s*\[role="button"\]:focus-visible,\s*\n\s*\[role="menuitem"\]:focus-visible,\s*\n\s*\[tabindex\]:focus-visible\s*\{\s*\n\s*outline: 3px solid var\(--bronze-light\);/u
+    /a:focus-visible,\s*\n\s*button:focus-visible,\s*\n\s*\.button:focus-visible,\s*\n\s*\[role="button"\]:focus-visible,\s*\n\s*\[role="menuitem"\]:focus-visible,\s*\n\s*\[tabindex\]:focus-visible\s*\{\s*\n\s*outline: 3px solid var\(--k-focus\);/u
   );
   assert.match(css, /input:focus, select:focus, textarea:focus \{[\s\S]*?box-shadow: 0 0 0 3px color-mix\(in srgb, var\(--k-focus\) 45%, transparent\);/u);
 });
