@@ -78,3 +78,22 @@ test("set by set: back after two weeks, the last set goes and every set left is 
   assert.equal(lift.sets, 2);
   assert.deepEqual(lift.set_targets.map((target) => [target.set_index, target.intensity.value, target.resolved_load.value]), [[1, 50, 100], [2, 60, 120]]);
 });
+
+test("what a coach set for this athlete stays exactly as set after a break; what they didn't set still drops", () => {
+  const base = { exercise_id: "back_squat", sets: 4, reps: 5, coach_override: true, intensity: { type: "load", value: 120, unit: "kg" }, resolved_load: { value: 120, unit: "kg" } };
+  const [both, weight, setsOnly, rpe] = lighterForReentry([
+    { ...base, coach_kept: { sets: true, load: true } },
+    { ...base, coach_kept: { load: true } },
+    { exercise_id: "bench_press", sets: 3, coach_override: true, coach_kept: { sets: true }, intensity: { type: "percent_1rm", value: 80 }, resolved_load: { value: 80, unit: "kg", percentage: 80, rounding_increment: 2.5 } },
+    { exercise_id: "row", sets: 3, coach_override: true, coach_kept: { load: true }, intensity: { type: "rpe", value: 8 }, resolved_load: null }
+  ], twoWeeks);
+  assert.deepEqual([both.sets, both.intensity.value, both.resolved_load.value, both.reentry_lighter], [4, 120, 120, undefined]);
+  assert.deepEqual([weight.sets, weight.intensity.value, weight.resolved_load.value], [3, 120, 120], "their weight stays, a set still comes off");
+  assert.deepEqual([setsOnly.sets, setsOnly.resolved_load.value], [3, 70], "their sets stay, the weight still drops");
+  assert.deepEqual([rpe.sets, rpe.intensity.value], [2, 8]);
+});
+
+test("a coach who lets the break drop apply gets it on the weight they set, wherever it shows", () => {
+  const [squat] = lighterForReentry([{ exercise_id: "back_squat", sets: 4, coach_override: true, intensity: { type: "load", value: 120, unit: "kg" }, resolved_load: { value: 120, unit: "kg" } }], twoWeeks);
+  assert.deepEqual([squat.sets, squat.intensity.value, squat.resolved_load.value], [3, 107.5, 107.5]);
+});

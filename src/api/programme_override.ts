@@ -6,6 +6,9 @@ const text = (value: unknown) => (typeof value === "string" ? value.trim() : "")
 export type ProgrammeOverride = Readonly<{
   assignment_id: string; session_index: number; exercise_id: string;
   remove?: boolean; sets?: number; reps?: number; load_kg?: number; rpe?: number; note?: string;
+  // The coach chose to let the lighter first week after a break come off this
+  // change too. Otherwise what they set stays exactly as set.
+  lighter_after_break?: boolean;
 }>;
 
 // Pure: this session's exercises with the coach's changes for this athlete.
@@ -26,6 +29,10 @@ export function applyProgrammeOverrides(exercises: readonly Json[], overrides: r
     if (change.rpe !== undefined) { next.intensity = { type: "rpe", value: change.rpe }; next.resolved_load = null; }
     if (change.note) next.coaching_notes = [text(exercise.coaching_notes), `Your coach: ${change.note}`].filter(Boolean).join(" ");
     next.coach_override = true;
+    // What the coach set, kept by the lighter week after a break (programme_reentry.ts).
+    if (change.lighter_after_break !== true) {
+      next.coach_kept = { ...(change.sets !== undefined ? { sets: true } : {}), ...(change.load_kg !== undefined || change.rpe !== undefined ? { load: true } : {}) };
+    }
     out.push(next);
   }
   return { exercises: out, applied };

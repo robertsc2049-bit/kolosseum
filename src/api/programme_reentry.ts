@@ -12,7 +12,9 @@
 // - % of 1RM 10 (or 20) points lower; effort targets 1 (or 2) RPE easier,
 //   never below RPE 5;
 // - a first session on a lift (choose a technique weight) and bodyweight
-//   work only lose the set.
+//   work only lose the set;
+// - the sets, weight or RPE a coach set for this athlete stay exactly as set
+//   (coach_kept, programme_override.ts) unless they chose otherwise.
 
 import type { Reentry } from "./training_cycle.js";
 
@@ -30,16 +32,25 @@ const easierRpe = (value: number, by: number) => Math.max(5, value - by);
 export function lighterForReentry<T extends Json>(exercises: readonly T[], reentry: Reentry): T[] {
   const cut = reentryCut(reentry);
   return exercises.map((exercise) => {
+    const kept = isRecord(exercise.coach_kept) ? exercise.coach_kept : {};
+    if (kept.sets === true && kept.load === true) return exercise;
     const out: Json = { ...exercise, reentry_lighter: true };
     const sets = num(exercise.sets);
-    if (sets !== null && Number.isInteger(sets)) out.sets = Math.max(1, sets - 1);
+    if (kept.sets !== true && sets !== null && Number.isInteger(sets)) out.sets = Math.max(1, sets - 1);
 
     const intensity = isRecord(exercise.intensity) ? exercise.intensity : null;
     const resolved = isRecord(exercise.resolved_load) ? exercise.resolved_load : null;
+    if (kept.load === true) {
+      // The coach's weight or RPE stays; set by set, only a set comes off the end.
+      if (Array.isArray(exercise.set_targets)) out.set_targets = (exercise.set_targets as Json[]).slice(0, num(out.sets) ?? exercise.set_targets.length);
+      return out as T;
+    }
     if (intensity?.type === "load" && num(intensity.value) !== null) {
       // Built from what they lifted last time.
       const step = intensity.unit === "lb" ? 5 : 2.5;
       out.intensity = { ...intensity, value: floorTo(Number(intensity.value) * (1 - cut.percent / 100), step) };
+      // A coach's weight for this athlete shows as its resolved load too.
+      if (exercise.coach_override === true && resolved && num(resolved.value) !== null) out.resolved_load = { ...resolved, value: (out.intensity as Json).value };
     }
     else if (intensity?.type === "percent_1rm" && num(intensity.value) !== null) {
       const percent = Math.max(40, Number(intensity.value) - cut.percent);

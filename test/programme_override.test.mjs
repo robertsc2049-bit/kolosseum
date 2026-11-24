@@ -26,3 +26,12 @@ test("sets, reps, a weight, an RPE, leaving out and a note - in this session onl
   assert.deepEqual([exercises[1].intensity, exercises[1].resolved_load], [{ type: "rpe", value: 7 }, null]);
   assert.equal(applyProgrammeOverrides(session, overrides, 3).applied, 0, "another session is untouched");
 });
+
+test("a change is kept as set after a break unless the coach chose to let the drop apply", () => {
+  const exercises = [{ exercise_id: "back_squat", sets: 5, intensity: { type: "percent_1rm", value: 75 } }];
+  const kept = (change) => applyProgrammeOverrides(exercises, [{ assignment_id: "a", session_index: 0, exercise_id: "back_squat", ...change }], 0).exercises[0].coach_kept;
+  assert.deepEqual(kept({ sets: 3, load_kg: 100 }), { sets: true, load: true });
+  assert.deepEqual(kept({ rpe: 7 }), { load: true });
+  assert.deepEqual(kept({ note: "Pause each rep" }), {}, "a note keeps nothing");
+  assert.equal(kept({ sets: 3, load_kg: 100, lighter_after_break: true }), undefined);
+});

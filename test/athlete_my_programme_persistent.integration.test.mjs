@@ -330,4 +330,32 @@ test("a coached powerlifter sees her whole programme with her weights, and it mo
 
   // It is hers alone: a coach gets nothing from it.
   assert.notEqual((await coach.req("GET", "/account/onboarding/my-programme")).status, 200);
+
+  // Back after 20 days: what her coach set for her stays exactly as set; on the
+  // one they ticked, the drop applies.
+  const db = await pool.connect();
+  try {
+    await db.query("BEGIN");
+    await db.query("SET LOCAL session_replication_role = replica");
+    await db.query("UPDATE sessions SET created_at = created_at - interval '20 days' WHERE beta_subject_user_id = $1", [athleteAccount.userId]);
+    await db.query("COMMIT");
+  }
+  finally { db.release(); }
+  const ahead = ok(await coach.req("GET", `/coach-workspace/athletes/${athleteAccount.userId}/programme-print`), 200, "what's next").json;
+  const upcoming = ahead.blocks.flatMap((b) => b.weeks).flatMap((w) => w.sessions).filter((session) => session.session_index >= ahead.current.session_index).slice(0, 2)
+    .map((session) => ({ index: session.session_index, lift: session.exercises.find((entry) => entry.segment === "working").exercise_id }));
+  assert.equal(upcoming.length, 2, "two sessions still to come");
+  ok(await coach.req("POST", overrideBase, { session_index: upcoming[0].index, exercise_id: upcoming[0].lift, sets: 4, load_kg: 120, client_request_id: "po_integration_5" }), 200, "kept as set");
+  ok(await coach.req("POST", overrideBase, { session_index: upcoming[1].index, exercise_id: upcoming[1].lift, sets: 4, load_kg: 100, lighter_after_break: true, client_request_id: "po_integration_6" }), 200, "drop allowed");
+  const backSession = async (index) => {
+    const refreshed = await athlete.refresh();
+    const planned = ok(await athlete.req("POST", "/blocks/compile?create_session=true&beta_path=true", {
+      phase1_input: refreshed.bootstrap.declaration_record.engine_phase1_input, beta_user_id: athleteAccount.userId, beta_coach_user_id: coachAccount.userId
+    }), 201, "a session in the first week back").json.planned_session;
+    assert.deepEqual([planned.template_position.template_session_index, planned.template_position.reentry.reentry_week], [upcoming[index].index, true]);
+    const lift = planned.exercises.find((entry) => entry.exercise_id === upcoming[index].lift);
+    return [lift.sets, lift.intensity.value, lift.resolved_load.value];
+  };
+  assert.deepEqual(await backSession(0), [4, 120, 120], "exactly as her coach set it");
+  assert.deepEqual(await backSession(1), [3, 90, 90], "a set fewer and 10% lighter, as her coach chose");
 });
