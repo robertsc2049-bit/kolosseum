@@ -3,13 +3,14 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
+import { appSource } from "./helpers/app_source.mjs";
 
 function read(relativePath) {
   return fs.readFileSync(relativePath, "utf8");
 }
 
 const html = read("public/app/index.html");
-const application = read("public/app/app.js");
+const application = appSource();
 const styles = read("public/app/styles.css");
 const service = read("src/api/beta19_coach_workspace_service.ts");
 const server = read("src/server.ts");

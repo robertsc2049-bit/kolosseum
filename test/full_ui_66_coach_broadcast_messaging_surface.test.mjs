@@ -3,13 +3,14 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
+import { appSource } from "./helpers/app_source.mjs";
 
 const root = process.cwd();
 const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
 
 const service = read("src/api/coach_broadcast_messaging_service.ts");
 const routes = read("src/api/messaging.routes.ts");
-const appJs = read("public/app/app.js");
+const appJs = appSource();
 const indexHtml = read("public/app/index.html");
 const manifest = JSON.parse(read("product/ui/function_manifest.json"));
 // DEV NOTE: the broadcast form and its live read-by-N-of-M receipt moved to

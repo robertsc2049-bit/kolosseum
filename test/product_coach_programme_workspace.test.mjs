@@ -3,13 +3,14 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
+import { appSource } from "./helpers/app_source.mjs";
 
 const root = process.cwd();
 const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
 
 const html = read("public/app/index.html");
 const css = read("public/app/styles.css");
-const js = read("public/app/app.js");
+const js = appSource();
 const service = read("src/api/beta19_coach_workspace_service.ts");
 const templates = read("src/api/beta18_programme_template_service.ts");
 const phase6 = read("engine/src/phases/phase6.ts");
@@ -69,8 +70,9 @@ test("athlete execution receives a resolved working load without hiding the sour
   assert.match(templates, /resolved_load:\s*resolvedLoad/u);
   assert.match(phase6, /intensity: it\.intensity/u);
   assert.match(phase6, /resolved_load/u);
-  assert.match(js, /resolved\.value/u);
-  assert.match(js, /% 1RM/u);
+  const format = read("public/app-src/utils/format.ts");
+  assert.match(format, /resolved\.value/u);
+  // (Athletes see weights, never a percentage of a max.)
 });
 
 test("workspace layouts remain responsive and product-shaped", () => {

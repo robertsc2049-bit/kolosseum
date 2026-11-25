@@ -11,12 +11,13 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
+import { appSource } from "./helpers/app_source.mjs";
 
 const root = process.cwd();
 const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
 
 const html = read("public/app/index.html");
-const js = read("public/app/app.js");
+const js = appSource();
 const mainTsx = read("public/app-src/main.tsx");
 const panel = read("public/app-src/screens/tools/BarbellCalculatorPanel.tsx");
 const plateWarmupCalculator = read("public/app-src/components/PlateWarmupCalculator.tsx");

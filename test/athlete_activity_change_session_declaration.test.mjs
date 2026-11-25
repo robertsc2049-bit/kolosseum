@@ -17,9 +17,10 @@ import test from "node:test";
 import { JSDOM, VirtualConsole } from "jsdom";
 
 import { loadCurrentAthleteDeclaration } from "../public/app/account_ui.js";
+import { appSource } from "./helpers/app_source.mjs";
 
 const root = process.cwd();
-const appJs = fs.readFileSync(path.join(root, "public", "app", "app.js"), "utf8");
+const appJs = appSource();
 
 function declaration(declarationId, activityId) {
   return {

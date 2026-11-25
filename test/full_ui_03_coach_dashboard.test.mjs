@@ -3,16 +3,14 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
+import { appSource } from "./helpers/app_source.mjs";
 
 const html = fs.readFileSync(
   new URL("../public/app/index.html", import.meta.url),
   "utf8"
 );
 
-const application = fs.readFileSync(
-  new URL("../public/app/app.js", import.meta.url),
-  "utf8"
-);
+const application = appSource();
 
 const styles = fs.readFileSync(
   new URL("../public/app/styles.css", import.meta.url),

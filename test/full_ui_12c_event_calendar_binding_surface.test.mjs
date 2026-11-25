@@ -3,12 +3,13 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
+import { appSource } from "./helpers/app_source.mjs";
 
 const root = process.cwd();
 const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
 
 const html = read("public/app/index.html");
-const js = read("public/app/app.js");
+const js = appSource();
 const templateService = read("src/api/beta18_programme_template_service.ts");
 const templateRoutes = read("src/api/templates.routes.ts");
 const templateHandlers = read("src/api/templates.handlers.ts");

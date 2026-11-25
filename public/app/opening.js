@@ -8,6 +8,7 @@
   var REUSE_MS = 1500;
   var WAIT_MS = 6000;
   var OPEN_FOR_MS = 15000;
+  var COACH_FILES = ["coach/athletes.js", "coach/builder.js", "coach/builderControls.js", "coach/builderEdits.js", "coach/draft.js", "coach/eventPlan.js", "coach/index.js", "coach/programmes.js", "coach/validation.js"];
   var started = Date.now();
   var spent = false;
   var firstUsed = new Map();
@@ -18,10 +19,14 @@
     var role = JSON.parse(localStorage.getItem("kolosseum.product.app.v1") || "{}").role;
     var own = document.currentScript && document.currentScript.src;
     if (own && (role === "athlete" || role === "coach")) {
-      var link = document.createElement("link");
-      link.rel = "modulepreload";
-      link.href = new URL("react-dist/kolosseum-react-" + role + ".js", own).href;
-      document.head.appendChild(link);
+      var files = ["react-dist/kolosseum-react-" + role + ".js"];
+      if (role === "coach") files = files.concat(COACH_FILES);
+      files.forEach(function (file) {
+        var link = document.createElement("link");
+        link.rel = "modulepreload";
+        link.href = new URL(file, own).href;
+        document.head.appendChild(link);
+      });
     }
   }
   catch (error) { /* no storage: they're asked for once the role is known */ }

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
+import { appSource } from "./helpers/app_source.mjs";
 
 const html = fs.readFileSync(
   new URL(
@@ -10,13 +11,7 @@ const html = fs.readFileSync(
   "utf8"
 );
 
-const app = fs.readFileSync(
-  new URL(
-    "../public/app/app.js",
-    import.meta.url
-  ),
-  "utf8"
-);
+const app = appSource();
 
 const accountUi = fs.readFileSync(
   new URL(

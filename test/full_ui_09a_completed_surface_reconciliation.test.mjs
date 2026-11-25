@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
+import { appSource } from "./helpers/app_source.mjs";
 
 const root = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -590,6 +591,7 @@ const targets = [
 ];
 
 function read(relativePath) {
+  if (relativePath === "public/app/app.js") return appSource();
   return fs
     .readFileSync(path.join(root, relativePath), "utf8")
     .replace(/\r\n?/gu, "\n");

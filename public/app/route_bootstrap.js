@@ -525,6 +525,13 @@ function installProductRouting() {
     true
   );
 
+  // They chose to stay (something unsaved): the address goes back to this screen.
+  document.addEventListener("kolosseum:view-kept", () => {
+    const view = [...document.querySelectorAll(".view")].find((section) => !section.hidden)?.id.replace(/^view-/u, "");
+    const hash = routeForView(readRole(), view, {});
+    if (hash && hash !== location.hash) history.replaceState({ kolosseum_route: hash }, "", hash);
+  });
+
   // DEV NOTE: FULL-UI-02D the entry form moved to React (EntryAuthPanel.tsx)
   // - a submit-triggered scheduleRouteApplication() here would need
   // rebinding on every re-render anyway. The #appShell hidden-attribute

@@ -3,12 +3,13 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
+import { appSource } from "./helpers/app_source.mjs";
 
 const root = process.cwd();
 const server = fs.readFileSync(path.join(root, "src", "server.ts"), "utf8");
 const html = fs.readFileSync(path.join(root, "public", "app", "index.html"), "utf8");
 const css = fs.readFileSync(path.join(root, "public", "app", "styles.css"), "utf8");
-const js = fs.readFileSync(path.join(root, "public", "app", "app.js"), "utf8");
+const js = appSource();
 const accountJs = fs.readFileSync(
   path.join(root, "public", "app", "account_ui.js"),
   "utf8"

@@ -10,13 +10,14 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
+import { appSource } from "./helpers/app_source.mjs";
 
 const root = process.cwd();
 const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
 
 const html = read("public/app/index.html");
 const css = read("public/app/styles.css");
-const js = read("public/app/app.js");
+const js = appSource();
 const routes = read("src/api/product_support.routes.ts");
 const service = read("src/api/product_support_service.ts");
 const serverTs = read("src/server.ts");

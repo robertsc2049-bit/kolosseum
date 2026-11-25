@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
+import { appSource } from "./helpers/app_source.mjs";
 
 const root = process.cwd();
 const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
@@ -11,7 +12,7 @@ const service = read("src/api/coach_athlete_messaging_service.ts");
 const routes = read("src/api/messaging.routes.ts");
 const serverTs = read("src/server.ts");
 const schema = read("schema.sql");
-const appJs = read("public/app/app.js");
+const appJs = appSource();
 const indexHtml = read("public/app/index.html");
 // DEV NOTE: the athlete's own coach-messaging widget (embedded in "My
 // coach") moved to React - see AccountCoachRelationshipPanel.tsx/

@@ -5757,6 +5757,9 @@ details.progress-insights-section > summary h4 { margin: 0; }
 .programme-preview-block > summary > :first-child { flex: 1 1 auto; }
 .programme-preview-block:not([open]) { padding-block: var(--k-space-3); }
 .programme-preview-block > .programme-preview-weeks { margin-top: var(--k-space-3); }
+@media (min-width: 760px) {
+  #template-identity-root .phone-more-body > * { margin-top: var(--k-space-3); }
+}
 @media (max-width: 759px) {
   .phone-more { display: grid; min-width: 0; }
   .phone-more > .phone-more-body { display: grid; gap: var(--k-space-3); min-width: 0; }

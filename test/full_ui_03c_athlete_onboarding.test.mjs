@@ -11,6 +11,7 @@ import {
   routeForView,
   serializeProductRoute
 } from "../public/app/route_bootstrap.js";
+import { appSource } from "./helpers/app_source.mjs";
 
 const service = await import(
   "../dist/src/api/athlete_onboarding_service.js"
@@ -452,7 +453,7 @@ test("FULL-UI-03C manifest and closure contain no partial or missing onboarding 
 });
 
 test("a powerlifter who isn't competing can start a session: the guard checks the declaration, not the engine input", () => {
-  const app = fs.readFileSync("public/app/app.js", "utf8");
+  const app = appSource();
   assert.match(app, /state\.phase1Input\?\.activity_id === "powerlifting" && !state\.phase1Input\?\.competition_event &&\s*!\(await declaredCompetitionEvent\(\)\)\) \{/u);
   assert.match(app, /onboarding\?\.current_effective_declaration\?\.fields\?\.competition_event/u);
   const service = fs.readFileSync("src/api/athlete_onboarding_service.ts", "utf8");

@@ -8,6 +8,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
+import { appSource } from "./helpers/app_source.mjs";
 
 function read(relativePath) {
   return fs.readFileSync(
@@ -20,7 +21,7 @@ const html =
   read("public/app/index.html");
 
 const application =
-  read("public/app/app.js");
+  appSource();
 
 const styles =
   read("public/app/styles.css");

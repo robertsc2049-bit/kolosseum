@@ -86,7 +86,7 @@ export const FRIENDLY_ERROR_MESSAGES: Record<string, string> = {
   work_item_group_too_small: "A group needs at least two exercises.",
   work_item_group_not_contiguous: "Grouped exercises must be next to each other in the session.",
   work_item_group_type_mismatch: "All exercises in a group must share the same grouping type.",
-  exercise_not_in_active_registry: "Choose exercises from the active exercise registry.",
+  exercise_not_in_active_registry: "Choose an exercise for every row, then save.",
   duplicate_exercise_in_session: "Each exercise in a session must be unique.",
   planned_sets_invalid: "Sets must be between 1 and 30.",
   set_range_max_invalid: "Most sets must be between 1 and 30.",
@@ -197,5 +197,7 @@ export function friendlyErrorMessage(payload: unknown, status: number): string {
     return factualAccountStateMessage(record.account_state);
   }
 
-  return FRIENDLY_ERROR_MESSAGES[reason] ?? genericFriendlyMessageForStatus(status);
+  // The programme routes say what's wrong inside details.
+  const inside = isRecord(record.details) ? String(record.details.reason ?? "") : "";
+  return FRIENDLY_ERROR_MESSAGES[reason] ?? FRIENDLY_ERROR_MESSAGES[inside] ?? genericFriendlyMessageForStatus(status);
 }

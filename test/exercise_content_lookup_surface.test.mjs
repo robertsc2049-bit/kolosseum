@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
+import { appSource } from "./helpers/app_source.mjs";
 
 const root = process.cwd();
 const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
@@ -113,7 +114,7 @@ test("both the athlete session view and the coach builder's exercise-info toggle
   // panel at two different DOM positions sharing one toggle state) and
   // components/ExerciseHowtoBody.tsx (the render helper both call sites
   // share).
-  const appJs = read("public/app/app.js");
+  const appJs = appSource();
   const sessionPanel = read("public/app-src/screens/athlete/AthleteSessionExecutionPanel.tsx");
   const builderTree = read("public/app-src/screens/coach/CoachProgrammeBuilderTree.tsx");
   const howtoHook = read("public/app-src/screens/coach/useExerciseHowto.ts");

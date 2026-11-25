@@ -12,12 +12,13 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
+import { appSource } from "./helpers/app_source.mjs";
 
 const root = process.cwd();
 const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
 
 const css = read("public/app/styles.css");
-const js = read("public/app/app.js");
+const js = appSource();
 const writeService = read("src/api/session_state_write_service.ts");
 const readModel = read("src/api/session_state_read_model.ts");
 const substitutionRegistry = read("src/api/session_substitution_registry.ts");

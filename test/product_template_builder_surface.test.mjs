@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
+import { appSource } from "./helpers/app_source.mjs";
 
 const root = process.cwd();
 const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
@@ -18,7 +19,7 @@ const store = read("src/api/beta_product_record_store.ts");
 const schema = read("schema.sql");
 const html = read("public/app/index.html");
 const css = read("public/app/styles.css");
-const js = read("public/app/app.js");
+const js = appSource();
 const blocks = read("src/api/blocks.handlers.ts");
 const journey = read("src/api/beta_product_journey_service.ts");
 const phase4Types = read("engine/src/phases/phase4/types.ts");
