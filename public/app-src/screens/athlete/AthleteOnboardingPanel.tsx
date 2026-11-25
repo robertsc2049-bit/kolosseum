@@ -257,15 +257,14 @@ function StageFields({ stage, draft, onChange, onChoosePosition }: { stage: stri
   if (stage === "jurisdiction") {
     return (
       <>
-        <p>Select the jurisdiction yourself; it is not inferred from location.</p>
+        <p>Choose where you live. Kolosseum is only for people in the UK during the beta.</p>
         <label className="field">
           <span>Jurisdiction</span>
-          <select value={String(draft.jurisdiction_code ?? "")} onChange={(event) => onChange({ ...draft, jurisdiction_code: event.target.value })}>
+          <select value={draft.jurisdiction_code === "other" ? "" : String(draft.jurisdiction_code ?? "")} onChange={(event) => onChange({ ...draft, jurisdiction_code: event.target.value })}>
             <option value="">Choose</option>
             <option value="england_wales">England and Wales</option>
             <option value="scotland">Scotland</option>
             <option value="northern_ireland">Northern Ireland</option>
-            <option value="other">Other</option>
           </select>
         </label>
         <label className="onboarding-choice">

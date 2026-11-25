@@ -416,6 +416,20 @@ test("continuing past the accessibility stage without touching any checkbox save
   });
 });
 
+test("where you live offers the UK only, and an earlier draft's Other has to be chosen again", async () => {
+  installMocks({
+    initialState: draftState({
+      current_stage: "jurisdiction",
+      draft: { fields: { activity_id: "powerlifting", execution_scope: "individual", product_acknowledged: true, jurisdiction_code: "other" } }
+    })
+  });
+  render(<AthleteOnboardingPanel />);
+  const select = (await screen.findByLabelText("Jurisdiction")) as HTMLSelectElement;
+  assert.deepEqual([...select.options].map((option) => option.textContent), ["Choose", "England and Wales", "Scotland", "Northern Ireland"]);
+  assert.equal(select.value, "");
+  assert.ok(screen.getByText(/only for people in the UK/u));
+});
+
 test("a validation failure shows field errors and does not advance the stage", async () => {
   installMocks({
     initialState: draftState(),
