@@ -13,6 +13,8 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 // one hand-added <script> tag rather than Vite regenerating markup.
 export default defineConfig({
   root: here,
+  // A role's screens load beside the entry, wherever it was served from.
+  base: "./",
   plugins: [react()],
   build: {
     outDir: path.resolve(here, "../app/react-dist"),

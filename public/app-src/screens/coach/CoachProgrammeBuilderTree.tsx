@@ -2,7 +2,7 @@ import React from "react";
 
 import { type JsonRecord } from "../../api/transport";
 import { InfoTooltip } from "../../components/InfoTooltip";
-import { borgAnchorLabel, cr10AnchorLabel, formatDate, parseRest, reserveToRpe, restDuration, rpeReserveLabel, rpeToReserve, titleCase, restLabel } from "../../utils/format";
+import { borgAnchorLabel, cr10AnchorLabel, formatDate, parseRest, reserveToRpe, restDuration, restLabel, rpeReserveLabel, rpeToReserve, sentenceCase, titleCase } from "../../utils/format";
 import { lookupPrilepinZones } from "../../../../shared/prilepin-reference/prilepinChartReference.mjs";
 import { ExerciseHowtoBody } from "../../components/ExerciseHowtoBody";
 import { MuscleGroupSelect } from "../../components/MuscleGroupSelect";
@@ -706,7 +706,7 @@ function CollapseToggle({ open, onToggle, label }: { open: boolean; onToggle: ()
 
 function exerciseNameOf(exerciseId: string, templateExercises: JsonRecord[]): string {
   const found = templateExercises.find((exercise) => exercise.exercise_id === exerciseId);
-  return String(found?.display_name ?? (exerciseId ? titleCase(exerciseId) : "No exercise chosen"));
+  return String(found?.display_name ?? (exerciseId ? sentenceCase(exerciseId) : "No exercise chosen"));
 }
 
 function formatSeconds(total: number): string {
@@ -780,7 +780,7 @@ function BuilderWorkItem({
   // a week fits on a screen; the name opens the full editor. One with
   // nothing chosen yet - just added - starts open.
   const [open, setOpen] = React.useState(!workItem.exercise_id);
-  const exerciseName = String(templateExercises.find((exercise) => exercise.exercise_id === workItem.exercise_id)?.display_name ?? (workItem.exercise_id ? titleCase(workItem.exercise_id) : "Choose an exercise"));
+  const exerciseName = String(templateExercises.find((exercise) => exercise.exercise_id === workItem.exercise_id)?.display_name ?? (workItem.exercise_id ? sentenceCase(workItem.exercise_id) : "Choose an exercise"));
 
   return (
     <div className={`template-work-item${grouped ? " template-work-item-grouped" : ""}`} data-open={String(open)}>

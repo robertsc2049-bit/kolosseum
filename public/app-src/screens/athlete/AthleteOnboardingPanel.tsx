@@ -17,7 +17,7 @@ import {
   STAGES,
   useAthleteOnboarding
 } from "./useAthleteOnboarding";
-import { titleCase } from "../../utils/format";
+import { titleCase, formatDate as formatRecordedDate } from "../../utils/format";
 import { TrainingPlanFields, trainingPlanOf } from "../../components/TrainingPlanFields";
 import { planDatesLabel } from "../../utils/trainingPlan";
 import { AthleteEquipmentCard } from "./AthleteEquipmentCard";
@@ -48,7 +48,7 @@ type OnboardingApi = ReturnType<typeof useAthleteOnboarding>;
 function formatDate(value: unknown): string {
   if (!value) return "not recorded";
   const date = new Date(String(value));
-  return Number.isNaN(date.getTime()) ? String(value) : date.toLocaleString("en-GB");
+  return Number.isNaN(date.getTime()) ? String(value) : formatRecordedDate(value);
 }
 
 const JURISDICTION_LABELS: Record<string, string> = { england_wales: "England and Wales", scotland: "Scotland", northern_ireland: "Northern Ireland", other: "Other" };

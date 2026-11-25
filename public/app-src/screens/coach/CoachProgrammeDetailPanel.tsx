@@ -122,7 +122,6 @@ function UsageList({ templateId, assignments, relationships }: { templateId: str
             <article className="programme-assignment-record" key={assignmentId}>
               <div>
                 <strong>{String(athlete?.display_name ?? athleteId ?? "Athlete")}</strong>
-                <small>{assignmentId}</small>
               </div>
               <div>
                 <span className="badge neutral">{titleCase(assignmentState)}</span>
@@ -222,8 +221,7 @@ export function CoachProgrammeDetailPanel() {
         <article className="programme-detail-section">
           <div className="panel-header">
             <div>
-              <p className="eyebrow">Version family</p>
-              <h4>Version metadata</h4>
+              <h4>Versions</h4>
             </div>
           </div>
           <div className="programme-version-list">
@@ -234,8 +232,7 @@ export function CoachProgrammeDetailPanel() {
         <article className="programme-detail-section">
           <div className="panel-header">
             <div>
-              <p className="eyebrow">Recorded use</p>
-              <h4>Assignment usage</h4>
+              <h4>Who has it</h4>
             </div>
           </div>
           <div className="programme-usage-list">

@@ -49,7 +49,7 @@ test("shows a session's title, status and exercises done - not a count of taps",
   ]);
   render(<AthleteTodayRecentActivityList />);
   await screen.findByText("Squat day");
-  assert.ok(screen.getByText("In Progress"));
+  assert.ok(screen.getByText("In progress"));
   assert.ok(screen.getByText("4 of 9 exercises done"));
   assert.equal(screen.queryByText(/actions recorded/u), null);
 });

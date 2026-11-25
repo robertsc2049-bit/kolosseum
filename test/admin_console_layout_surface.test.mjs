@@ -10,7 +10,7 @@ const js = readFileSync("public/admin/admin.js", "utf8");
 
 test("a second heading inside a card is separated from the table above it", () => {
   assert.match(html, /section h2:not\(:first-child\) \{ margin-top: 1\.6rem; padding-top: 1\.2rem; border-top: 1px solid var\(--k-border\); \}/u);
-  for (const heading of ["Deletion-request review", "Org owner deletion-request review"]) {
+  for (const heading of ["Deletion requests", "Organisation owners' deletion requests"]) {
     const index = html.indexOf(`<h2>${heading}</h2>`);
     assert.ok(index > 0, heading);
     const sectionStart = html.lastIndexOf("<section", index);

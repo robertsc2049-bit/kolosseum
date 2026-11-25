@@ -5,7 +5,7 @@ import { loadSessionSummary } from "../../api/sessionSummaryClient";
 import { type JsonRecord } from "../../api/transport";
 import { PhoneDisclosure } from "../../components/PhoneDisclosure";
 import { TickIcon } from "../../components/TickIcon";
-import { formatDate, titleCase } from "../../utils/format";
+import { formatDate, sentenceCase, titleCase } from "../../utils/format";
 import { ReviewSessionWork, type SessionWorkState } from "./ReviewSessionWork";
 import { type ReviewRecord, useCoachReview } from "./useCoachReview";
 import { finishedEarly } from "../../utils/sessionSummary";
@@ -243,7 +243,7 @@ function ReviewDetail({
                   <span className="muted small">{formatDate(note.created_at)}</span>
                 </div>
                 <p>{String(note.note_text ?? "")}</p>
-                {note.exercise_id ? <p className="muted small">Exercise: {titleCase(String(note.exercise_id))}</p> : null}
+                {note.exercise_id ? <p className="muted small">Exercise: {sentenceCase(String(note.exercise_id))}</p> : null}
                 <p className="muted small">
                   {note.visibility === "athlete_visible"
                     ? "Visible to the athlete · doesn't affect training calculations"
@@ -258,7 +258,7 @@ function ReviewDetail({
       <details className="review-record-details">
         <summary>Session record</summary>
         <dl className="review-fact-grid">
-          <div><dt>Status</dt><dd>{titleCase(record.session_status ?? "recorded")}</dd></div>
+          <div><dt>Status</dt><dd>{sentenceCase(record.session_status ?? "recorded")}</dd></div>
           <div><dt>Recorded events</dt><dd>{Number(record.runtime_event_count ?? 0)}</dd></div>
           <div><dt>Planned work items</dt><dd>{Number(record.planned_work_item_count ?? 0)}</dd></div>
           <div><dt>Block</dt><dd>{String(record.block_id || "Not recorded")}</dd></div>
@@ -552,7 +552,7 @@ export function CoachReviewPanel() {
             <select value={noteExerciseId} onChange={(event) => setNoteExerciseId(event.target.value)}>
               <option value="">Whole session</option>
               {(Array.isArray(noteRecord.exercise_ids) ? (noteRecord.exercise_ids as string[]) : []).map((exerciseId) => (
-                <option key={exerciseId} value={exerciseId}>{titleCase(exerciseId)}</option>
+                <option key={exerciseId} value={exerciseId}>{sentenceCase(exerciseId)}</option>
               ))}
             </select>
           </label>

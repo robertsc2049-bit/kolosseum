@@ -681,25 +681,8 @@ button:focus-visible,
 .compact-panel { display: flex; min-height: 315px; flex-direction: column; justify-content: center; }
 .large-number { display: block; margin: 0.2rem 0 0.6rem; font-family: var(--k-font-display); font-size: 4.4rem; font-weight: 500; }
 
-.metric-row {
-  display: grid;
-  max-width: 590px;
-  margin: var(--k-space-8) 0;
-  gap: var(--k-space-3);
-  grid-template-columns: repeat(3, 1fr);
-}
 
-.metric-row > div {
-  padding: var(--k-space-4);
-  border: 1px solid var(--line-soft);
-  border-radius: var(--k-radius-m);
-  background: var(--k-inset);
-}
 
-.metric-row strong,
-.metric-row span { display: block; }
-.metric-row strong { font-size: 1.45rem; }
-.metric-row span { margin-top: 0.2rem; color: var(--stone-dim); font-size: 0.8rem; }
 
 .today-programme-summary { margin-bottom: 0.6rem; }
 .today-programme-summary p { margin: 0.15rem 0; }
@@ -1104,7 +1087,6 @@ button:focus-visible,
 
 .session-actions .button:first-child:last-child { grid-column: 1 / -1; }
 
-.session-summary { align-self: start; }
 
 .progress-track {
   overflow: hidden;
@@ -1123,16 +1105,6 @@ button:focus-visible,
   transition: width 220ms ease;
 }
 
-.metric-stack { display: grid; gap: 0.25rem; }
-.metric-stack > div {
-  display: flex;
-  padding: var(--k-space-3) 0;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid var(--line-soft);
-}
-.metric-stack span { color: var(--stone-dim); font-size: 0.8rem; }
-.metric-stack strong { font-size: 1.1rem; }
 
 .exercise-list { display: grid; gap: 0.5rem; }
 
@@ -1587,12 +1559,6 @@ button:focus-visible,
   align-self: end;
 }
 
-.template-week-actions {
-  display: flex;
-  margin-top: var(--k-space-3);
-  justify-content: flex-end;
-  gap: var(--k-space-2);
-}
 
 .template-status-line {
   display: flex;
@@ -1675,7 +1641,6 @@ button:focus-visible,
   /* The title and its notes (welcome back, pain, injury) get the full width;
      the badges wrap underneath instead of squeezing them into a column. */
   .session-heading > div:first-child { flex: 1 1 100%; }
-  .metric-row { grid-template-columns: 1fr; }
   .metric-cards { grid-template-columns: 1fr; }
   .session-actions { grid-template-columns: 1fr; }
   .inline-controls { width: 100%; flex-direction: column; }
@@ -2024,25 +1989,8 @@ button:focus-visible,
   color: var(--stone);
 }
 
-.event-assignment-summary {
-  display: grid;
-  gap: var(--k-space-2);
-  padding: var(--k-space-4) var(--k-space-4);
-  border: 1px solid color-mix(in srgb, var(--k-accent) 38%, transparent);
-  border-radius: var(--k-radius-m);
-  background: color-mix(in srgb, var(--k-accent) 7.5%, transparent);
-}
 
-.event-assignment-summary .event-summary-heading {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--k-space-2);
-}
 
-.event-assignment-summary p {
-  margin: 0;
-}
 
 .event-countdown-card {
   border-color: color-mix(in srgb, var(--k-accent) 42%, transparent);
@@ -2488,7 +2436,7 @@ html[data-a11y-screen-reader-optimised="true"] [tabindex]:focus-visible {
   padding: 11px;
 }
 
-.declaration-fact span {
+.declaration-fact > span {
   display: block;
   opacity: 0.7;
   font-size: 0.82rem;
@@ -3146,8 +3094,7 @@ html[data-a11y-screen-reader-optimised="true"] [tabindex]:focus-visible {
   display: none;
 }
 
-.template-draft-recovery-actions,
-.template-builder-status-actions {
+.template-draft-recovery-actions {
   display: flex;
   flex-wrap: wrap;
   gap: var(--k-space-3);
@@ -3244,8 +3191,7 @@ html[data-a11y-screen-reader-optimised="true"] [tabindex]:focus-visible {
     grid-template-columns: 1fr;
   }
 
-  .template-draft-recovery-actions,
-  .template-builder-status-actions {
+  .template-draft-recovery-actions {
     justify-content: stretch;
   }
 }
@@ -3263,7 +3209,6 @@ html[data-a11y-screen-reader-optimised="true"] [tabindex]:focus-visible {
   }
 
   .template-builder-heading .button,
-  .template-builder-status-actions .button,
   .template-draft-recovery-actions .button,
   .builder-action-row .button,
   .builder-action-row .text-button,
@@ -3279,7 +3224,6 @@ html[data-a11y-screen-reader-optimised="true"] [tabindex]:focus-visible {
 
 /* FULL-UI-06 immutable assignment lifecycle */
 .assignment-current-state,
-.assignment-history-list,
 .athlete-assignment-history {
   display: grid;
   gap: var(--k-space-3);
@@ -3302,13 +3246,7 @@ html[data-a11y-screen-reader-optimised="true"] [tabindex]:focus-visible {
   align-items: start;
 }
 
-.assignment-event-fact {
-  margin-top: var(--k-space-1);
-}
 
-.assignment-history-panel {
-  margin-top: var(--k-space-4);
-}
 
 .assignment-history-card .record-meta {
   justify-content: flex-end;
@@ -3352,18 +3290,7 @@ html[data-a11y-screen-reader-optimised="true"] [tabindex]:focus-visible {
   margin: 0;
 }
 
-.review-summary-grid {
-  display: grid;
-  grid-template-columns:
-    repeat(4, minmax(0, 1fr));
-  gap: var(--k-space-3);
-  margin: var(--k-space-4) 0;
-}
 
-.stat-card span,
-.stat-card strong { display: block; }
-.stat-card span { color: var(--stone-dim); font-size: 0.8rem; }
-.stat-card strong { margin-top: 0.4rem; font-family: var(--k-font-display); font-size: 1.8rem; font-weight: 500; }
 
 .review-layout {
   display: grid;
@@ -3380,9 +3307,6 @@ html[data-a11y-screen-reader-optimised="true"] [tabindex]:focus-visible {
   outline-offset: 2px;
 }
 
-.review-record-actions {
-  align-items: flex-end;
-}
 
 .review-detail {
   position: sticky;
@@ -3730,8 +3654,7 @@ html[data-a11y-screen-reader-optimised="true"] [tabindex]:focus-visible {
 }
 
 @media (max-width: 980px) {
-  .review-toolbar,
-  .review-summary-grid {
+  .review-toolbar {
     grid-template-columns:
       repeat(2, minmax(0, 1fr));
   }
@@ -3747,21 +3670,16 @@ html[data-a11y-screen-reader-optimised="true"] [tabindex]:focus-visible {
 
 @media (max-width: 620px) {
   .review-toolbar,
-  .review-summary-grid,
   .review-fact-grid {
     grid-template-columns: 1fr;
   }
 
   .review-toolbar .button,
-  .review-record-actions .button,
   .review-detail .button {
     min-height: 2.75rem;
     width: 100%;
   }
 
-  .review-record-actions {
-    align-items: stretch;
-  }
 }
 /* FULL-UI-08 controlled-launch commercial account surface */
 .commercial-panel {
@@ -4217,7 +4135,7 @@ html[data-a11y-screen-reader-optimised="true"] [tabindex]:focus-visible {
    athletes). The native input stays for forms and screen readers; the chip
    shows the state. */
 .choice-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; border: 0; min-width: 0; }
-.choice-chips > legend, .choice-group-title { display: block; width: 100%; margin: 0 0 6px; padding: 0; color: var(--stone-dim); font-size: 0.8rem; font-weight: 700; }
+.choice-chips > legend { display: block; width: 100%; margin: 0 0 6px; padding: 0; color: var(--stone-dim); font-size: 0.8rem; font-weight: 700; }
 .choice-chip { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; min-width: 44px; padding: 0 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--ink-2); color: var(--stone); font-size: 0.9rem; line-height: 1.2; text-align: center; cursor: pointer; user-select: none; }
 .choice-chip input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
 .choice-chip:has(input:checked) { border-color: var(--k-accent); background: var(--k-accent-tint); color: var(--k-text); font-weight: 700; }
@@ -4418,7 +4336,7 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
   .empty-state p { margin-bottom: 0; font-size: 0.92rem; }
 
   /* Forms: 16px text so iOS never zooms in on focus. */
-  input, select, textarea { font-size: 16px; }
+  input, select, textarea { font-size: 16px !important; }
   textarea { min-height: 104px; }
 
   /* Account: identity card fits the width. */
@@ -4432,9 +4350,9 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
 .section-toggle { display: none; }
 
 @media (max-width: 900px) {
-  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel) [data-collapsible] { position: relative; }
-  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel) [data-collapsible] > :first-child { cursor: pointer; }
-  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel) .section-toggle {
+  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel, #historyWellbeing, #view-coach-progress) [data-collapsible] { position: relative; }
+  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel, #historyWellbeing, #view-coach-progress) [data-collapsible] > :first-child { cursor: pointer; }
+  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel, #historyWellbeing, #view-coach-progress) .section-toggle {
     position: absolute;
     top: 0;
     right: 0;
@@ -4448,7 +4366,7 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
     color: var(--stone-dim);
     cursor: pointer;
   }
-  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel) .section-toggle::before {
+  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel, #historyWellbeing, #view-coach-progress) .section-toggle::before {
     width: 10px;
     height: 10px;
     border-right: 2px solid currentColor;
@@ -4457,18 +4375,18 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
     transform: translateY(-2px) rotate(45deg);
     transition: transform var(--k-motion-base) var(--k-ease-standard);
   }
-  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel) [data-collapsed="false"] .section-toggle::before { transform: translateY(2px) rotate(-135deg); }
+  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel, #historyWellbeing, #view-coach-progress) [data-collapsed="false"] .section-toggle::before { transform: translateY(2px) rotate(-135deg); }
 
-  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel) [data-collapsed="true"] { padding-top: var(--k-space-3); padding-bottom: var(--k-space-3); }
-  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel) [data-collapsed="true"][data-collapsible="1"] > :not(:first-child),
-  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel) [data-collapsed="true"][data-collapsible="2"] > :nth-child(n + 3) { display: none; }
-  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel) [data-collapsed="true"] > :first-child,
-  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel) [data-collapsed="true"][data-collapsible="2"] > :nth-child(2) { margin-bottom: 0; }
-  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel) [data-collapsed="true"] > :first-child :is(p, button, .button):not(.eyebrow):not(.section-toggle),
-  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel) [data-collapsed="true"] > :first-child > :not(:has(h2, h3, h4)):not(h2, h3, h4):not(.eyebrow) { display: none; }
-  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel) [data-collapsed="true"] :is(h2, h3, h4) { margin: 0; padding-right: 40px; font-size: 1.05rem; }
-  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel) [data-collapsed="true"] .eyebrow { margin-bottom: 2px; }
-  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel) [data-collapsible] > .page-heading { min-height: 0; margin: 0; }
+  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel, #historyWellbeing, #view-coach-progress) [data-collapsed="true"] { padding-top: var(--k-space-3); padding-bottom: var(--k-space-3); }
+  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel, #historyWellbeing, #view-coach-progress) [data-collapsed="true"][data-collapsible="1"] > :not(:first-child),
+  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel, #historyWellbeing, #view-coach-progress) [data-collapsed="true"][data-collapsible="2"] > :nth-child(n + 3) { display: none; }
+  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel, #historyWellbeing, #view-coach-progress) [data-collapsed="true"] > :first-child,
+  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel, #historyWellbeing, #view-coach-progress) [data-collapsed="true"][data-collapsible="2"] > :nth-child(2) { margin-bottom: 0; }
+  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel, #historyWellbeing, #view-coach-progress) [data-collapsed="true"] > :first-child :is(p, button, .button):not(.eyebrow):not(.section-toggle):not(.analysis-headline),
+  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel, #historyWellbeing, #view-coach-progress) [data-collapsed="true"] > :first-child > :not(:has(h2, h3, h4)):not(h2, h3, h4):not(.eyebrow) { display: none; }
+  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel, #historyWellbeing, #view-coach-progress) [data-collapsed="true"] :is(h2, h3, h4) { margin: 0; padding-right: 40px; font-size: 1.05rem; }
+  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel, #historyWellbeing, #view-coach-progress) [data-collapsed="true"] .eyebrow { margin-bottom: 2px; }
+  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel, #historyWellbeing, #view-coach-progress) [data-collapsible] > .page-heading { min-height: 0; margin: 0; }
 
   /* Settings rows sit close together, like one list. */
   #view-account .account-settings-grid,
@@ -4478,8 +4396,8 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
 }
 @media (max-width: 900px) {
   /* A closed row's chevron is centred on the row; an open one sits by the title. */
-  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel) [data-collapsed="true"] .section-toggle { height: 100%; max-height: none; }
-  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel) [data-collapsible] { margin-top: 0; }
+  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel, #historyWellbeing, #view-coach-progress) [data-collapsed="true"] .section-toggle { height: 100%; max-height: none; }
+  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel, #historyWellbeing, #view-coach-progress) [data-collapsible] { margin-top: 0; }
 }
 
 /* Phone disclosure (components/PhoneDisclosure.tsx): invisible on wider
@@ -4548,10 +4466,6 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
   .rest-timer-panel .button-row { flex-wrap: nowrap; }
 
   /* Session progress: one compact row. */
-  .session-summary .metric-stack { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--k-space-2); }
-  .session-summary .metric-stack > div { display: grid; padding: var(--k-space-2) 0 0; border: 0; }
-  .session-summary .metric-stack span { font-size: 0.8rem; }
-  .session-summary .metric-stack strong { font-size: 1.3rem; }
 }
 
 /* Notices: a confirmation is a small pill that clears itself (tap to clear
@@ -4610,10 +4524,6 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
 
   /* Review: filters behind one button, the four counts in one row. */
   .review-toolbar { grid-template-columns: 1fr; gap: var(--k-space-2); width: 100%; }
-  .review-summary-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--k-space-2); margin: var(--k-space-3) 0; }
-  .review-summary-grid .stat-card { padding: var(--k-space-2) var(--k-space-2) var(--k-space-2) var(--k-space-3); border: 1px solid var(--line-soft); border-radius: var(--k-radius-m); background: var(--ink-2); }
-  .review-summary-grid .stat-card span { font-size: 0.8rem; line-height: 1.2; }
-  .review-summary-grid .stat-card strong { margin-top: 2px; font-size: 1.4rem; line-height: 1; }
 
   /* Declarations: the facts two to a row; each max on one compact row. */
   .declaration-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--k-space-2); }
@@ -4809,7 +4719,7 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
   form.onboarding-card[data-onboarding-stage] .onboarding-actions > .button.secondary:disabled { display: none; }
 }
 @media (max-width: 900px) {
-  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel) [data-collapsed="true"] > p.eyebrow:first-child { margin: 0; padding-right: 40px; font-size: 0.82rem; }
+  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel, #historyWellbeing, #view-coach-progress) [data-collapsed="true"] > p.eyebrow:first-child { margin: 0; padding-right: 40px; font-size: 0.82rem; }
 }
 
 /* Review: what the athlete did - each exercise with its logged sets. */
@@ -5215,7 +5125,7 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
 .trend-chart { margin: 0; min-width: 0; }
 .trend-band { fill: color-mix(in srgb, var(--k-accent) 12%, transparent); }
 .trend-axis { stroke: var(--k-border); stroke-width: 1; }
-.trend-label { fill: var(--k-text-secondary); font-size: 11px; }
+.trend-label { fill: var(--k-text-secondary); font-size: 12px; }
 .trend-legend { display: flex; flex-wrap: wrap; gap: 4px var(--k-space-3); margin-top: 4px; font-size: 0.8rem; color: var(--k-text-secondary); }
 .trend-legend-item { display: inline-flex; align-items: center; gap: 6px; }
 .trend-swatch { width: 12px; height: 3px; border-radius: 2px; }
@@ -5340,7 +5250,7 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
 
 /* Chart markers (TrendChart): competitions, matches, deloads, peaks, season. */
 .trend-marker-line { stroke: var(--k-warning); stroke-width: 1; stroke-dasharray: 3 3; opacity: 0.8; }
-.trend-marker-label { fill: var(--k-warning); font-size: 10px; font-weight: 700; }
+.trend-marker-label { fill: var(--k-warning); font-size: 12px; font-weight: 700; }
 .trend-legend-marker strong { color: var(--k-warning); margin-right: 4px; }
 
 /* Session effort (SessionEffortCard.tsx) and other training (OtherTrainingPanel.tsx). */
@@ -5635,7 +5545,6 @@ input[type="checkbox"] { border-radius: 4px; }
 .panel .panel,
 .panel .record-card,
 .panel .metric-card,
-.metric-row > div,
 .today-resolved-load,
 .today-notes-list li { border-color: transparent; background: var(--k-surface-2); }
 .record-card.selected, .review-record-card.selected { border-color: var(--k-accent); box-shadow: 0 0 0 1px var(--k-accent); }
@@ -5700,8 +5609,6 @@ summary:focus-visible { outline: 3px solid var(--k-focus); outline-offset: 2px; 
 
 @media (max-width: 900px) {
   .topbar-mark { display: grid; }
-  .metric-row { grid-template-columns: repeat(3, minmax(0, 1fr)); margin: var(--k-space-4) 0; gap: var(--k-space-2); }
-  .metric-row > div { padding: var(--k-space-3); }
   .entry-brand h1 { position: absolute; display: block; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip-path: inset(50%); }
   .entry-form-wrap { align-items: start; }
 }
@@ -5786,3 +5693,51 @@ summary:focus-visible { outline: 3px solid var(--k-focus); outline-offset: 2px; 
 
 /* A question open under the sets: its own button is the one to press. */
 .current-work:has(.pain-report-panel, .skip-reason-panel, .substitution-panel) > .session-next { display: none; }
+
+/* Second review: nothing touching, nothing cut off, nothing that says zero. */
+.metric-card[data-zero="true"] { display: none; }
+.metric-cards:not(:has(> .metric-card:not([data-zero="true"]))):not(:has(> :not(.metric-card))) { display: none; }
+
+.account-code-details { margin-bottom: var(--k-space-3); }
+#programme-detail-root > * + *, #programme-detail-root .button-row + .button-row { margin-top: var(--k-space-3); }
+.programme-detail-grid { align-items: start; }
+.programme-detail-section > .panel-header { margin-bottom: 0; }
+.template-settings .field + .field, .template-settings label + label { margin-top: var(--k-space-3); }
+.badge-row + p, .account-card .badge + p { margin-top: var(--k-space-2); }
+select { text-overflow: ellipsis; }
+.record-meta > .badge { pointer-events: none; }
+.relationship-state { color: var(--k-text-secondary); font-size: 0.85rem; font-weight: 600; }
+.line-chart-caption { display: flex; justify-content: space-between; gap: var(--k-space-3); margin: 4px 0 0; color: var(--k-text-secondary); font-size: 0.8rem; }
+.dashboard-flag { margin: 2px 0 0; color: var(--k-danger); font-size: 0.85rem; font-weight: 600; }
+.dashboard-more { margin: var(--k-space-2) 0 0; }
+.page-heading .eyebrow { display: none; }
+@media (max-width: 900px) {
+  /* The top bar already says the name of the screen. */
+  .page-heading h2.same-title { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .dashboard-record-list .dashboard-record-card { grid-template-columns: minmax(0, 1fr) auto; display: grid; align-items: center; gap: var(--k-space-2); padding: var(--k-space-3); }
+  .dashboard-record-list .dashboard-record-card .record-meta { display: grid; justify-items: end; gap: var(--k-space-2); margin: 0; }
+  .dashboard-record-list .dashboard-record-card .button { width: auto; }
+}
+@media (min-width: 901px) {
+  /* One title: the page's own, where it has one. */
+  #topbarEyebrow { display: none; }
+  body:has(.view:not([hidden]) > .page-heading h2) #topbarTitle:not(:focus-visible) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .review-toolbar { grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.2fr) minmax(0, 1fr) auto; align-items: end; }
+  .page-heading > .review-toolbar { flex: 1 1 100%; }
+  .page-heading:has(> .review-toolbar) { flex-wrap: wrap; }
+  /* The session: the sets and the button fill the card. */
+  #view-session .set-log-list, #view-session .effort-chips, #view-session .button.wide { max-width: none; }
+}
+details.progress-insights-section > summary { display: flex; min-height: 44px; align-items: center; cursor: pointer; }
+details.progress-insights-section > summary h4 { margin: 0; }
+.record-card p.dashboard-flag { color: var(--k-danger); font-size: 0.85rem; font-weight: 600; }
+.record-meta > .relationship-state, .record-meta > .muted { align-self: center; }
+.programme-grants .inline-form > .button { margin-top: var(--k-space-3); }
+.button-row.quick-build { margin-bottom: var(--k-space-3); }
+#view-session .set-log-list { width: 100%; }
+@media (max-width: 620px) {
+  .line-chart-caption { flex-wrap: wrap; }
+  .line-chart-caption > :nth-child(2) { order: -1; flex-basis: 100%; }
+}
+@media (min-width: 901px) { #view-marketplace .programme-library-controls { grid-template-columns: minmax(220px, 1.8fr) repeat(2, minmax(190px, 1fr)); } }
+.analysis small { font-size: 0.75rem; }

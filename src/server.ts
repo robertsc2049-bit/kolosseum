@@ -45,6 +45,7 @@ import { standDownRouter } from "./api/medical_stand_down.routes.js";
 import { attendanceEventRouter } from "./api/attendance_event.routes.js";
 import { athleteOnboardingRouter } from "./api/athlete_onboarding.routes.js";
 import { openingRouter } from "./api/opening.routes.js";
+import { productAssets, productPage } from "./api/product_assets.js";
 import { coachOnboardingRouter } from "./api/coach_onboarding.routes.js";
 import { productCommercialRouter } from "./api/product_commercial.routes.js";
 import { productCommercialWebhookRouter } from "./api/product_commercial_webhook.routes.js";
@@ -137,6 +138,11 @@ app.get("/", (_req, res) => {
 });
 // Fonts never change under their name: kept for a year.
 app.use("/app/fonts", express.static(path.join(productAppDir, "fonts"), { immutable: true, maxAge: "365d" }));
+// Scripts and styles never change under their name either: the page asks for
+// them at /app/v/<version of the files>/..., so nothing is rechecked until an
+// update, and then everything is new together.
+app.get(["/app/", "/app/index.html"], productPage(productAppDir));
+app.use("/app/v/:version", productAssets(productAppDir));
 app.use("/app", express.static(productAppDir));
 /**
  * Founder/admin operations workspace.

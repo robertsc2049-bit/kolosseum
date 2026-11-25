@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 
 import { type JsonRecord } from "../../api/transport";
-import { formatDate, titleCase } from "../../utils/format";
+import { formatDate, sentenceCase, titleCase } from "../../utils/format";
 import { useAthleteCoachNotes } from "./useAthleteCoachNotes";
 
 // DEV NOTE: ported from index.html's #athleteDetailNoteForm and app.js's
@@ -98,7 +98,7 @@ function NoteCard({ note }: { note: JsonRecord }) {
         <h4>{note.visibility === "athlete_visible" ? "Athlete-visible note" : "Coach-only note"}</h4>
         <p>{String(note.note_text ?? "")}</p>
         <p className="muted small">Session: {String(note.session_id ?? "")}</p>
-        {note.exercise_id ? <p className="muted small">Exercise: {titleCase(String(note.exercise_id))}</p> : null}
+        {note.exercise_id ? <p className="muted small">Exercise: {sentenceCase(String(note.exercise_id))}</p> : null}
       </div>
       <span className="badge neutral">{formatDate(note.created_at)}</span>
     </article>

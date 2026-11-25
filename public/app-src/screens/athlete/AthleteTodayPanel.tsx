@@ -6,7 +6,7 @@ import { type JsonRecord } from "../../api/transport";
 import { InfoTooltip } from "../../components/InfoTooltip";
 import { InstallAppPrompt } from "../../components/InstallAppPrompt";
 import { type DayItem, type ExerciseOption, TrainingDayEditor, newDayItem, toExerciseOption } from "../../components/TrainingDayEditor";
-import { countdownLabel, formatDate, programmeReentryNote, titleCase } from "../../utils/format";
+import { countdownLabel, formatDate, programmeReentryNote, sentenceCase, titleCase } from "../../utils/format";
 import { useAthleteToday } from "./useAthleteToday";
 import { TodayCoachInvitations } from "../account/AccountCoachInvitationsPanel";
 
@@ -272,7 +272,7 @@ export function TodaysSessionPicker({ options, onStart, onCancel }: {
 }
 
 function todayItemName(item: JsonRecord): string {
-  return String(item.display_name ?? "") || titleCase(String(item.exercise_id ?? "").replace(/__r[0-9]+$/u, ""));
+  return String(item.display_name ?? "") || sentenceCase(String(item.exercise_id ?? "").replace(/__r[0-9]+$/u, ""));
 }
 
 // "3 x 5, 70 kg": sets and reps, then the weight or effort if there is one.

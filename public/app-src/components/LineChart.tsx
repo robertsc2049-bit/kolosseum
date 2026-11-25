@@ -1,5 +1,7 @@
 import React from "react";
 
+import { formatDate } from "../utils/format";
+
 // DEV NOTE: progress graphs (FULL-UI-36 slice 2) - the first hand-rolled
 // SVG chart in this codebase (no charting library dependency, matching
 // the app's existing minimalist, hand-built visual style). Pure/
@@ -100,6 +102,14 @@ export function LineChart({ series, height = 80, compact = false, emptyLabel = "
           )
         )}
       </svg>
+
+      {!compact && nonEmptySeries.length === 1 && nonEmptySeries[0].points.length > 1 ? (
+        <p className="line-chart-caption">
+          <span>{`${formatDate(nonEmptySeries[0].points[0].date)}: ${nonEmptySeries[0].points[0].value}`}</span>
+          <span>{nonEmptySeries[0].label}</span>
+          <span>{`${formatDate(nonEmptySeries[0].points.at(-1)!.date)}: ${nonEmptySeries[0].points.at(-1)!.value}`}</span>
+        </p>
+      ) : null}
 
       {!compact && nonEmptySeries.length > 1 ? (
         <div className="line-chart-legend">

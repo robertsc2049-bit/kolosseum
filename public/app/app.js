@@ -786,22 +786,6 @@ async function api(method, path, body) {
   return payload;
 }
 
-function buildPhase1Input(activityId) {
-  return {
-    consent_granted: true,
-    engine_version: "EB2-1.0.0",
-    enum_bundle_version: "EB2-1.0.0",
-    phase1_schema_version: "1.0.0",
-    actor_type: "athlete",
-    execution_scope: "individual",
-    activity_id: activityId,
-    nd_mode: false,
-    instruction_density: "standard",
-    exposure_prompt_density: "standard",
-    bias_mode: "none"
-  };
-}
-
 function countsFromSession(sessionState) {
   return {
     completed: Array.isArray(sessionState?.completed_exercises) ? sessionState.completed_exercises : [],
@@ -857,21 +841,6 @@ function sessionClassification(sessionState) {
   }
 
   return { label: "Planned", className: "neutral", key: "planned" };
-}
-
-function setBadge(element, classification) {
-  element.textContent = classification.label;
-  element.className = `badge ${classification.className}`;
-}
-
-function exerciseName(exercise) {
-  return String(
-    exercise?.display_name ??
-    exercise?.exercise_name ??
-    exercise?.exercise_id ??
-    exercise?.item_id ??
-    "Exercise"
-  );
 }
 
 function exerciseDetails(exercise) {
@@ -1162,7 +1131,7 @@ function renderIdentity() {
   elements.sidebarAvatar.textContent = avatar;
   elements.topbarAccount.textContent = avatar;
   elements.todayGreeting.textContent = `Welcome, ${name.split(/\s+/u)[0]}`;
-  elements.coachGreeting.textContent = `Welcome, ${name.split(/\s+/u)[0]}`;
+  elements.coachGreeting.textContent = `Welcome, ${/^coach\s/iu.test(name) ? name : name.split(/\s+/u)[0]}`;
 }
 
 function applyAccountIdentity(
@@ -2063,13 +2032,6 @@ document.addEventListener("kolosseum:coach-relationship-mutated", () => {
     .catch(handleError);
 });
 
-function activeCoachTemplates(activityId = null) {
-  return state.coachTemplates.filter((template) => {
-    if (programmeDisplayState(template) !== "active") return false;
-    return activityId === null || template.activity_id === activityId;
-  });
-}
-
 function profileRecordToDraft(profile, athlete) {
   return {
     coach_user_id: state.profile?.coachUserId ?? "",
@@ -2619,52 +2581,6 @@ function closeAthleteProfile() {
 // Dashboard records are derived from server-authoritative coach,
 // assignment, event and artefact responses. No readiness,
 // recommendation, ranking or engine mutation is produced.
-
-function dashboardAthleteName(athleteUserId) {
-  const athlete =
-    state.coachAthletes.find(
-      (entry) =>
-        entry.userId === athleteUserId
-    );
-
-  return athlete?.displayName ??
-    athleteUserId ??
-    "Athlete";
-}
-
-function dashboardAssignmentTemplateId(assignment) {
-  return String(
-    assignment?.templateId ??
-    assignment?.template_id ??
-    assignment?.programme_id ??
-    ""
-  );
-}
-
-function dashboardProgrammeName(assignment) {
-  const templateId =
-    dashboardAssignmentTemplateId(
-      assignment
-    );
-
-  const template =
-    state.coachTemplates.find(
-      (entry) =>
-        String(
-          entry.template_id ??
-          entry.id ??
-          ""
-        ) === templateId
-    );
-
-  return String(
-    template?.template_name ??
-    assignment?.template_name ??
-    assignment?.programme_name ??
-    templateId ??
-    "Programme"
-  );
-}
 
 function bindCoachDashboardActions() {
   for (
@@ -5190,7 +5106,9 @@ function renderTemplateBuilderState() {
   state.templateDraftDirty = templateDraftIsDirty();
 
   const issues = currentTemplateBuilderIssues();
-  elements.templateBuilderValidation.hidden = false;
+  // Nothing's wrong with a programme nobody has started writing.
+  elements.templateBuilderValidation.hidden =
+    issues.length > 0 && !draft.template_id && !state.templateDraftDirty;
   elements.templateBuilderValidation.className = issues.length === 0
     ? "template-builder-validation complete"
     : "template-builder-validation warning";
@@ -5976,18 +5894,6 @@ async function archiveTemplate(templateId) {
     hideBusy();
   }
 }
-// DEV NOTE: the create-event form's own COACH_EVENT_TYPES/
-// syncCoachEventTypeOptions()/renderCoachEventPreview() moved to React -
-// see CoachEventCreatePanel.tsx/useCoachEventCreate.ts. coachEventPlan()
-// (dashboardEventDate()'s only caller, itself now removed along with the
-// rest of renderCoachDashboard()'s metric computation - see
-// CoachOverviewMetricsPanel.tsx/useCoachOverviewMetrics.ts) is gone too.
-function coachEventCompile(eventRecord) {
-  return eventRecord?.event_compile_summary && typeof eventRecord.event_compile_summary === "object"
-    ? eventRecord.event_compile_summary
-    : null;
-}
-
 async function refreshCoachEvents(options = {}) {
   if (state.role !== "coach" || !state.profile?.coachUserId) return [];
   if (!options.quiet) showBusy("Loading events…");
@@ -6280,6 +6186,8 @@ async function enterApplication() {
   // fresh boot with a restored session, so this is the one place both
   // cases are covered.
   document.dispatchEvent(new CustomEvent("kolosseum:account-role-known"));
+  // This role's screens, in their own file (app-src/workspace.ts).
+  await globalThis.kolosseumWorkspaceReady?.(state.role);
 
   if (state.role === "athlete") {
     // FULL-UI-22 cross-product quality: server authority over local cache.
@@ -6860,6 +6768,21 @@ const COLLAPSIBLE_SCREENS = [
     panels: ".programme-detail-section",
     keepOpenRoots: new Set(),
     keepOpen: ":has(> .programme-preview)"
+  },
+  // Wellbeing: the athlete's own progress stays open; each log is a row.
+  {
+    viewId: "historyWellbeing",
+    panels: ".panel",
+    keepOpenRoots: new Set(["athlete-self-progress-insights-root"]),
+    keepOpen: ".progress-insights-panel"
+  },
+  // One athlete's analysis: what stands out stays open; each section is a row
+  // with its headline.
+  {
+    viewId: "view-coach-progress",
+    panels: ".analysis-section",
+    keepOpenRoots: new Set(),
+    keepOpen: ".analysis-summary"
   }
 ];
 

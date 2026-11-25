@@ -2,7 +2,7 @@ import React from "react";
 
 import { type JsonRecord } from "../../api/transport";
 import { InfoTooltip } from "../../components/InfoTooltip";
-import { countdownLabel, formatDate, strengthSourceLabel } from "../../utils/format";
+import { countdownLabel, formatDate, sentenceCase, strengthSourceLabel } from "../../utils/format";
 import { useAthleteHistory } from "./useAthleteHistory";
 import { topPersonalRecord } from "../../utils/personalRecords";
 import { CoachProgrammePrintButton } from "./CoachProgrammePrintButton";
@@ -87,7 +87,7 @@ function openEvent(eventId: string) {
 
 function exerciseDisplayName(exerciseId: unknown, exercises: JsonRecord[]): string {
   const found = exercises.find((exercise) => exercise.exercise_id === exerciseId);
-  return String(found?.display_name ?? titleCase(exerciseId));
+  return String(found?.display_name ?? sentenceCase(exerciseId));
 }
 
 function convertedStrengthValue(value: unknown, sourceUnit: string, displayUnit: string): number | null {
@@ -387,29 +387,29 @@ export function AthleteSessionHistoryList() {
                 <p className="muted small">
                   Substituted:{" "}
                   {substitutions
-                    .map((entry) => `${titleCase(entry.exercise_id)} → ${titleCase(entry.substituted_exercise_id)}`)
+                    .map((entry) => `${sentenceCase(entry.exercise_id)} → ${sentenceCase(entry.substituted_exercise_id)}`)
                     .join(", ")}
                 </p>
               ) : null}
               {rpeReports.length > 0 ? (
                 <p className="muted small">
-                  RPE: {rpeReports.map((entry) => `${titleCase(entry.exercise_id)} ${Number(entry.rpe_value)}`).join(", ")}
+                  RPE: {rpeReports.map((entry) => `${sentenceCase(entry.exercise_id)} ${Number(entry.rpe_value)}`).join(", ")}
                 </p>
               ) : null}
               {borgReports.length > 0 ? (
                 <p className="muted small">
-                  Borg: {borgReports.map((entry) => `${titleCase(entry.exercise_id)} ${Number(entry.borg_value)}`).join(", ")}
+                  Borg: {borgReports.map((entry) => `${sentenceCase(entry.exercise_id)} ${Number(entry.borg_value)}`).join(", ")}
                 </p>
               ) : null}
               {cr10Reports.length > 0 ? (
                 <p className="muted small">
-                  CR10: {cr10Reports.map((entry) => `${titleCase(entry.exercise_id)} ${Number(entry.cr10_value)}`).join(", ")}
+                  CR10: {cr10Reports.map((entry) => `${sentenceCase(entry.exercise_id)} ${Number(entry.cr10_value)}`).join(", ")}
                 </p>
               ) : null}
               {setLogsByExercise.size > 0 ? (
                 <p className="muted small">
                   Sets:{" "}
-                  {[...setLogsByExercise].map(([exerciseId, logs]) => { const record = topPersonalRecord(logs); return `${titleCase(exerciseId)} ${logs
+                  {[...setLogsByExercise].map(([exerciseId, logs]) => { const record = topPersonalRecord(logs); return `${sentenceCase(exerciseId)} ${logs
                     .map((log) => `${Number(log.reps)}${log.load_value !== null && log.load_value !== undefined ? `×${Number(log.load_value)}${String(log.load_unit ?? "")}` : ""}${log === record ? " (PR)" : ""}`)
                     .join(", ")}`; }).join("; ")}
                 </p>
@@ -418,7 +418,7 @@ export function AthleteSessionHistoryList() {
                 <p className="muted small">
                   Extra sets:{" "}
                   {extraSetReports
-                    .map((entry) => `${titleCase(entry.exercise_id)} ${Number(entry.reps)} reps${entry.load_value !== null && entry.load_value !== undefined ? ` @ ${Number(entry.load_value)}${String(entry.load_unit ?? "")}` : ""}${entry.is_pr === true ? " (PR)" : ""}`)
+                    .map((entry) => `${sentenceCase(entry.exercise_id)} ${Number(entry.reps)} reps${entry.load_value !== null && entry.load_value !== undefined ? ` @ ${Number(entry.load_value)}${String(entry.load_unit ?? "")}` : ""}${entry.is_pr === true ? " (PR)" : ""}`)
                     .join(", ")}
                 </p>
               ) : null}
@@ -426,7 +426,7 @@ export function AthleteSessionHistoryList() {
                 <p className="muted small">
                   Added exercises:{" "}
                   {extraExerciseReports
-                    .map((entry) => `${titleCase(entry.exercise_id)} ${Number(entry.reps)} reps${entry.load_value !== null && entry.load_value !== undefined ? ` @ ${Number(entry.load_value)}${String(entry.load_unit ?? "")}` : ""}${entry.is_pr === true ? " (PR)" : ""}`)
+                    .map((entry) => `${sentenceCase(entry.exercise_id)} ${Number(entry.reps)} reps${entry.load_value !== null && entry.load_value !== undefined ? ` @ ${Number(entry.load_value)}${String(entry.load_unit ?? "")}` : ""}${entry.is_pr === true ? " (PR)" : ""}`)
                     .join(", ")}
                 </p>
               ) : null}
@@ -439,7 +439,7 @@ export function AthleteSessionHistoryList() {
             </div>
 
             <div className="record-meta">
-              <span className="badge neutral">{titleCase(session.session_status ?? "recorded")}</span>
+              <span className="badge neutral">{sentenceCase(session.session_status ?? "recorded")}</span>
               {session.pain_reported ? <span className="badge partial">Pain reported</span> : null}
               {session.split_entered ? (
                 <span className="badge partial">

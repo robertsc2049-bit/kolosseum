@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="robots" content="noindex, nofollow" />
   <meta name="theme-color" content="#1B2026" />
-  <title>Kolosseum Founder/Admin Operations</title>
+  <title>Kolosseum admin</title>
   <link rel="icon" href="/app/icons/icon-192.png" />
   <link rel="preload" href="/app/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="/app/fonts/rajdhani-700-latin.woff2" as="font" type="font/woff2" crossorigin />
@@ -56,6 +56,16 @@
     input[type="search"] { width: min(100%, 34rem); }
     details.fold > summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; font-weight: 700; }
     details.fold > summary:focus-visible { outline: 3px solid var(--k-focus); outline-offset: 2px; border-radius: var(--k-radius-s); }
+    form label { display: block; margin-bottom: 0.9rem; font-weight: 600; }
+    form label > br { display: none; }
+    form label > input:not([type="checkbox"], [type="radio"]), form label > select, form label > textarea { display: block; margin-top: 0.3rem; font-weight: 400; }
+    form > br { display: none; }
+    form > button { margin-top: 0.3rem; }
+    h1 { font-weight: 700; font-size: 1.9rem; margin-bottom: 0.3rem; }
+    h1 + p { margin: 0 0 1.4rem; }
+    input, select, textarea { padding: 0.55rem 0.7rem; }
+    .row-actions { margin: 0.3rem 0; }
+    table { margin-top: 1rem; }
     .muted { color: var(--k-text-secondary); }
     .error-text { color: var(--k-danger); }
     .server-error-kinds { overflow-wrap: anywhere; padding-left: 1.2rem; }
@@ -81,10 +91,11 @@
   </style>
 </head>
 <body>
+<main>
   <div class="admin-brand"><svg viewBox="0 0 192 192" aria-hidden="true" focusable="false"><path fill="#0E120B" d="M0 0h192v192H0z"/><path fill="#9AD600" d="M16 15h36v162H16zM146 15h30L81 96l95 81h-30L51 96z"/></svg><strong>Kolosseum</strong></div>
   <div data-theme-choice style="margin-bottom: 1rem"></div>
-  <h1>Founder / Admin Operations</h1>
-  <p class="muted">A minimum lawful operations workspace, scoped to individual accounts only. No engine, session, or runtime-event editing.</p>
+  <h1>Admin</h1>
+  <p class="muted">Accounts, requests and reports. Nothing here changes training or sessions.</p>
 
   <section id="adminSignInSection">
     <h2>Sign in</h2>
@@ -164,16 +175,16 @@
   </section>
 
   <section id="accountDetailSection" hidden>
-    <h2>Account detail: <span id="accountDetailUserId"></span></h2>
-    <p>Actor: <strong id="accountDetailActorType"></strong> | State: <strong id="accountDetailState"></strong> | Test account: <strong id="accountDetailTestFlag"></strong><span id="accountDetailTestReasonWrap" hidden> (reason: <em id="accountDetailTestReason"></em>)</span></p>
-    <p>Email: <strong id="accountDetailEmail"></strong> | Email verified: <strong id="accountDetailEmailVerified"></strong></p>
+    <h2>Account: <span id="accountDetailUserId"></span></h2>
+    <p>Role: <strong id="accountDetailActorType"></strong> · State: <strong id="accountDetailState"></strong> · Test account: <strong id="accountDetailTestFlag"></strong><span id="accountDetailTestReasonWrap" hidden> (reason: <em id="accountDetailTestReason"></em>)</span></p>
+    <p>Email: <strong id="accountDetailEmail"></strong> · Email verified: <strong id="accountDetailEmailVerified"></strong></p>
 
     <div class="row-actions">
-      <button id="accountToggleStateButton" type="button">Toggle active/suspended</button>
+      <button id="accountToggleStateButton" type="button">Suspend or reactivate</button>
       <button id="accountToggleStateConfirmButton" type="button" class="confirm" hidden>Confirm state change</button>
     </div>
     <div class="row-actions">
-      <button id="accountToggleTestButton" type="button">Toggle test-account marking</button>
+      <button id="accountToggleTestButton" type="button">Mark or unmark as a test account</button>
       <input id="accountTestMarkingReason" type="text" maxlength="500" placeholder="Reason (marking only)" hidden>
       <button id="accountToggleTestConfirmButton" type="button" class="confirm" hidden>Confirm test marking change</button>
     </div>
@@ -193,7 +204,7 @@
   </section>
 
   <section id="orgOwnerAccountSearchSection" hidden>
-    <h2>Org owner account search</h2>
+    <h2>Organisation owner search</h2>
     <form id="orgOwnerAccountSearchForm">
       <input id="orgOwnerAccountSearchQuery" type="text" aria-label="Search organisation owner accounts" placeholder="Search by user id, email or name" />
       <button type="submit" class="primary">Search</button>
@@ -207,12 +218,12 @@
   </section>
 
   <section id="orgOwnerAccountDetailSection" hidden>
-    <h2>Org owner account detail: <span id="orgOwnerAccountDetailUserId"></span></h2>
+    <h2>Organisation owner: <span id="orgOwnerAccountDetailUserId"></span></h2>
     <p>State: <strong id="orgOwnerAccountDetailState"></strong></p>
     <p>Email: <strong id="orgOwnerAccountDetailEmail"></strong></p>
 
     <div class="row-actions">
-      <button id="orgOwnerAccountToggleStateButton" type="button">Toggle active/suspended</button>
+      <button id="orgOwnerAccountToggleStateButton" type="button">Suspend or reactivate</button>
       <button id="orgOwnerAccountToggleStateConfirmButton" type="button" class="confirm" hidden>Confirm state change</button>
     </div>
     <p id="orgOwnerAccountActionResult" class="muted" hidden></p>
@@ -227,7 +238,7 @@
   </section>
 
   <section id="entitlementSection" hidden>
-    <h2>Coach entitlement and payment review</h2>
+    <h2>Coach plans and payments</h2>
     <label>Search entitlement records<br /><input id="commercialRecordsSearch" type="search" placeholder="User ID, record type or billing state" /></label>
     <div class="table-scroll">
       <table aria-label="Coach entitlement and payment review">
@@ -238,7 +249,7 @@
   </section>
 
   <section id="supportSection" hidden>
-    <h2>Support and error-record review</h2>
+    <h2>Problem reports</h2>
     <label>Search support requests<br /><input id="supportRequestsSearch" type="search" placeholder="Correlation ID, user ID, description or status" /></label>
     <div class="table-scroll">
       <table aria-label="Support and error-record review">
@@ -249,7 +260,7 @@
   </section>
 
   <section id="orgOwnerSupportSection" hidden>
-    <h2>Org owner support and error-record review</h2>
+    <h2>Problem reports from organisation owners</h2>
     <label>Search support requests<br /><input id="orgOwnerSupportRequestsSearch" type="search" placeholder="Correlation ID, user ID, description or status" /></label>
     <div class="table-scroll">
       <table aria-label="Org owner support and error-record review">
@@ -260,7 +271,7 @@
   </section>
 
   <section id="dataRightsReviewSection" hidden>
-    <h2>Export-request review</h2>
+    <h2>Data export requests</h2>
     <label>Search export requests<br /><input id="exportRequestsSearch" type="search" placeholder="Request ID, user ID or status" /></label>
     <div class="table-scroll table-scroll--wide">
       <table aria-label="Export-request review">
@@ -269,7 +280,7 @@
       </table>
     </div>
 
-    <h2>Deletion-request review</h2>
+    <h2>Deletion requests</h2>
     <p id="deletionDeadlineSummary" class="muted" aria-live="polite"></p>
     <label>Search deletion requests<br /><input id="deletionRequestsSearch" type="search" placeholder="Request ID, user ID, reason or status" /></label>
     <div class="table-scroll">
@@ -281,7 +292,7 @@
   </section>
 
   <section id="orgOwnerDataRightsReviewSection" hidden>
-    <h2>Org owner export-request review</h2>
+    <h2>Organisation owners' data export requests</h2>
     <label>Search export requests<br /><input id="orgOwnerExportRequestsSearch" type="search" placeholder="Request ID, user ID or status" /></label>
     <div class="table-scroll table-scroll--wide">
       <table aria-label="Org owner export-request review">
@@ -290,7 +301,7 @@
       </table>
     </div>
 
-    <h2>Org owner deletion-request review</h2>
+    <h2>Organisation owners' deletion requests</h2>
     <p id="orgOwnerDeletionDeadlineSummary" class="muted" aria-live="polite"></p>
     <label>Search deletion requests<br /><input id="orgOwnerDeletionRequestsSearch" type="search" placeholder="Request ID, user ID, reason or status" /></label>
     <div class="table-scroll">
@@ -313,7 +324,7 @@
   </section>
 
   <section id="auditSection" hidden>
-    <h2>Operational audit records</h2>
+    <h2>Audit log</h2>
     <label>Search audit records<br /><input id="auditRecordsSearch" type="search" placeholder="Actor, action, target or correlation id" /></label>
     <div class="table-scroll table-scroll--wide">
       <table aria-label="Operational audit records">
@@ -386,6 +397,7 @@
     </form>
     <p id="sellerTaxResult" class="muted" role="status" hidden></p>
   </section>
+</main>
 
   <script type="module" src="/admin/admin.js"></script>
 </body>

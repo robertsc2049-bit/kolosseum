@@ -39,6 +39,10 @@ const initialState: CoachOverviewSessionReviewState = {
   athleteNamesById: {}
 };
 
+export function reviewFlags(record: JsonRecord): string[] {
+  return (Array.isArray(record.review_flags) ? record.review_flags : []).map(String).filter(Boolean);
+}
+
 function recordDate(record: JsonRecord): string {
   return String(record.updated_at ?? record.created_at ?? "");
 }
@@ -68,7 +72,9 @@ export function useCoachOverviewSessionReview() {
 
       const awaitingReview = records
         .filter((record) => record.awaiting_review === true)
-        .sort((left, right) => recordDate(right).localeCompare(recordDate(left)));
+        // As in Review: what stands out first, then the newest.
+        .sort((left, right) => Number(reviewFlags(right).length > 0) - Number(reviewFlags(left).length > 0)
+          || recordDate(right).localeCompare(recordDate(left)));
 
       setState({ loading: false, error: null, openSessions, awaitingReview, athleteNamesById });
     }

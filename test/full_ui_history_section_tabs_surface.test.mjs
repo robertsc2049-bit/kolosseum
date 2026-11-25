@@ -39,7 +39,7 @@ test("index.html groups the session-history root (after the reports from their c
 });
 
 test("index.html groups every wellbeing panel under the wellbeing tab panel, hidden by default", () => {
-  const wellbeingSectionMatch = html.match(/<div data-tab-group="history" data-tab-panel="wellbeing" hidden>([\s\S]*?)\n {10}<\/div>/u);
+  const wellbeingSectionMatch = html.match(/<div data-tab-group="history" data-tab-panel="wellbeing" id="historyWellbeing" hidden>([\s\S]*?)\n {10}<\/div>/u);
   assert.ok(wellbeingSectionMatch, "expected a wellbeing tab-panel wrapper");
 
   const wellbeingSection = wellbeingSectionMatch[1];

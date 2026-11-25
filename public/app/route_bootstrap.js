@@ -365,6 +365,9 @@ export function applyCurrentProductRoute(options = {}) {
 }
 
 async function applyProductRouteNow(options) {
+  // Until the server has said who's signed in (the workspace is shown then,
+  // which applies the route), the stored role may be another account's.
+  if (document.getElementById("appShell")?.hidden) return false;
   const actor = readRole();
   if (!actor) return false;
 
@@ -391,6 +394,9 @@ async function applyProductRouteNow(options) {
       showRouteNotice("That page is not available for this account. The workspace home page has been opened.");
     }
   }
+
+  // This role's screens, so what's opened below finds its panel listening.
+  await globalThis.kolosseumWorkspaceReady?.(actor);
 
   route = actor === "athlete"
     ? await resolvedAthleteRoute(route, options)
@@ -449,6 +455,9 @@ function entityFromElement(element) {
 function syncRouteFromElement(element, replace = false) {
   const actor = readRole();
   if (!actor || applyingRoute) return;
+  // Opening: the address says where to go, and hasn't been followed yet. The
+  // screen shown meanwhile doesn't get to change it.
+  if (replace && !lastAppliedHash) return;
 
   const entity = entityFromElement(element);
   const viewControl = element.closest("[data-view], [data-view-link]");

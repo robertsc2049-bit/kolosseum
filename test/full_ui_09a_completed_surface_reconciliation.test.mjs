@@ -505,7 +505,7 @@ const targets = [
         "public/app/index.html",
         [
           "Validation summary",
-          "Completion validation"
+          "To fix before it's ready"
         ]
       ],
       [

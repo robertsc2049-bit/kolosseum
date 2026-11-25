@@ -75,3 +75,11 @@ test("only reads, only fixed paths on this server, for the signed-in person's ow
   }
   assert.deepEqual(openingPaths("org_owner", "o"), []);
 });
+
+test("no route is applied, or the address changed, before the server has said who this is", async () => {
+  const fs = await import("node:fs");
+  const route = fs.readFileSync(new URL("../public/app/route_bootstrap.js", import.meta.url), "utf8");
+  const apply = route.slice(route.indexOf("async function applyProductRouteNow"));
+  assert.ok(apply.indexOf('getElementById("appShell")?.hidden) return false') < apply.indexOf("readRole()"), "the stored role is only read once the workspace is shown");
+  assert.match(route, /if \(replace && !lastAppliedHash\) return;/u);
+});

@@ -5,7 +5,7 @@ import { type ChartPoint, LineChart } from "../../components/LineChart";
 import { TrainingE1rmCard } from "../../components/TrainingE1rmCard";
 import { LoggedMuscleVolume } from "../../components/WeeklyMuscleVolume";
 import { type JsonRecord } from "../../api/transport";
-import { BODY_METRIC_TYPE_LABELS, formatDate, titleCase } from "../../utils/format";
+import { BODY_METRIC_TYPE_LABELS, formatDate, sentenceCase, titleCase } from "../../utils/format";
 import { useAthleteProgressInsights } from "./useAthleteProgressInsights";
 
 function seriesPoints(series: unknown): ChartPoint[] {
@@ -23,7 +23,7 @@ function adherenceText(adherence: JsonRecord): string {
 
 function exerciseDisplayName(exerciseId: string, exercises: JsonRecord[]): string {
   const exercise = exercises.find((entry) => entry.exercise_id === exerciseId);
-  return typeof exercise?.display_name === "string" ? exercise.display_name : titleCase(exerciseId);
+  return typeof exercise?.display_name === "string" ? exercise.display_name : sentenceCase(exerciseId);
 }
 
 function StrengthTrendCard({ trend, exercises }: { trend: JsonRecord; exercises: JsonRecord[] }) {

@@ -12,6 +12,20 @@
   var spent = false;
   var firstUsed = new Map();
 
+  // The last visit's role is almost always this one's: its screens
+  // (app-src/workspace.ts) start downloading with everything else.
+  try {
+    var role = JSON.parse(localStorage.getItem("kolosseum.product.app.v1") || "{}").role;
+    var own = document.currentScript && document.currentScript.src;
+    if (own && (role === "athlete" || role === "coach")) {
+      var link = document.createElement("link");
+      link.rel = "modulepreload";
+      link.href = new URL("react-dist/kolosseum-react-" + role + ".js", own).href;
+      document.head.appendChild(link);
+    }
+  }
+  catch (error) { /* no storage: they're asked for once the role is known */ }
+
   var reads = Promise.race([
     fetch("/account/opening", { credentials: "same-origin", headers: { accept: "application/json" } })
       .then(function (response) { return response.ok ? response.json() : null; })

@@ -22,7 +22,7 @@ import { type JsonRecord } from "../../api/transport";
 // do) would risk silently drifting from that law over time.
 // eslint-disable-next-line import/no-unresolved
 import { compareProgrammeStrengthRequirements } from "../../../../shared/strength-reference/strengthReferenceLifecycle.mjs";
-import { titleCase } from "../../utils/format";
+import { sentenceCase } from "../../utils/format";
 import { PROFILE_UPDATED_EVENT } from "./useAthleteStrengthProfile";
 
 // DEV NOTE: ported from app.js's (removed) selectedAthleteProfileTemplate()/
@@ -109,7 +109,7 @@ function coachEventCompile(eventRecord: JsonRecord | undefined): JsonRecord | nu
 
 function exerciseDisplayName(exercises: JsonRecord[], exerciseId: string): string {
   const match = exercises.find((exercise) => exercise.exercise_id === exerciseId);
-  return typeof match?.display_name === "string" ? match.display_name : titleCase(exerciseId);
+  return typeof match?.display_name === "string" ? match.display_name : sentenceCase(exerciseId);
 }
 
 export type AssignmentEntry = {

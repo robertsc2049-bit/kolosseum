@@ -283,10 +283,10 @@ test("displays a session with its recorded event count and every bespoke fact - 
   assert.ok(screen.getByText("Pain reported"));
   assert.ok(screen.getByText("Split session"));
   assert.match(document.body.textContent ?? "", /Skipped: Equipment Unavailable/u);
-  assert.match(document.body.textContent ?? "", /Substituted: Back Squat → Leg Press/u);
-  assert.match(document.body.textContent ?? "", /RPE: Bench Press 8/u);
+  assert.match(document.body.textContent ?? "", /Substituted: Back squat → Leg press/u);
+  assert.match(document.body.textContent ?? "", /RPE: Bench press 8/u);
   assert.match(document.body.textContent ?? "", /Borg: Deadlift 15/u);
-  assert.match(document.body.textContent ?? "", /CR10: Overhead Press 7\.5/u);
+  assert.match(document.body.textContent ?? "", /CR10: Overhead press 7\.5/u);
   assert.match(document.body.textContent ?? "", /Return decision: Continue Remaining Work/u);
   assert.ok(screen.getByLabelText("About split session"));
   assert.ok(screen.getByLabelText("About return decision"));
@@ -313,9 +313,9 @@ test("marks a logged extra set or added exercise as a personal record only when 
 
   await waitFor(() => screen.getByText("Training session"));
 
-  assert.match(document.body.textContent ?? "", /Extra sets: Back Squat 5 reps @ 120kg \(PR\)/u);
-  assert.match(document.body.textContent ?? "", /Added exercises: Front Squat 5 reps @ 60kg/u);
-  assert.doesNotMatch(document.body.textContent ?? "", /Front Squat 5 reps @ 60kg \(PR\)/u);
+  assert.match(document.body.textContent ?? "", /Extra sets: Back squat 5 reps @ 120kg \(PR\)/u);
+  assert.match(document.body.textContent ?? "", /Added exercises: Front squat 5 reps @ 60kg/u);
+  assert.doesNotMatch(document.body.textContent ?? "", /Front squat 5 reps @ 60kg \(PR\)/u);
 });
 
 test("the coach sees what was actually lifted on each prescribed set, including a missed rep, a failed set and a PR", async () => {
@@ -343,9 +343,9 @@ test("the coach sees what was actually lifted on each prescribed set, including 
   await waitFor(() => screen.getByText("Training session"));
 
   const text = document.body.textContent ?? "";
-  assert.match(text, /Sets: Back Squat 5×144kg, 5×144kg, 3×144kg, 0×150kg/u);
-  assert.match(text, /Pull Up 8(?!×)/u, "a bodyweight set shows reps only");
-  assert.match(text, /Paused Bench Press 3×102\.5kg \(PR\)/u);
+  assert.match(text, /Sets: Back squat 5×144kg, 5×144kg, 3×144kg, 0×150kg/u);
+  assert.match(text, /Pull up 8(?!×)/u, "a bodyweight set shows reps only");
+  assert.match(text, /Paused bench press 3×102\.5kg \(PR\)/u);
 });
 
 test("the Review button dispatches kolosseum:open-session-review with the open athlete's id", async () => {
