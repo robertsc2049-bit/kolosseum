@@ -53,14 +53,15 @@ export function versionedPage(html: string, version: string): string {
   return html.replace(/(\b(?:src|href)=")\/app\/([\w./-]+\.(?:js|css))(")/gu, (_all, before: string, name: string, after: string) => `${before}/app/v/${version}/${name}${after}`);
 }
 
-export function productPage(dir: string): RequestHandler[] {
-  const limit = rateLimit({ windowMs: 60 * 1000, limit: 600, standardHeaders: true, legacyHeaders: false });
-  const page = (_request: Request, response: Response) => {
+// Generous: a whole gym opens the app from one address.
+export const productFilesRateLimit = rateLimit({ windowMs: 60 * 1000, limit: 6000, standardHeaders: true, legacyHeaders: false });
+
+export function productPage(dir: string): RequestHandler {
+  return (_request: Request, response: Response) => {
     const html = fs.readFileSync(path.join(dir, "index.html"), "utf8");
     response.setHeader("cache-control", "no-cache");
     response.type("html").send(versionedPage(html, currentVersion(dir)));
   };
-  return [limit, page];
 }
 
 export function productAssets(dir: string): RequestHandler[] {

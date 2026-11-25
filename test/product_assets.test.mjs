@@ -9,7 +9,7 @@ import test from "node:test";
 
 import express from "express";
 
-import { assetVersion, productAssets, productPage, versionedPage } from "../dist/src/api/product_assets.js";
+import { assetVersion, productAssets, productFilesRateLimit, productPage, versionedPage } from "../dist/src/api/product_assets.js";
 
 function site() {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "assets-"));
@@ -21,8 +21,8 @@ function site() {
 }
 async function get(dir, paths) {
   const app = express();
-  app.get(["/app/", "/app/index.html"], productPage(dir));
-  app.use("/app/v/:version", productAssets(dir));
+  app.get(["/app/", "/app/index.html"], productFilesRateLimit, productPage(dir));
+  app.use("/app/v/:version", productFilesRateLimit, productAssets(dir));
   const server = http.createServer(app);
   await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
   const answers = [];
