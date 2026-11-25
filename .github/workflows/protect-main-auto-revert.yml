@@ -112,7 +112,7 @@ jobs:
           for attempt in $(seq 1 "$max_attempts"); do
             echo "Polling required workflows for $TARGET_SHA (attempt $attempt/$max_attempts)"
 
-# DEV NOTE: One failed or cut-off reply from GitHub is missing data,
+            # DEV NOTE: One failed or cut-off reply from GitHub is missing data,
             # not a decision: keep polling (it used to end the job here).
             if ! runs_json="$(gh api \
               -H "Accept: application/vnd.github+json" \
