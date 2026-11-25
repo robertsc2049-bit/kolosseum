@@ -109,8 +109,8 @@ p { line-height: 1.58; }
   width: 44px;
   height: 44px;
   border-radius: 22%;
-  /* The Kolosseum K, as on the app icon, in both modes. */
-  background: #0E120B url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Cpath fill='%239AD600' d='M16 15h36v162H16zM146 15h30L81 96l95 81h-30L51 96z'/%3E%3C/svg%3E") center / 100% no-repeat;
+  /* The Split K on Iron, as on the app icon, in both modes. */
+  background: #1B2026 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-48 -46 194.2 192'%3E%3Cpath fill='%239AD600' d='M0 0 27 0 27 100 0 100zM34 32 62.2 0 98.2 0 54.2 50 98.2 100 62.2 100 34 68z'/%3E%3C/svg%3E") center / 100% no-repeat;
   color: transparent;
   font-size: 0;
 }
@@ -167,7 +167,7 @@ p { line-height: 1.58; }
   width: 34rem;
   height: 34rem;
   background: var(--k-surface-2);
-  clip-path: path("M45 42h102v459H45zM414 42h85L229 272l270 229h-85L144 272z");
+  clip-path: path("M20 20h135v500H20zM190 180 331 20h180L291 270l220 250H331L190 360z");
   content: "";
 }
 
@@ -5891,3 +5891,9 @@ form > .checkbox-field > input[type="checkbox"] { margin-top: 0.25em; }
   .session-next { position: static; }
   .page-heading { min-height: 0; padding-top: 0; margin-top: 0; }
 }
+
+/* The wordmark: the K green on dark, the whole name Iron on light. */
+.wordmark { display: block; width: auto; height: 34px; max-width: 100%; fill: var(--k-text); }
+.wordmark-k { fill: var(--k-accent-bright); }
+:root[data-theme="light"] .wordmark-k { fill: var(--k-text); }
+.entry-brand .brand-lockup { display: grid; justify-items: start; gap: var(--k-space-2); }
