@@ -9,7 +9,7 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.json && npm run engine:shim:check && npm run build:react",
-    "build:react": "vite build -c public/app-src/vite.config.ts && vite build -c public/app-src/vite.shell.config.ts",
+    "build:react": "vite build -c public/app-src/vite.config.ts",
     "build:react:watch": "vite build -c public/app-src/vite.config.ts --watch",
     "test:react": "node --import ./public/app-src/__tests__/setup.mjs --import tsx/esm --test public/app-src/__tests__/*.test.tsx",
     "build:fast": "node ci/guards/green_entrypoint_guard.mjs && node ci/guards/clean_tree_guard.mjs && tsc -p tsconfig.json && npm run engine:shim:check && node ci/guards/run_pipeline_contract_version_guard.mjs",
