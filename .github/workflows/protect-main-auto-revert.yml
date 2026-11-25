@@ -112,9 +112,16 @@ jobs:
           for attempt in $(seq 1 "$max_attempts"); do
             echo "Polling required workflows for $TARGET_SHA (attempt $attempt/$max_attempts)"
 
-            runs_json="$(gh api \
+            # DEV NOTE: One failed or cut-off reply from GitHub is missing data,
+            # not a decision: keep polling (it used to end the job here).
+            if ! runs_json="$(gh api \
               -H "Accept: application/vnd.github+json" \
-              "/repos/$REPO/actions/runs?head_sha=$TARGET_SHA&event=push&per_page=100")"
+              "/repos/$REPO/actions/runs?head_sha=$TARGET_SHA&event=push&per_page=100")" \
+              || ! jq -e '.workflow_runs | type == "array"' <<< "$runs_json" > /dev/null 2>&1; then
+              echo "GitHub gave no usable answer; polling again."
+              sleep "$sleep_seconds"
+              continue
+            fi
 
             echo "$runs_json" > runs.json
 

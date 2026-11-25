@@ -1,7 +1,7 @@
 {
   "name": "Kolosseum",
   "short_name": "Kolosseum",
-  "description": "Controlled training workspace for coaches and athletes.",
+  "description": "Training for coaches and athletes.",
   "start_url": "/app/",
   "scope": "/app/",
   "display": "standalone",

@@ -111,6 +111,7 @@ const explicitLaterSliceAllowedChangedPaths =
     "public/app/icons/apple-touch-icon.png",
     "public/app/icons/icon-192.png",
     "public/app/icons/icon-512.png",
+    "public/app/icons/share.png",
     "public/app/icons/icon-maskable-512.png",
     "public/app/index.html",
     "public/app/legal/legal.css",

@@ -49,3 +49,17 @@ test("every page loads the colours, and only the legal pages go without the choi
     assert.doesNotMatch(read(page), /<script/u, page);
   }
 });
+
+test("the Split K is the same everywhere, and the wordmark is never green on light", () => {
+  const styles = fs.readFileSync("public/app/styles.css", "utf8");
+  const admin = fs.readFileSync("public/admin/index.html", "utf8");
+  const page = fs.readFileSync("public/app/index.html", "utf8");
+  const k = /class="wordmark-k" d="([^"]+)"/u.exec(page)?.[1];
+  assert.ok(k);
+  assert.ok(styles.includes(`d='${k}'`), "the tile");
+  assert.ok(admin.includes(`d="${k}"`), "admin");
+  for (const text of [styles, admin, page]) assert.equal(text.includes("M16 15h36"), false, "the old K");
+  assert.match(styles, /:root\[data-theme="light"\] \.wordmark-k \{ fill: var\(--k-text\); \}/u);
+  assert.match(page, /<meta property="og:image" content="https:\/\/app\.kolosseum\.tools\/app\/icons\/share\.png" \/>/u);
+  assert.ok(fs.existsSync("public/app/icons/share.png"));
+});

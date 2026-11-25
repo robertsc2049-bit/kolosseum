@@ -53,7 +53,11 @@ export function sharePageHtml(card: Record<string, unknown>, pageUrl: string): s
   const business = card.business_name ? String(card.business_name) : "";
   const title = business ? `${name} · ${business}` : name;
   const tagline = card.tagline ? String(card.tagline) : "";
-  const accent = card.brand_color ? String(card.brand_color) : "#b4552d";
+  // The coach's own colour if they've set one; otherwise Kolosseum's, which has
+  // a green that reads on each ground.
+  const own = card.brand_color ? String(card.brand_color) : "";
+  const light = own ? { accent: own, button: own, onButton: "#fff" } : { accent: "#3F6600", button: "#8CCB00", onButton: "#10150A" };
+  const dark = own ? light : { ...light, accent: "#9AD600" };
   const gyms = Array.isArray(card.gyms) ? (card.gyms as string[]) : [];
   const packages = Array.isArray(card.packages) ? (card.packages as Record<string, unknown>[]) : [];
   const slug = encodeURIComponent(String(card.slug));
@@ -69,9 +73,11 @@ export function sharePageHtml(card: Record<string, unknown>, pageUrl: string): s
 <meta property="og:description" content="${escapeHtml(description)}">
 <meta property="og:url" content="${escapeHtml(pageUrl)}">
 <meta property="og:type" content="profile">
+<meta property="og:image" content="${escapeHtml(new URL("/app/icons/share.png", pageUrl).href)}">
+<link rel="icon" href="/app/icons/icon-192.png">
 <style>
-:root { --accent: ${accent}; --bg: #f6f4f1; --card: #fff; --text: #1c1a17; --muted: #6b665e; --line: #e4e0da; color-scheme: light dark; }
-@media (prefers-color-scheme: dark) { :root { --bg: #141312; --card: #1f1d1b; --text: #f2efea; --muted: #a8a299; --line: #34312d; } }
+:root { --accent: ${light.accent}; --button: ${light.button}; --on-button: ${light.onButton}; --bg: #F0F1F1; --card: #fff; --text: #1B2026; --muted: #4B545D; --line: #DCDFE2; color-scheme: light dark; }
+@media (prefers-color-scheme: dark) { :root { --accent: ${dark.accent}; --bg: #1B2026; --card: #232A31; --text: #F1F4F6; --muted: #BAC4CD; --line: #3A444E; } }
 * { box-sizing: border-box; }
 body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--text); font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; display: grid; place-items: center; padding: 24px 16px; }
 main { width: 100%; max-width: 420px; background: var(--card); border: 1px solid var(--line); border-top: 6px solid var(--accent); border-radius: 14px; padding: 28px 24px; }
@@ -82,7 +88,7 @@ h1 { margin: 0; font-size: 26px; line-height: 1.2; }
 .gyms { margin: 18px 0 0; padding: 0; list-style: none; color: var(--muted); font-size: 15px; }
 .gyms li::before { content: "Coaches at "; }
 .gyms li + li::before { content: "and "; }
-.cta { display: block; margin-top: 24px; padding: 14px 16px; border-radius: 10px; background: var(--accent); color: #fff; text-align: center; font-weight: 700; text-decoration: none; font-size: 17px; }
+.cta { display: block; margin-top: 24px; padding: 14px 16px; border-radius: 10px; background: var(--button); color: var(--on-button); text-align: center; font-weight: 700; text-decoration: none; font-size: 17px; }
 .packages { margin: 22px 0 0; display: grid; gap: 10px; }
 .package { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
 .package h2 { margin: 0; font-size: 17px; display: flex; justify-content: space-between; gap: 10px; }
