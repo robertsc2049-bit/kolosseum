@@ -5897,3 +5897,37 @@ form > .checkbox-field > input[type="checkbox"] { margin-top: 0.25em; }
 .wordmark-k { fill: var(--k-accent-bright); }
 :root[data-theme="light"] .wordmark-k { fill: var(--k-text); }
 .entry-brand .brand-lockup { display: grid; justify-items: start; gap: var(--k-space-2); }
+
+/* Block complete (BlockAwards.tsx): a plaque in Iron in both modes, the way
+   the house is always shown. */
+.award-card { position: relative; display: flex; align-items: center; gap: var(--k-space-5); margin-bottom: var(--k-space-4); padding: var(--k-space-5); border-radius: var(--k-radius-m); border: 1px solid #39434C; background: #1B2026; color: #F1F4F6; }
+.award-card svg { flex: 0 0 auto; }
+.award-card-words { display: grid; gap: var(--k-space-1); min-width: 0; }
+.award-card h3 { margin: 0; color: #F1F4F6; font-size: 1.7rem; line-height: 1.1; padding-right: 40px; }
+.award-card p { margin: 0; color: #BAC4CD; overflow-wrap: anywhere; }
+.award-card .award-card-block { color: #F1F4F6; font-weight: 700; }
+.award-card .button { background: transparent; border-color: #5B6772; color: #F1F4F6; }
+.award-actions { display: flex; flex-wrap: wrap; gap: var(--k-space-2); margin-top: var(--k-space-2); }
+.award-close { position: absolute; top: 4px; right: 4px; width: 44px; height: 44px; border: 0; border-radius: var(--k-radius-s); background: transparent; color: #F1F4F6; font-size: 1.5rem; line-height: 1; cursor: pointer; }
+.award-list { margin-top: var(--k-space-5); }
+.award-list ul { list-style: none; margin: var(--k-space-3) 0 0; padding: 0; display: grid; gap: var(--k-space-2); }
+.award-row { display: flex; align-items: center; gap: var(--k-space-3); width: 100%; min-height: 64px; padding: var(--k-space-2); border: 1px solid var(--line-soft); border-radius: var(--k-radius-m); background: var(--k-inset); color: var(--k-text); text-align: left; cursor: pointer; font: inherit; }
+.award-row-emblem { display: grid; place-items: center; flex: 0 0 auto; width: 72px; height: 56px; border-radius: var(--k-radius-s); background: #1B2026; }
+.award-row-words { display: grid; min-width: 0; overflow-wrap: anywhere; }
+#award-print-root { display: none; }
+@media (max-width: 560px) {
+  .award-card { flex-direction: column; align-items: flex-start; gap: var(--k-space-3); padding: var(--k-space-4); }
+}
+@media print {
+  @page award { size: A4 landscape; margin: 14mm; }
+  html:has(body.printing-award) { color-scheme: light; background: #fff !important; }
+  body.printing-award { background: #fff !important; }
+  body.printing-award > *:not(#award-print-root) { display: none !important; }
+  body.printing-award #award-print-root { display: block; page: award; color: #1B2026; }
+  .award-certificate { display: grid; justify-items: center; align-content: center; gap: 3mm; min-height: 178mm; text-align: center; font: 13pt/1.4 Inter, Arial, sans-serif; break-inside: avoid; }
+  .award-certificate svg { width: 88mm; height: auto; margin-bottom: 6mm; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  .award-certificate h1 { margin: 0; font: 700 46pt/1 Rajdhani, Arial, sans-serif; color: #1B2026; }
+  .award-certificate p { margin: 0; color: #1B2026; }
+  .award-certificate .award-certificate-name { font: 600 26pt/1.1 Rajdhani, Arial, sans-serif; margin-top: 3mm; }
+  .award-certificate .award-certificate-block { font-weight: 700; }
+}

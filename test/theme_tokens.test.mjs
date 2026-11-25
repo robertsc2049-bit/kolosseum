@@ -58,6 +58,7 @@ test("the Split K is the same everywhere, and the wordmark is never green on lig
   assert.ok(k);
   assert.ok(styles.includes(`d='${k}'`), "the tile");
   assert.ok(admin.includes(`d="${k}"`), "admin");
+  assert.ok(fs.readFileSync("public/app-src/components/HouseEmblem.tsx", "utf8").includes(`"${k}"`), "the house");
   for (const text of [styles, admin, page]) assert.equal(text.includes("M16 15h36"), false, "the old K");
   assert.match(styles, /:root\[data-theme="light"\] \.wordmark-k \{ fill: var\(--k-text\); \}/u);
   assert.match(page, /<meta property="og:image" content="https:\/\/app\.kolosseum\.tools\/app\/icons\/share\.png" \/>/u);
