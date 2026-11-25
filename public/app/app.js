@@ -4340,6 +4340,7 @@ function renderEventCompiler() {
   const enabled = Boolean(draft.event_plan);
   elements.templateEventEnabled.checked = enabled;
   elements.templateEventFields.hidden = !enabled;
+  if (enabled || bound) document.getElementById("templateEventSection").open = true;
 
   if (!enabled) {
     elements.saveCompleteTemplateButton.disabled = false;
@@ -5043,6 +5044,16 @@ function focusTemplateValidationIssue(issueIndex) {
       behavior: "smooth"
     });
     return false;
+  }
+
+  // It may be inside a closed block, week, session or exercise: open them, outermost first.
+  const closed = [];
+  for (let node = target.parentElement; node && node.id !== "templateBuilderView"; node = node.parentElement) {
+    if (node.matches("details:not([open])")) node.open = true;
+    if (node.dataset.open === "false") closed.unshift(node);
+  }
+  for (const node of closed) {
+    [...node.querySelectorAll("[aria-expanded='false']")].find((button) => button.closest("[data-open]") === node)?.click();
   }
 
   const focusTarget =

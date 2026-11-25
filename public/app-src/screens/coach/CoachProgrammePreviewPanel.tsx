@@ -58,8 +58,8 @@ export function CoachProgrammePreviewPanel() {
   return (
     <>
       {blocks.map((programmeBlock, blockIndex) => (
-        <article className="programme-preview-block" key={programmeBlock.block_id || blockIndex}>
-          <div className="programme-preview-block-heading">
+        <details className="programme-preview-block" open={blockIndex === 0} key={programmeBlock.block_id || blockIndex}>
+          <summary className="programme-preview-block-heading">
             <div>
               <p className="eyebrow">Block {blockIndex + 1}</p>
               <h5>{programmeBlock.name || `Block ${blockIndex + 1}`}</h5>
@@ -68,7 +68,7 @@ export function CoachProgrammePreviewPanel() {
               <span className="badge neutral">{titleCase(programmeBlock.block_type)}</span>
               <span className="badge neutral">{programmeBlock.weeks.length} week{programmeBlock.weeks.length === 1 ? "" : "s"}</span>
             </div>
-          </div>
+          </summary>
           {programmeBlock.description ? <p className="muted small">{programmeBlock.description}</p> : null}
           <div className="programme-preview-weeks">
             {programmeBlock.weeks.map((week, weekIndex) => (
@@ -96,7 +96,7 @@ export function CoachProgrammePreviewPanel() {
               </details>
             ))}
           </div>
-        </article>
+        </details>
       ))}
     </>
   );

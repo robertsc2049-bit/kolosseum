@@ -6,6 +6,7 @@ import { borgAnchorLabel, cr10AnchorLabel, formatDate, parseRest, reserveToRpe, 
 import { lookupPrilepinZones } from "../../../../shared/prilepin-reference/prilepinChartReference.mjs";
 import { ExerciseHowtoBody } from "../../components/ExerciseHowtoBody";
 import { MuscleGroupSelect } from "../../components/MuscleGroupSelect";
+import { PhoneMore, isPhone } from "../../components/PhoneMore";
 import { WeeklyMuscleVolume } from "../../components/WeeklyMuscleVolume";
 import { ExerciseSearchInput } from "../../components/ExerciseSearchInput";
 import { inMuscleGroup, matchesExerciseSearch, musclesText } from "../../utils/muscleGroups";
@@ -468,7 +469,7 @@ function PercentOneRmField({ workItem, blockIndex, weekIndex, sessionIndex, work
                 {zoneRow.zone_label}: {zoneRow.reps_per_set_min}-{zoneRow.reps_per_set_max} reps/set, optimal {zoneRow.optimal_total_reps_min} total reps (range {zoneRow.total_reps_min}-{zoneRow.total_reps_max})
               </p>
             ))}
-            <p className="template-prilepin-source">{PRILEPIN_SOURCE}</p>
+            <details className="hint-more"><summary>Where this comes from</summary><p className="template-prilepin-source">{PRILEPIN_SOURCE}</p></details>
           </>
         )}
       </div>
@@ -637,16 +638,18 @@ function ExerciseField({ workItem, blockIndex, weekIndex, sessionIndex, workItem
 
   return (
     <>
-      <label className="template-exercise-filter-field">
-        <span>Equipment</span>
-        <select value={equipmentFilter} onChange={(event) => setEquipmentFilter(event.target.value)}>
-          <option value="">All equipment</option>
-          {equipmentOptions.map((tag) => (
-            <option key={tag} value={tag}>{equipmentLabel(tag)}</option>
-          ))}
-        </select>
-      </label>
-      <MuscleGroupSelect value={muscleFilter} onChange={setMuscleFilter} />
+      <PhoneMore label="Filter by equipment or muscle" open={Boolean(equipmentFilter || muscleFilter)} className="template-more">
+        <label className="template-exercise-filter-field">
+          <span>Equipment</span>
+          <select value={equipmentFilter} onChange={(event) => setEquipmentFilter(event.target.value)}>
+            <option value="">All equipment</option>
+            {equipmentOptions.map((tag) => (
+              <option key={tag} value={tag}>{equipmentLabel(tag)}</option>
+            ))}
+          </select>
+        </label>
+        <MuscleGroupSelect value={muscleFilter} onChange={setMuscleFilter} />
+      </PhoneMore>
       <ExerciseSearchInput value={search} onChange={setSearch} />
       <label className="template-exercise-field">
         <span>Exercise</span>
@@ -802,30 +805,32 @@ function BuilderWorkItem({
           templateExercises={templateExercises}
           equipmentCatalog={equipmentCatalog}
         />
-        <label className="template-role-field">
-          <span>Role</span>
-          <select defaultValue={workItem.role} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "role")}>
-            <option value="primary">Primary</option>
-            <option value="accessory">Accessory</option>
-          </select>
-        </label>
-        <label className="template-segment-field">
-          <span>Segment</span>
-          <select defaultValue={workItem.segment} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "segment")}>
-            <option value="warm_up">Warm-up</option>
-            <option value="working">Working</option>
-            <option value="cool_down">Cool-down</option>
-          </select>
-        </label>
-        <div className="builder-action-row">
-          <button className="button secondary small-button move-template-work-item" type="button" aria-label="Move exercise up" title="Move exercise up" data-direction={-1} data-block-index={blockIndex} data-week-index={weekIndex} data-session-index={sessionIndex} data-work-item-index={workItemIndex} disabled={workItemIndex === 0}>↑</button>
-          <button className="button secondary small-button move-template-work-item" type="button" aria-label="Move exercise down" title="Move exercise down" data-direction={1} data-block-index={blockIndex} data-week-index={weekIndex} data-session-index={sessionIndex} data-work-item-index={workItemIndex} disabled={workItemIndex === workItemCount - 1}>↓</button>
-          <button className="button secondary small-button" type="button" onClick={howto.toggle}>Exercise info</button>
-          <button className="button secondary small-button duplicate-template-work-item" type="button" data-block-index={blockIndex} data-week-index={weekIndex} data-session-index={sessionIndex} data-work-item-index={workItemIndex} disabled={workItemCount >= 12}>Duplicate</button>
-          {workItemCount > 1 ? (
-            <button className="button danger small-button remove-template-work-item" type="button" data-block-index={blockIndex} data-week-index={weekIndex} data-session-index={sessionIndex} data-work-item-index={workItemIndex}>Remove</button>
-          ) : null}
-        </div>
+        <PhoneMore label="Role, order and how to do it" className="template-more">
+          <label className="template-role-field">
+            <span>Role</span>
+            <select defaultValue={workItem.role} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "role")}>
+              <option value="primary">Primary</option>
+              <option value="accessory">Accessory</option>
+            </select>
+          </label>
+          <label className="template-segment-field">
+            <span>Segment</span>
+            <select defaultValue={workItem.segment} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "segment")}>
+              <option value="warm_up">Warm-up</option>
+              <option value="working">Working</option>
+              <option value="cool_down">Cool-down</option>
+            </select>
+          </label>
+          <div className="builder-action-row">
+            <button className="button secondary small-button move-template-work-item" type="button" aria-label="Move exercise up" title="Move exercise up" data-direction={-1} data-block-index={blockIndex} data-week-index={weekIndex} data-session-index={sessionIndex} data-work-item-index={workItemIndex} disabled={workItemIndex === 0}>↑</button>
+            <button className="button secondary small-button move-template-work-item" type="button" aria-label="Move exercise down" title="Move exercise down" data-direction={1} data-block-index={blockIndex} data-week-index={weekIndex} data-session-index={sessionIndex} data-work-item-index={workItemIndex} disabled={workItemIndex === workItemCount - 1}>↓</button>
+            <button className="button secondary small-button" type="button" onClick={howto.toggle}>Exercise info</button>
+            <button className="button secondary small-button duplicate-template-work-item" type="button" data-block-index={blockIndex} data-week-index={weekIndex} data-session-index={sessionIndex} data-work-item-index={workItemIndex} disabled={workItemCount >= 12}>Duplicate</button>
+            {workItemCount > 1 ? (
+              <button className="button danger small-button remove-template-work-item" type="button" data-block-index={blockIndex} data-week-index={weekIndex} data-session-index={sessionIndex} data-work-item-index={workItemIndex}>Remove</button>
+            ) : null}
+          </div>
+        </PhoneMore>
       </div>
       <div className="template-work-item-info" hidden={!howto.expanded}>
         {howto.expanded && !workItem.exercise_id ? <p className="muted">Select an exercise to view instructions.</p> : null}
@@ -889,10 +894,12 @@ function BuilderWorkItem({
           <button className="button secondary small-button group-with-next-work-item" type="button" data-block-index={blockIndex} data-week-index={weekIndex} data-session-index={sessionIndex} data-work-item-index={workItemIndex}>Group with next</button>
         ) : null}
       </div>
-      <label className="field template-work-item-notes-field">
-        <span>Coaching notes</span>
-        <textarea maxLength={500} defaultValue={workItem.coaching_notes} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "coaching_notes")} />
-      </label>
+      <PhoneMore label="Coaching notes" open={Boolean(workItem.coaching_notes)}>
+        <label className="field template-work-item-notes-field">
+          <span>Coaching notes</span>
+          <textarea maxLength={500} defaultValue={workItem.coaching_notes} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "coaching_notes")} />
+        </label>
+      </PhoneMore>
     </div>
   );
 }
@@ -936,7 +943,7 @@ function BuilderSession({
   templateExercises: JsonRecord[];
   equipmentCatalog: JsonRecord[];
 }) {
-  const [open, setOpen] = useCollapsible(true);
+  const [open, setOpen] = useCollapsible(sessionIndex === 0 || !session.session_id || !isPhone());
   // The main work by name; warm-up and cool-down drills just noted.
   const working = session.work_items.filter((item) => item.segment !== "warm_up" && item.segment !== "cool_down");
   const names = working.map((item) => exerciseNameOf(item.exercise_id, templateExercises));
@@ -957,14 +964,16 @@ function BuilderSession({
             maxLength={100}
           />
         </label>
-        <div className="builder-action-row">
-          <button className="button secondary small-button move-template-session" type="button" aria-label="Move session up" title="Move session up" data-direction={-1} data-block-index={blockIndex} data-week-index={weekIndex} data-session-index={sessionIndex} disabled={sessionIndex === 0}>↑</button>
-          <button className="button secondary small-button move-template-session" type="button" aria-label="Move session down" title="Move session down" data-direction={1} data-block-index={blockIndex} data-week-index={weekIndex} data-session-index={sessionIndex} disabled={sessionIndex === sessionCount - 1}>↓</button>
-          <button className="button secondary small-button duplicate-template-session" type="button" data-block-index={blockIndex} data-week-index={weekIndex} data-session-index={sessionIndex}>Duplicate</button>
-          {sessionCount > 1 ? (
-            <button className="button danger small-button remove-template-session" type="button" data-block-index={blockIndex} data-week-index={weekIndex} data-session-index={sessionIndex}>Remove</button>
-          ) : null}
-        </div>
+        <PhoneMore icon="•••" label={`Move, copy or remove session ${sessionIndex + 1}`} className="row-actions">
+          <div className="builder-action-row">
+            <button className="button secondary small-button move-template-session" type="button" aria-label="Move session up" title="Move session up" data-direction={-1} data-block-index={blockIndex} data-week-index={weekIndex} data-session-index={sessionIndex} disabled={sessionIndex === 0}>↑</button>
+            <button className="button secondary small-button move-template-session" type="button" aria-label="Move session down" title="Move session down" data-direction={1} data-block-index={blockIndex} data-week-index={weekIndex} data-session-index={sessionIndex} disabled={sessionIndex === sessionCount - 1}>↓</button>
+            <button className="button secondary small-button duplicate-template-session" type="button" data-block-index={blockIndex} data-week-index={weekIndex} data-session-index={sessionIndex}>Duplicate</button>
+            {sessionCount > 1 ? (
+              <button className="button danger small-button remove-template-session" type="button" data-block-index={blockIndex} data-week-index={weekIndex} data-session-index={sessionIndex}>Remove</button>
+            ) : null}
+          </div>
+        </PhoneMore>
       </div>
       {open ? null : (
         <p className="builder-collapsed-summary">
@@ -972,18 +981,20 @@ function BuilderSession({
         </p>
       )}
       <div className="builder-collapsible-body" hidden={!open}>
-      <label className="field template-session-notes-field">
-        <span>Session coaching notes</span>
-        <textarea
-          maxLength={500}
-          defaultValue={session.coaching_notes}
-          data-template-kind="session"
-          data-block-index={blockIndex}
-          data-week-index={weekIndex}
-          data-session-index={sessionIndex}
-          data-field="coaching_notes"
-        />
-      </label>
+      <PhoneMore label="Session coaching notes" open={Boolean(session.coaching_notes)}>
+        <label className="field template-session-notes-field">
+          <span>Session coaching notes</span>
+          <textarea
+            maxLength={500}
+            defaultValue={session.coaching_notes}
+            data-template-kind="session"
+            data-block-index={blockIndex}
+            data-week-index={weekIndex}
+            data-session-index={sessionIndex}
+            data-field="coaching_notes"
+          />
+        </label>
+      </PhoneMore>
       <div className="template-work-items">
         {bookendGroups(session.work_items).map((group) => {
           const items = group.indexes.map((workItemIndex) => (
@@ -1053,14 +1064,16 @@ function BuilderWeek({
             </p>
           ) : null}
         </div>
-        <div className="builder-action-row">
-          <button className="button secondary small-button move-template-week" type="button" aria-label="Move week up" title="Move week up" data-direction={-1} data-block-index={blockIndex} data-week-index={weekIndex} disabled={weekIndex === 0}>↑</button>
-          <button className="button secondary small-button move-template-week" type="button" aria-label="Move week down" title="Move week down" data-direction={1} data-block-index={blockIndex} data-week-index={weekIndex} disabled={weekIndex === weekCount - 1}>↓</button>
-          <button className="button secondary small-button duplicate-template-week" type="button" data-block-index={blockIndex} data-week-index={weekIndex}>Duplicate</button>
-          {weekCount > 1 ? (
-            <button className="button danger small-button remove-template-week" type="button" data-block-index={blockIndex} data-week-index={weekIndex}>Remove</button>
-          ) : null}
-        </div>
+        <PhoneMore icon="•••" label={`Move, copy or remove week ${weekIndex + 1}`} className="row-actions">
+          <div className="builder-action-row">
+            <button className="button secondary small-button move-template-week" type="button" aria-label="Move week up" title="Move week up" data-direction={-1} data-block-index={blockIndex} data-week-index={weekIndex} disabled={weekIndex === 0}>↑</button>
+            <button className="button secondary small-button move-template-week" type="button" aria-label="Move week down" title="Move week down" data-direction={1} data-block-index={blockIndex} data-week-index={weekIndex} disabled={weekIndex === weekCount - 1}>↓</button>
+            <button className="button secondary small-button duplicate-template-week" type="button" data-block-index={blockIndex} data-week-index={weekIndex}>Duplicate</button>
+            {weekCount > 1 ? (
+              <button className="button danger small-button remove-template-week" type="button" data-block-index={blockIndex} data-week-index={weekIndex}>Remove</button>
+            ) : null}
+          </div>
+        </PhoneMore>
       </div>
       <div className="builder-collapsible-body" hidden={!open}>
       <div className="template-sessions">
@@ -1103,7 +1116,7 @@ function BuilderBlock({
   equipmentCatalog: JsonRecord[];
   activityId: string;
 }) {
-  const [open, setOpen] = useCollapsible(true);
+  const [open, setOpen] = useCollapsible(blockIndex === 0 || !block.block_id || !isPhone());
   // Bumped when the weeks are replaced wholesale (progression), so their
   // inputs remount with the new values.
   const [weeksRevision, setWeeksRevision] = React.useState(0);
@@ -1121,18 +1134,20 @@ function BuilderBlock({
             </p>
           )}
         </div>
-        <div className="builder-action-row">
-          <button className="button secondary small-button move-template-block" type="button" aria-label="Move block up" title="Move block up" data-direction={-1} data-block-index={blockIndex} disabled={blockIndex === 0}>↑</button>
-          <button className="button secondary small-button move-template-block" type="button" aria-label="Move block down" title="Move block down" data-direction={1} data-block-index={blockIndex} disabled={blockIndex === blockCount - 1}>↓</button>
-          <button className="text-button small-inline-action add-template-week" type="button" data-block-index={blockIndex} disabled={block.weeks.length >= 52 || totalWeeks >= 104}>+ Add week</button>
-          <button className="button secondary small-button duplicate-template-block" type="button" data-block-index={blockIndex} disabled={blockCount >= 12 || totalWeeks + block.weeks.length > 104}>Duplicate block</button>
-          {blockCount > 1 ? (
-            <button className="button danger small-button remove-template-block" type="button" data-block-index={blockIndex}>Remove block</button>
-          ) : null}
-        </div>
+        <PhoneMore icon="•••" label={`Move, copy or remove block ${blockIndex + 1}`} className="row-actions">
+          <div className="builder-action-row">
+            <button className="button secondary small-button move-template-block" type="button" aria-label="Move block up" title="Move block up" data-direction={-1} data-block-index={blockIndex} disabled={blockIndex === 0}>↑</button>
+            <button className="button secondary small-button move-template-block" type="button" aria-label="Move block down" title="Move block down" data-direction={1} data-block-index={blockIndex} disabled={blockIndex === blockCount - 1}>↓</button>
+            <button className="button secondary small-button duplicate-template-block" type="button" data-block-index={blockIndex} disabled={blockCount >= 12 || totalWeeks + block.weeks.length > 104}>Duplicate block</button>
+            {blockCount > 1 ? (
+              <button className="button danger small-button remove-template-block" type="button" data-block-index={blockIndex}>Remove block</button>
+            ) : null}
+          </div>
+        </PhoneMore>
       </div>
 
       <div className="builder-collapsible-body" hidden={!open}>
+      <PhoneMore label="Block name, type and weeks" open={!block.block_id}>
       <div className="template-block-settings">
         <label className="field">
           <span>Block name</span>
@@ -1153,11 +1168,14 @@ function BuilderBlock({
           <span>Weeks in block</span>
           <input type="number" min={1} max={52} step={1} defaultValue={block.weeks.length} data-template-kind="block" data-block-index={blockIndex} data-field="week_count" />
         </label>
-        <label className="field template-block-description-field">
-          <span>Block description</span>
-          <input defaultValue={block.description} maxLength={500} data-template-kind="block" data-block-index={blockIndex} data-field="description" placeholder="Optional purpose or phase label" />
-        </label>
+        <PhoneMore label="Block description" open={Boolean(block.description)} className="template-more">
+          <label className="field template-block-description-field">
+            <span>Block description</span>
+            <input defaultValue={block.description} maxLength={500} data-template-kind="block" data-block-index={blockIndex} data-field="description" placeholder="Optional purpose or phase label" />
+          </label>
+        </PhoneMore>
       </div>
+      </PhoneMore>
 
       <BlockProgressionPanel
         block={block}
@@ -1188,6 +1206,7 @@ function BuilderBlock({
           />
         ))}
       </div>
+      <button className="text-button small-inline-action add-template-week" type="button" data-block-index={blockIndex} disabled={block.weeks.length >= 52 || totalWeeks >= 104}>+ Add week</button>
       </div>
     </article>
   );
@@ -1204,7 +1223,7 @@ export function CoachProgrammeBuilderTree() {
 
   return (
     <>
-      <div className="builder-expand-controls">
+      <div className="builder-expand-controls" data-single={String(totalWeeks === 1)}>
         <button className="button secondary small-button" type="button" onClick={() => expandAll(true)}>Expand all</button>
         <button className="button secondary small-button" type="button" onClick={() => expandAll(false)}>Collapse all</button>
       </div>

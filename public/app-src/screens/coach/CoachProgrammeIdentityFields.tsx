@@ -1,5 +1,6 @@
 import React from "react";
 
+import { PhoneMore } from "../../components/PhoneMore";
 import { useProgrammeBuilderDraft } from "./useProgrammeBuilderDraft";
 // eslint-disable-next-line import/no-unresolved
 import { V1_ACTIVITIES } from "../../../../shared/v1-boundary/v1ActivityRegistry.mjs";
@@ -45,50 +46,54 @@ export function CoachProgrammeIdentityFields() {
 
   return (
     <>
-      <label className="field">
-        <span>Programme name</span>
-        <input
-          id="templateName"
-          maxLength={120}
-          defaultValue={draft.template_name}
-          data-template-kind="header"
-          data-field="template_name"
-        />
-      </label>
-      <label className="field">
-        <span>Activity</span>
-        <select
-          id="templateActivity"
-          defaultValue={draft.activity_id}
-          data-template-kind="header"
-          data-field="activity_id"
-        >
-          {V1_ACTIVITIES.map((activity) => (
-            <option key={activity.activity_id} value={activity.activity_id}>{activity.display_label}</option>
-          ))}
-        </select>
-      </label>
-      <label className="field">
-        <span>Description</span>
-        <textarea
-          maxLength={1000}
-          placeholder="Optional description of this programme"
-          defaultValue={draft.description}
-          data-template-kind="header"
-          data-field="description"
-        />
-      </label>
-      <label className="checkbox-field programme-adjust-breaks">
-        <input
-          key={draft.template_id}
-          type="checkbox"
-          defaultChecked={draft.adjust_for_breaks === true}
-          data-template-kind="header"
-          data-field="adjust_for_breaks"
-        />
-        <span>Adjust for breaks</span>
-      </label>
-      <p className="muted small">When ticked, an athlete back after 10 or more days without a session gets a lighter first week: a set fewer on everything, weights 10% lighter (20% after 28 days) and RPE 1 easier (2 after 28 days). Not ticked, their sessions come exactly as you write them.</p>
+      <PhoneMore key={draft.template_id} label="Name, sport and settings" open={!draft.template_id}>
+        <label className="field">
+          <span>Programme name</span>
+          <input
+            id="templateName"
+            maxLength={120}
+            defaultValue={draft.template_name}
+            data-template-kind="header"
+            data-field="template_name"
+          />
+        </label>
+        <label className="field">
+          <span>Activity</span>
+          <select
+            id="templateActivity"
+            defaultValue={draft.activity_id}
+            data-template-kind="header"
+            data-field="activity_id"
+          >
+            {V1_ACTIVITIES.map((activity) => (
+              <option key={activity.activity_id} value={activity.activity_id}>{activity.display_label}</option>
+            ))}
+          </select>
+        </label>
+        <PhoneMore label="Description" open={Boolean(draft.description)}>
+          <label className="field">
+            <span>Description</span>
+            <textarea
+              maxLength={1000}
+              placeholder="Optional description of this programme"
+              defaultValue={draft.description}
+              data-template-kind="header"
+              data-field="description"
+            />
+          </label>
+        </PhoneMore>
+        <label className="checkbox-field programme-adjust-breaks">
+          <input
+            key={draft.template_id}
+            type="checkbox"
+            defaultChecked={draft.adjust_for_breaks === true}
+            data-template-kind="header"
+            data-field="adjust_for_breaks"
+          />
+          <span>Adjust for breaks</span>
+        </label>
+        <details className="hint-more"><summary>What this does</summary><p className="muted small">When ticked, an athlete back after 10 or more days without a session gets a lighter first week: a set fewer on everything, weights 10% lighter (20% after 28 days) and RPE 1 easier (2 after 28 days). Not ticked, their sessions come exactly as you write them.</p></details>
+      </PhoneMore>
     </>
   );
 }
