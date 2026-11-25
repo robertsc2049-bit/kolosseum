@@ -179,7 +179,8 @@ export function TodayBlockAward() {
       <div className="award-card-words">
         <h3 id="todayBlockAwardHeading">Block complete</h3>
         <p className="award-card-block">{award.block_name}</p>
-        <p>{`${awardLine(award)} · ${awardDate(award)}`}</p>
+        <p>{awardLine(award)}</p>
+        <p>{awardDate(award)}</p>
         <AwardActions award={award} athleteName={athleteName} />
       </div>
       <button type="button" className="award-close" aria-label="Close block complete" onClick={close}>×</button>
