@@ -5,7 +5,7 @@ import { WorkoutScoreCard } from "../../components/WorkoutScoreCard";
 
 import { type ChartPoint, LineChart } from "../../components/LineChart";
 import { type JsonRecord } from "../../api/transport";
-import { BODY_METRIC_TYPE_LABELS, formatDate, titleCase } from "../../utils/format";
+import { BODY_METRIC_TYPE_LABELS, formatDate, sentenceCase, titleCase } from "../../utils/format";
 import { useProgressInsights } from "./useProgressInsights";
 
 function seriesPoints(series: unknown): ChartPoint[] {
@@ -28,12 +28,12 @@ function adherenceText(adherence: JsonRecord): string {
   if (adherence.has_sufficient_data !== true) {
     return "No sessions recorded in the last 30 days.";
   }
-  return `${adherence.adherence_percentage}% adherence — ${adherence.completed_sessions} of ${adherence.total_sessions} sessions completed in the last 30 days.`;
+  return `${adherence.completed_sessions} of ${adherence.total_sessions} sessions completed in the last 30 days (${adherence.adherence_percentage}%).`;
 }
 
 function exerciseDisplayName(exerciseId: string, exercises: JsonRecord[]): string {
   const exercise = exercises.find((entry) => entry.exercise_id === exerciseId);
-  return typeof exercise?.display_name === "string" ? exercise.display_name : titleCase(exerciseId);
+  return typeof exercise?.display_name === "string" ? exercise.display_name : sentenceCase(exerciseId);
 }
 
 function StrengthTrendCard({ trend, exercises }: { trend: JsonRecord; exercises: JsonRecord[] }) {
@@ -129,7 +129,7 @@ export function AthleteSelfProgressInsightsPanel() {
         <div>
           <p className="eyebrow">Progress</p>
           <h3>Progress insights</h3>
-          <p className="muted">Computed from your own session, strength, habit and body-metric history over the last 30 days.</p>
+          <p className="muted">From your own records over the last 30 days.</p>
         </div>
       </div>
 
@@ -144,7 +144,7 @@ export function AthleteSelfProgressInsightsPanel() {
           <LineChart
             series={[{
               id: "adherence",
-              label: "Adherence %",
+              label: "Sessions completed, %",
               points: Array.isArray((insights.session_adherence as JsonRecord).series)
                 ? ((insights.session_adherence as JsonRecord).series as JsonRecord[])
                     .filter((window) => window.adherence_percentage !== null)
@@ -170,18 +170,18 @@ export function AthleteSelfProgressInsightsPanel() {
           </div>
 
           {workoutScores.length ? (
-            <div className="progress-insights-section">
-              <h4>Workout scores</h4>
+            <details className="progress-insights-section">
+              <summary><h4>{`Workout scores (${workoutScores.length})`}</h4></summary>
               <div className="record-list">
                 {workoutScores.map((workout) => (
                   <WorkoutScoreCard key={String(workout.workout_key)} workout={workout} exercises={exercises} />
                 ))}
               </div>
-            </div>
+            </details>
           ) : null}
 
-          <div className="progress-insights-section">
-            <h4>Strength trends</h4>
+          <details className="progress-insights-section">
+            <summary><h4>{`Strength trends (${strengthTrends.length})`}</h4></summary>
             <div className="record-list">
               {strengthTrends.length === 0 ? (
                 <div className="empty-state compact-empty"><p>No strength benchmarks recorded yet.</p></div>
@@ -191,10 +191,10 @@ export function AthleteSelfProgressInsightsPanel() {
                 ))
               )}
             </div>
-          </div>
+          </details>
 
-          <div className="progress-insights-section">
-            <h4>Habit consistency</h4>
+          <details className="progress-insights-section">
+            <summary><h4>{`Habit consistency (${habitConsistency.length})`}</h4></summary>
             <div className="record-list">
               {habitConsistency.length === 0 ? (
                 <div className="empty-state compact-empty"><p>No habits tracked yet.</p></div>
@@ -204,10 +204,10 @@ export function AthleteSelfProgressInsightsPanel() {
                 ))
               )}
             </div>
-          </div>
+          </details>
 
-          <div className="progress-insights-section">
-            <h4>Body-metric trends</h4>
+          <details className="progress-insights-section">
+            <summary><h4>{`Body-metric trends (${bodyMetricTrends.length})`}</h4></summary>
             <div className="record-list">
               {bodyMetricTrends.length === 0 ? (
                 <div className="empty-state compact-empty"><p>No body-metric entries recorded yet.</p></div>
@@ -217,7 +217,7 @@ export function AthleteSelfProgressInsightsPanel() {
                 ))
               )}
             </div>
-          </div>
+          </details>
         </>
       ) : null}
     </div>

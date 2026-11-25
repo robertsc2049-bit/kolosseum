@@ -3,13 +3,14 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
+import { appSource } from "./helpers/app_source.mjs";
 
 const root = process.cwd();
 const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
 
 const html = read("public/admin/index.html");
 const js = read("public/admin/admin.js");
-const appJs = read("public/app/app.js");
+const appJs = appSource();
 const routeBootstrap = read("public/app/route_bootstrap.js");
 const accountService = read("src/api/product_admin_account_service.ts");
 const auth = read("src/api/product_admin_auth.ts");

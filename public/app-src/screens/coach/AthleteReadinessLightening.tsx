@@ -46,7 +46,7 @@ export function AthleteReadinessLightening({ athleteUserId }: { athleteUserId: s
         <input type="checkbox" checked={enabled === true} disabled={busy || enabled === null} onChange={(event) => void change(event.target.checked)} />
         <span>Lighten sessions after a low check-in</span>
       </label>
-      <small className="muted">Off by default. When on, a low readiness check-in from this athlete (any answer of 1, or 7 or less out of 15 for sleep, soreness and stress) takes one set off each exercise in that day's session on your programme, and lowers it by 5% of max or 1 RPE. It's your rule; the athlete sees that you turned it on.</small>
+      <details className="hint-more"><summary>What this does</summary><small className="muted">Off by default. When on, a low readiness check-in from this athlete (any answer of 1, or 7 or less out of 15 for sleep, soreness and stress) takes one set off each exercise in that day's session on your programme, and lowers it by 5% of max or 1 RPE. It's your rule; the athlete sees that you turned it on.</small></details>
       {error ? <p className="field-error" role="alert">{error}</p> : null}
     </div>
   );

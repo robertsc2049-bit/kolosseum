@@ -23,6 +23,13 @@ export function titleCase(value: unknown): string {
     .replace(/\b\w/gu, (letter) => letter.toUpperCase());
 }
 
+// "in_progress" -> "In progress", "bench_press" -> "Bench press": how statuses
+// and exercises are written everywhere in the app.
+export function sentenceCase(value: unknown): string {
+  const words = String(value ?? "").replaceAll("_", " ").trim();
+  return words.charAt(0).toUpperCase() + words.slice(1);
+}
+
 export function initials(name: unknown): string {
   const words = String(name ?? "").trim().split(/\s+/u).filter(Boolean);
   return (words.slice(0, 2).map((word) => word[0]).join("") || "K").toUpperCase();

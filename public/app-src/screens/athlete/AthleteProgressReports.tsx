@@ -96,7 +96,7 @@ export function AthleteReportBody({ report }: { report: JsonRecord }) {
         <h4>What you lifted</h4>
         {exercises.length ? (
           <div className="analysis-table-wrap">
-            <table className="analysis-table">
+            <table aria-label="Your lifts" className="analysis-table">
               <thead><tr><th>Exercise</th><th>Sessions</th><th>Sets</th><th>Reps</th><th>Your best</th><th>Average effort</th></tr></thead>
               <tbody>
                 {exercises.map((exercise) => (

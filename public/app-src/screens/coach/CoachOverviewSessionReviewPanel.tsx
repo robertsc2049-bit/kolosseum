@@ -1,8 +1,10 @@
 import React from "react";
 
 import { type JsonRecord } from "../../api/transport";
-import { formatDate, titleCase } from "../../utils/format";
-import { useCoachOverviewSessionReview } from "./useCoachOverviewSessionReview";
+import { formatDate, sentenceCase } from "../../utils/format";
+import { reviewFlags, useCoachOverviewSessionReview } from "./useCoachOverviewSessionReview";
+
+const REVIEW_QUEUE_SHOWN = 5;
 
 // DEV NOTE: part of FULL-UI-03's Coach Overview dashboard - ported from
 // app.js's (removed) renderCoachDashboard() open-sessions/review-queue
@@ -31,12 +33,13 @@ function SessionCard({ record, athleteName, badgeClass, buttonLabel }: {
         <h4>{athleteName}</h4>
         <p>{String(record.session_title || "Training session")}</p>
         <p className="muted small">
-          {titleCase(String(record.session_status ?? "recorded"))}
+          {sentenceCase(String(record.session_status ?? "recorded"))}
           {Number(record.planned_work_item_count ?? 0) > 0 ? ` · ${Number(record.planned_work_item_count)} exercises` : ""}
         </p>
+        {reviewFlags(record).map((flag) => <p key={flag} className="dashboard-flag">{flag}</p>)}
       </div>
       <div className="record-meta">
-        <span className={`badge ${badgeClass}`}>{formatDate(record.updated_at ?? record.created_at)}</span>
+        <span className={badgeClass === "complete" ? "muted small" : `badge ${badgeClass}`}>{formatDate(record.updated_at ?? record.created_at)}</span>
         <button className="button secondary small-button" type="button" onClick={() => openReview(athleteUserId)}>
           {buttonLabel}
         </button>
@@ -105,7 +108,7 @@ export function CoachOverviewReviewQueuePanel() {
 
   return (
     <>
-      {awaitingReview.slice(0, 8).map((record, index) => {
+      {awaitingReview.slice(0, REVIEW_QUEUE_SHOWN).map((record, index) => {
         const athleteUserId = String(record.athlete_user_id ?? "");
         return (
           <SessionCard
@@ -117,6 +120,7 @@ export function CoachOverviewReviewQueuePanel() {
           />
         );
       })}
+      {awaitingReview.length > REVIEW_QUEUE_SHOWN ? <p className="muted small dashboard-more">{`${awaitingReview.length - REVIEW_QUEUE_SHOWN} more in Review.`}</p> : null}
     </>
   );
 }

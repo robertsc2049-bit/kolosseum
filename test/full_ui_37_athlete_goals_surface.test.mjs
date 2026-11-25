@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
+import { appSource } from "./helpers/app_source.mjs";
 
 const root = process.cwd();
 const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
@@ -13,7 +14,7 @@ const serverTs = read("src/server.ts");
 const lifecycle = read("shared/goals/athleteGoalsLifecycle.mjs");
 const recordStore = read("src/api/beta_product_record_store.ts");
 const schemaSql = read("schema.sql");
-const appJs = read("public/app/app.js");
+const appJs = appSource();
 const indexHtml = read("public/app/index.html");
 const guard = read("ci/guards/full_ui_completion_guard.mjs");
 const manifest = JSON.parse(read("product/ui/function_manifest.json"));

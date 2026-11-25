@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#0A0C0A" />
+  <meta name="theme-color" content="#1B2026" />
   <title>Kolosseum</title>
   <link rel="manifest" href="/app/manifest.json" />
   <link rel="icon" href="/app/icons/icon-192.png" />
@@ -11,9 +11,22 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Kolosseum" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap" />
+  <link rel="preload" href="/app/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/app/fonts/rajdhani-700-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <script src="/app/theme.js"></script>
+  <script src="/app/opening.js"></script>
+  <link rel="modulepreload" href="/app/core/account.js" />
+  <link rel="modulepreload" href="/app/core/api.js" />
+  <link rel="modulepreload" href="/app/core/coachPart.js" />
+  <link rel="modulepreload" href="/app/core/elements.js" />
+  <link rel="modulepreload" href="/app/core/format.js" />
+  <link rel="modulepreload" href="/app/core/messaging.js" />
+  <link rel="modulepreload" href="/app/core/notices.js" />
+  <link rel="modulepreload" href="/app/core/sections.js" />
+  <link rel="modulepreload" href="/app/core/sessions.js" />
+  <link rel="modulepreload" href="/app/core/shell.js" />
+  <link rel="modulepreload" href="/app/core/state.js" />
+  <link rel="stylesheet" href="/app/theme.css" />
   <link rel="stylesheet" href="/app/styles.css" />
 </head>
 <body>
@@ -29,7 +42,7 @@
           <div class="brand-mark">K</div>
           <div>
             <strong>Kolosseum</strong>
-            <span>Controlled training workspace</span>
+            <span>Training for coaches and athletes</span>
           </div>
         </div>
         <h1>Training, recorded clearly.</h1>
@@ -46,10 +59,12 @@
 
     <div class="entry-form-wrap">
       <div class="entry-access-panel" id="entry-auth-root"></div>
+      <div data-theme-choice></div>
     </div>
   </section>
 
   <div id="appShell" class="app-shell" hidden>
+    <button id="skipToContent" class="skip-link" type="button">Skip to content</button>
     <aside id="sidebar" class="sidebar">
       <div class="brand-lockup compact">
         <div class="brand-mark">K</div>
@@ -61,58 +76,58 @@
 
       <nav class="main-nav" aria-label="Primary">
         <button class="nav-item athlete-nav" data-view="today">
-          <span class="nav-icon">T</span><span>Today</span>
+          <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg></span><span>Today</span>
         </button>
         <button class="nav-item athlete-nav" data-view="session">
-          <span class="nav-icon">S</span><span>Session</span>
+          <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M2.5 12h19M6 8v8M3.5 9.5v5M18 8v8M20.5 9.5v5"/></svg></span><span>Session</span>
         </button>
         <button class="nav-item athlete-nav" data-view="programme">
-          <span class="nav-icon">P</span><span>My programme</span>
+          <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="3" y="5" width="5" height="14" rx="1.5"/><rect x="9.5" y="5" width="5" height="14" rx="1.5"/><rect x="16" y="5" width="5" height="14" rx="1.5"/></svg></span><span>My programme</span>
         </button>
         <button class="nav-item athlete-nav" data-view="history">
-          <span class="nav-icon">H</span><span>History</span>
+          <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M3.5 12a8.5 8.5 0 1 0 2.5-6"/><path d="M3.5 4.5V9H8M12 7.5V12l3 2"/></svg></span><span>History</span>
         </button>
         <button class="nav-item athlete-nav" data-view="attendance">
-          <span class="nav-icon">V</span><span>Attendance</span>
+          <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="4" y="4" width="16" height="17" rx="2.5"/><path d="m8 13 2.6 2.6L16 10"/></svg></span><span>Attendance</span>
         </button>
 
         <button class="nav-item coach-nav" data-view="coach-overview">
-          <span class="nav-icon">O</span><span>Overview</span>
+          <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg></span><span>Overview</span>
         </button>
         <button class="nav-item coach-nav" data-view="athletes">
-          <span class="nav-icon">A</span><span>Athletes</span>
+          <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.2-5.5 6.5-5.5s5.9 1.9 6.5 5.5"/><path d="M16 4.8a3.5 3.5 0 0 1 0 6.4M18 14.8c2 .7 3.2 2.4 3.5 5.2"/></svg></span><span>Athletes</span>
         </button>
         <button class="nav-item coach-nav" data-view="events">
-          <span class="nav-icon">E</span><span>Competitions</span>
+          <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M7 4h10v5a5 5 0 0 1-10 0zM7 5.5H4V7a3 3 0 0 0 3 3M17 5.5h3V7a3 3 0 0 1-3 3M12 14v4M8 20.5h8"/></svg></span><span>Competitions</span>
         </button>
         <button class="nav-item coach-nav" data-view="templates">
-          <span class="nav-icon">P</span><span>Programmes</span>
+          <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="5" y="4" width="14" height="17" rx="2.5"/><path d="M9 4V2.8h6V4M8.5 10h7M8.5 14h7M8.5 18h4"/></svg></span><span>Programmes</span>
         </button>
         <button class="nav-item coach-nav" data-view="marketplace">
-          <span class="nav-icon">M</span><span>Marketplace</span>
+          <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M4 9.5 5.5 4h13L20 9.5M4 9.5a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0 2.7 2.7 0 0 0 5.3 0M5.5 12.5V20h13v-7.5"/></svg></span><span>Marketplace</span>
         </button>
         <button class="nav-item coach-nav" data-view="review">
-          <span class="nav-icon">R</span><span>Review</span>
+          <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="12" r="8.5"/><path d="m8.2 12.3 2.6 2.6 5-5.4"/></svg></span><span>Review</span>
         </button>
         <button class="nav-item coach-nav" data-view="coach-progress">
-          <span class="nav-icon">A</span><span>Analysis</span>
+          <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M4 4v16h16M7.5 15.5l4-4.5 3 2.5 5-6.5"/></svg></span><span>Analysis</span>
         </button>
         <button class="nav-item coach-nav" data-view="coach-attendance">
-          <span class="nav-icon">V</span><span>Classes</span>
+          <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4M8 14h3M8 17h6"/></svg></span><span>Classes</span>
         </button>
 
         <button id="athleteOnboardingNav" class="nav-item athlete-nav" type="button">
-          <span class="nav-icon">D</span><span>Training details</span>
+          <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></span><span>Training details</span>
         </button>
 
-        <button id="coachOnboardingNav" class="nav-item coach-nav" type="button" data-view="coach-onboarding"><span class="nav-icon">S</span><span>Setup</span></button>
+        <button id="coachOnboardingNav" class="nav-item coach-nav" type="button" data-view="coach-onboarding"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="12" r="3"/><path d="M12 3.5v2.5M12 18v2.5M3.5 12H6M18 12h2.5M6 6l1.8 1.8M16.2 16.2 18 18M18 6l-1.8 1.8M7.8 16.2 6 18"/></svg></span><span>Setup</span></button>
 
         <button class="nav-item" data-view="calculator">
-          <span class="nav-icon">C</span><span>Calculator</span>
+          <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="5" y="3.5" width="14" height="17" rx="2.5"/><path d="M8.5 7.5h7M8.5 12h.01M12 12h.01M15.5 12h.01M8.5 16h.01M12 16h.01M15.5 16h.01"/></svg></span><span>Calculator</span>
         </button>
 
         <button class="nav-item" data-view="account">
-          <span class="nav-icon">U</span><span>Account</span>
+          <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="8.5" r="4"/><path d="M4 20.5c.9-4 4-6 8-6s7.1 2 8 6"/></svg></span><span>Account</span>
         </button>
       </nav>
 
@@ -128,9 +143,12 @@
     <div class="app-content">
       <header class="topbar">
         <button id="menuButton" class="icon-button menu-button" type="button" aria-label="Open navigation">☰</button>
-        <div>
-          <p id="topbarEyebrow" class="eyebrow">Athlete workspace</p>
-          <h1 id="topbarTitle">Today</h1>
+        <div class="topbar-title">
+          <div class="brand-mark topbar-mark" aria-hidden="true">K</div>
+          <div>
+            <p id="topbarEyebrow" class="eyebrow">Athlete workspace</p>
+            <h1 id="topbarTitle" tabindex="-1">Today</h1>
+          </div>
         </div>
         <div class="topbar-actions">
           <span id="connectionStatus" class="connection-status">Connected</span>
@@ -141,15 +159,13 @@
 
       <div id="notice" class="notice" role="status" hidden></div>
 
-      <main class="views">
+      <main id="mainContent" class="views" tabindex="-1">
         <!-- Asks for the sign-up verification code until the email is verified (VerifyEmailPrompt.tsx). -->
         <div id="verify-email-prompt-root"></div>
         <section id="view-today" class="view">
           <div class="page-heading">
             <div>
-              <p class="eyebrow">Today</p>
-              <h2 id="todayGreeting">Training workspace</h2>
-              <p class="muted">Your current session and recent activity.</p>
+              <h2 id="todayGreeting">Today</h2>
             </div>
             <div id="athlete-today-create-session-root"></div>
           </div>
@@ -160,6 +176,9 @@
           <!-- The optional daily check-in, one line until opened (TodayReadiness.tsx). -->
           <div id="athlete-today-readiness-root"></div>
 
+          <!-- This week's check-in, until it's done (TodayWeeklyCheckin.tsx). -->
+          <div id="today-weekly-checkin-root"></div>
+
           <div id="coach-link-request-root"></div>
 
           <div id="athlete-checkins-root"></div>
@@ -169,13 +188,6 @@
           <div class="hero-grid">
             <div id="athlete-today-session-root"></div>
 
-            <article class="panel compact-panel">
-              <div class="panel-kicker"><span>Training record</span></div>
-              <strong id="today-history-count-root" class="large-number">0</strong>
-              <p class="muted">Sessions recorded for this account.</p>
-              <button class="text-button" data-view-link="history" type="button">View history →</button>
-            </article>
-
             <div id="athlete-today-event-root"></div>
           </div>
 
@@ -184,12 +196,15 @@
           <article class="panel">
             <div class="panel-header">
               <div>
-                <p class="eyebrow">Recent activity</p>
                 <h3>Latest sessions</h3>
+                <p class="muted small"><strong id="today-history-count-root">0</strong> recorded in all</p>
               </div>
+              <button class="text-button" data-view-link="history" type="button">View history</button>
             </div>
             <div id="today-recent-activity-root"></div>
           </article>
+
+          <div id="athlete-today-install-root"></div>
         </section>
 
         <section id="view-session" class="view" hidden>
@@ -200,8 +215,8 @@
           <div class="page-heading">
             <div>
               <p class="eyebrow">History</p>
-              <h2>Training record</h2>
-              <p class="muted">Your recorded session history for this account.</p>
+              <h2>Your history</h2>
+              <p class="muted">Every session you've logged.</p>
             </div>
             <div class="button-row">
               <button id="exportHistoryButton" class="button secondary" type="button">Export history</button>
@@ -219,7 +234,7 @@
             <div id="athlete-history-root"></div>
           </div>
 
-          <div data-tab-group="history" data-tab-panel="wellbeing" hidden>
+          <div data-tab-group="history" data-tab-panel="wellbeing" id="historyWellbeing" hidden>
 
             <div id="athlete-self-progress-insights-root"></div>
 
@@ -243,7 +258,7 @@
           <div class="page-heading">
             <div>
               <p class="eyebrow">Athlete account</p>
-              <h2>Your training details</h2>
+              <h2>Your training setup</h2>
               <p class="muted">What you tell us here sets up your programme. It isn't an assessment of your fitness, health or readiness to train.</p>
             </div>
           </div>
@@ -254,8 +269,8 @@
           <div class="page-heading">
             <div>
               <p class="eyebrow">Coach onboarding</p>
-              <h2>Coach profile and access</h2>
-              <p class="muted">Setting up your coach profile and billing doesn't affect how training is calculated.</p>
+              <h2>Your coach profile</h2>
+              <p class="muted">Your profile, terms and display settings. Setting up your coach profile and billing doesn't affect how training is calculated.</p>
             </div>
           </div>
           <div id="coach-onboarding-root"></div>
@@ -267,7 +282,7 @@
               <p class="eyebrow">Coach workspace</p>
               <h2 id="coachGreeting">Overview</h2>
               <p class="muted">
-                Your athletes, assignments, events and sessions at a glance.
+                Who needs you today.
               </p>
             </div>
 
@@ -398,7 +413,7 @@
           <div class="page-heading athlete-directory-heading">
             <div>
               <p class="eyebrow">Coach workspace</p>
-              <h2>Athletes</h2>
+              <h2 class="same-title">Athletes</h2>
               <p class="muted">
                 Manage your coach–athlete connections and open accepted athlete profiles.
               </p>
@@ -468,6 +483,7 @@
           <div id="athlete-relationship-detail-root"></div>
 
           <article id="athleteProfilePanel" class="panel athlete-profile-panel" hidden>
+            <h2 class="sr-only">Athlete profile</h2>
             <div class="panel-header athlete-profile-header">
               <div>
                 <p class="eyebrow">Athlete</p>
@@ -489,7 +505,7 @@
               <div class="panel-header athlete-detail-header">
                 <div>
                   <p class="eyebrow">Athlete detail</p>
-                  <h3>Programme, event and record history</h3>
+                  <h3>Programme and history</h3>
                   <p class="muted">
                     Recorded history for this accepted coach-athlete connection.
                   </p>
@@ -564,7 +580,7 @@
                   <div class="panel-header">
                     <div>
                       <p class="eyebrow">Current</p>
-                      <h3>Event link</h3>
+                      <h3>Competition</h3>
                     </div>
                   </div>
 
@@ -591,7 +607,7 @@
                     <div>
                       <p class="eyebrow">Pain</p>
                       <h3>Open pain flags</h3>
-                      <p class="muted">Pain this athlete reported in a session, until they check in pain-free or you clear it. Records only - no diagnosis.</p>
+                      <p class="muted">Pain this athlete reported in a session, until they check in pain-free or you clear it. A record, not a diagnosis.</p>
                     </div>
                   </div>
 
@@ -605,7 +621,7 @@
                   <div class="panel-header">
                     <div>
                       <p class="eyebrow">History</p>
-                      <h3>Programme assignments</h3>
+                      <h3>Programmes assigned</h3>
                     </div>
                   </div>
 
@@ -619,7 +635,7 @@
                   <div class="panel-header">
                     <div>
                       <p class="eyebrow">History</p>
-                      <h3>Strength references</h3>
+                      <h3>Maxes</h3>
                     </div>
                   </div>
 
@@ -647,7 +663,7 @@
                   <div class="panel-header">
                     <div>
                       <p class="eyebrow">History</p>
-                      <h3>Event links</h3>
+                      <h3>Competitions</h3>
                     </div>
                   </div>
 
@@ -712,7 +728,7 @@
                     <div>
                       <p class="eyebrow">Progress</p>
                       <h3>Progress insights</h3>
-                      <p class="muted">Computed from this athlete's session, strength, habit and body-metric history over the last 30 days.</p>
+                      <p class="muted">From the last 30 days of sessions, strength, habits and body measurements.</p>
                     </div>
                   </div>
 
@@ -805,7 +821,7 @@
                   <div class="panel-header">
                     <div>
                       <p class="eyebrow">Device sync</p>
-                      <h3>Connected devices and synced metrics</h3>
+                      <h3>Connected devices</h3>
                     </div>
                   </div>
 
@@ -830,7 +846,7 @@
           <div class="page-heading">
             <div>
               <p class="eyebrow">Coach workspace</p>
-              <h2>Competitions</h2>
+              <h2 class="same-title">Competitions</h2>
               <p class="muted">Meets, races and match days your athletes are training for. Choose one when you assign a programme and it's timed to peak for that date.</p>
             </div>
           </div>
@@ -863,8 +879,8 @@
             <div class="page-heading">
               <div>
                 <p class="eyebrow">Coach workspace</p>
-                <h2>Programmes</h2>
-                <p class="muted">Build complete versioned programmes from training blocks, weeks, sessions and registry-backed exercises.</p>
+                <h2 class="same-title">Programmes</h2>
+                <p class="muted">Build a programme from blocks, weeks and sessions, then assign it.</p>
               </div>
               <button id="newTemplateButton" class="button primary" type="button">New programme</button>
             </div>
@@ -946,7 +962,8 @@
                 <button id="backToTemplatesButton" class="text-button back-button" type="button">← Programme library</button>
                 <p class="eyebrow">Programme builder</p>
                 <h2 id="templateBuilderTitle">New programme</h2>
-                <p class="muted">Build ordered training blocks. Each block contains weeks, each week contains sessions, and each session contains 1-12 registry-backed exercises, which can be grouped into supersets or circuits and marked as warm-up, working, or cool-down. Repetitions may be fixed or a range. Loading may use percentage of 1RM, fixed weight, bodyweight, or RPE. Percentage prescriptions resolve from the athlete profile when assigned. Each exercise may instead be prescribed by a timed hold or a distance, and reps-based exercises may carry an optional coaching tempo.</p>
+                <p class="muted">Build ordered training blocks: weeks of sessions, each with 1-12 exercises. A percentage becomes a weight from the athlete's max when you assign it.</p>
+                <details class="builder-about"><summary>What a session can hold</summary><p class="muted">Each session contains 1-12 registry-backed exercises, which can be grouped into supersets or circuits and marked as warm-up, working, or cool-down. Repetitions may be fixed or a range. Loading may use percentage of 1RM, fixed weight, bodyweight, or RPE. Percentage prescriptions resolve from the athlete profile when assigned. Each exercise may instead be prescribed by a timed hold or a distance, and reps-based exercises may carry an optional coaching tempo.</p></details>
               </div>
               <div class="button-row">
                 <button id="saveTemplateButton" class="button secondary" type="button">Save draft</button>
@@ -966,8 +983,7 @@
               </div>
 
               <div id="templateBuilderValidation" class="template-builder-validation warning">
-                <p class="eyebrow">Completion validation</p>
-                <h3>Resolve visible issues</h3>
+                <h3>To fix before it's ready</h3>
                 <ol id="templateBuilderValidationList" class="template-builder-validation-list"></ol>
               </div>
             </section>
@@ -978,6 +994,8 @@
                 <div id="template-identity-root"></div>
 
                 <section class="event-compiler-settings">
+                  <details id="templateEventSection" class="event-compiler-details">
+                  <summary>Competition or event</summary>
                   <div class="event-binding-picker" id="template-event-binding-root"></div>
 
                   <label class="toggle-row event-toggle-row">
@@ -1003,11 +1021,10 @@
                       <button id="fitFinalBlockButton" class="button secondary small-button" type="button">Fit final block</button>
                     </div>
                   </div>
+                  </details>
                 </section>
                 <div id="programme-builder-facts-root"></div>
-                <p class="muted small">
-                  Once a programme is sent, edits make a new version. Athletes stay on their version until you replace their assignment, and carry on from where they are.
-                </p>
+                <details class="hint-more"><summary>When you edit a programme you've sent</summary><p class="muted small">Once a programme is sent, edits make a new version. Athletes stay on their version until you replace their assignment, and carry on from where they are.</p></details>
               </aside>
 
               <div class="template-plan-column">
@@ -1022,8 +1039,8 @@
           <div class="page-heading">
             <div>
               <p class="eyebrow">Coach workspace</p>
-              <h2>Marketplace</h2>
-              <p class="muted">Browse complete or active programmes other coaches have shared publicly. Read-only - not cloned or assigned from here.</p>
+              <h2 class="same-title">Marketplace</h2>
+              <p class="muted">Programmes other coaches have shared. You can read them here, not copy or assign them.</p>
             </div>
           </div>
 
@@ -1040,15 +1057,18 @@
         </section>
 
         <section id="view-coach-attendance" class="view" hidden>
+          <h2 class="sr-only">Your classes</h2>
           <div id="attendance-event-create-root"></div>
           <div id="attendance-event-detail-root"></div>
         </section>
 
         <section id="view-programme" class="view" hidden>
+          <h2 class="sr-only">Your programme</h2>
           <div id="athlete-my-programme-root"></div>
         </section>
 
         <section id="view-attendance" class="view" hidden>
+          <h2 class="sr-only">Your classes</h2>
           <div id="athlete-attendance-events-root"></div>
         </section>
 
@@ -1056,8 +1076,8 @@
           <div class="page-heading">
             <div>
               <p class="eyebrow">Account</p>
-              <h2>Account and access</h2>
-              <p class="muted">Persistent identity, credentials, consent history and account state.</p>
+              <h2>Your account</h2>
+              <p class="muted">Your details, password, privacy and data.</p>
             </div>
             <button id="showMeAroundButton" class="button secondary" type="button">Show me around</button>
             <button id="refreshAccountButton" class="button secondary" type="button">Refresh account</button>
@@ -1089,6 +1109,12 @@
                coachOrgContextPanel) - each component gates on role/data
                internally and renders nothing otherwise, same as the legacy
                panels' own hidden-until-relevant behavior. -->
+          <section class="panel appearance-panel">
+            <h3>Light or dark</h3>
+            <p class="muted">For this device. Match device follows your phone or computer.</p>
+            <div data-theme-choice></div>
+          </section>
+
           <div id="account-coach-invitations-root"></div>
 
           <div id="account-coach-relationship-root"></div>

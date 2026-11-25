@@ -3,13 +3,14 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
+import { appSource } from "./helpers/app_source.mjs";
 
 const root = process.cwd();
 const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
 
 const html = read("public/app/index.html");
 const css = read("public/app/styles.css");
-const js = read("public/app/app.js");
+const js = appSource();
 const routeBootstrap = read("public/app/route_bootstrap.js");
 const historyPanel = read("public/app-src/screens/athlete/AthleteHistoryPanel.tsx");
 const historyHook = read("public/app-src/screens/athlete/useTrainingHistory.ts");

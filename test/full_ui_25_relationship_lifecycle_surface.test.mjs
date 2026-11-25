@@ -9,11 +9,12 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
+import { appSource } from "./helpers/app_source.mjs";
 
 const root = process.cwd();
 const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
 
-const js = read("public/app/app.js");
+const js = appSource();
 const routes = read("src/api/coach_workspace.routes.ts");
 const handlers = read("src/api/coach_workspace.handlers.ts");
 const invitationService = read("src/api/relationship_invitation_service.ts");

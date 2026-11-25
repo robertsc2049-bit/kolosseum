@@ -3,13 +3,14 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
+import { appSource } from "./helpers/app_source.mjs";
 
 const root = process.cwd();
 const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
 
 const html = read("public/app/index.html");
 const css = read("public/app/styles.css");
-const js = read("public/app/app.js");
+const js = appSource();
 const todayPanel = read("public/app-src/screens/athlete/AthleteTodayPanel.tsx");
 const format = read("public/app-src/utils/format.ts");
 const todayService = read("src/api/athlete_today_service.ts");
@@ -20,7 +21,8 @@ const sessionsHandlers = read("src/api/sessions.handlers.ts");
 test("Today exposes current programme, exact assignment version and block/week context", () => {
   assert.ok(html.includes('id="athlete-today-session-root"'));
 
-  assert.match(todayPanel, /assignment\.template_version/u);
+  // The version is the coach's; the athlete sees the programme's name.
+  assert.match(todayPanel, /assignment\.template_name/u);
   assert.match(todayPanel, /assignment\.template_name/u);
   assert.match(todayPanel, /function todaySessionLabel/u);
 
@@ -39,12 +41,12 @@ test("Today exposes the coach's session-level note for the upcoming session", ()
 });
 
 test("Today shows the resolved weight and that it came from their max - never the max itself (#1298)", () => {
-  assert.match(todayPanel, /className="today-resolved-load"/u);
-  assert.match(todayPanel, /className="today-resolved-load-value"/u);
-  assert.match(todayPanel, /resolvedLoad\.value/u);
-  assert.match(todayPanel, /Worked out from your max/u);
+  assert.match(todayPanel, /className="muted small today-resolved-load-note"/u);
+  assert.match(todayPanel, /className="today-exercises"/u);
+  assert.match(todayPanel, /load\.value/u);
+  assert.match(todayPanel, /worked out from your max/u);
   assert.doesNotMatch(todayPanel, /resolvedLoadSource\.(source_type|source_value|effective_date)/u);
-  assert.doesNotMatch(todayPanel, /resolvedLoad\.(percentage|one_rep_max)/u);
+  assert.doesNotMatch(todayPanel, /(?:resolvedLoad|\bload)\.(percentage|one_rep_max)/u);
 
   assert.match(todayService, /planned_items:\s*Array\.isArray\(materialised\.planned_items\)/u);
   assert.match(todayService, /resolvePercentageLoad|materialiseNextCoachTemplateProgram/u);
@@ -148,7 +150,7 @@ test("Today's new markup does not get hidden on narrow (mobile) viewports", () =
 
   for (const block of mobileHidingRules) {
     for (const selector of [
-      "today-resolved-load",
+      "today-resolved-load-note",
       "today-programme-summary",
       "today-notes"
     ]) {
@@ -160,7 +162,7 @@ test("Today's new markup does not get hidden on narrow (mobile) viewports", () =
     }
   }
 
-  assert.match(css, /\.today-resolved-load\b/u);
+  assert.match(css, /\.today-resolved-load-note\b/u);
   assert.match(css, /\.today-notes\b/u);
 });
 

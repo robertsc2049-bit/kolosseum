@@ -6,15 +6,17 @@
   <meta name="robots" content="noindex, nofollow" />
   <title>Kolosseum Organisation Owner</title>
   <link rel="icon" href="/app/icons/icon-192.png" />
-  <meta name="theme-color" content="#0A0C0A" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap" />
+  <meta name="theme-color" content="#1B2026" />
+  <link rel="preload" href="/app/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/app/fonts/rajdhani-700-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <script src="/app/theme.js"></script>
+  <link rel="stylesheet" href="/app/theme.css" />
   <link rel="stylesheet" href="/app/styles.css" />
 </head>
 <body>
-  <main style="max-width: 720px; margin: 2rem auto; padding: 0 1rem;">
-    <p class="eyebrow">Kolosseum</p>
+  <main class="org-page" style="max-width: 720px; margin: 2rem auto; padding: 0 1rem;">
+    <div class="brand-lockup compact"><div class="brand-mark" aria-hidden="true">K</div><div><strong>Kolosseum</strong></div></div>
+    <div data-theme-choice></div>
     <h1>Organisation owner</h1>
 
     <section id="orgSignInSection" class="panel">
@@ -70,7 +72,7 @@
         <div class="button-row">
           <div class="notification-bell-wrap">
             <button id="orgNotificationBellButton" class="icon-button notification-bell" type="button" aria-label="Open notifications" aria-haspopup="true" aria-expanded="false">
-              <span aria-hidden="true">&#128276;</span>
+              <svg class="bell-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 10a6 6 0 0 1 12 0c0 5 2 6.5 2 6.5H4S6 15 6 10M10 20a2.2 2.2 0 0 0 4 0"/></svg>
               <span id="orgNotificationUnreadBadge" class="notification-unread-badge" hidden>0</span>
             </button>
             <div id="orgNotificationPanel" class="notification-panel" role="menu" aria-label="Notifications" hidden>

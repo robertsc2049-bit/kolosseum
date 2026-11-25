@@ -2,7 +2,7 @@
 // source-text regex checks against the now-removed app.js
 // renderCoachReviewWorkspace()/renderCoachReviewDetail()/
 // setCoachSessionReview()/recordCoachNote() rendering block. Card titles
-// are queried via document.querySelectorAll(".review-record-card h3")
+// are queried via document.querySelectorAll(".review-row h3")
 // rather than screen.getByText(), since the auto-selected record's title
 // is also rendered in the detail pane - the same card/detail ambiguity
 // CoachVideoFeedbackQueuePanel.test.tsx already works around.
@@ -103,7 +103,7 @@ function installMocks(options: {
 }
 
 function cardTitles(): string[] {
-  return [...document.querySelectorAll(".review-record-card h3")].map((el) => el.textContent ?? "");
+  return [...document.querySelectorAll(".review-row .review-row-title")].map((element) => element.textContent ?? "");
 }
 
 test.afterEach(() => {
@@ -114,14 +114,14 @@ test("shows a factual empty state when there are no matching review records", as
   installMocks({ records: [] });
   render(<CoachReviewPanel />);
 
-  await waitFor(() => screen.getByText("No matching review records"));
+  await waitFor(() => screen.getByText("No matching sessions"));
 });
 
 test("once everything is reviewed, the coach is told they're up to date - not that no records exist", async () => {
   installMocks({ records: [baseRecord({ review_status: "reviewed" })] });
   render(<CoachReviewPanel />);
   await waitFor(() => screen.getByText("You're up to date"));
-  assert.equal(screen.queryByText("No matching review records"), null);
+  assert.equal(screen.queryByText("No matching sessions"), null);
   await act(async () => { fireEvent.click(screen.getByText("Show all sessions")); });
   await waitFor(() => assert.deepEqual(cardTitles(), ["Upper body strength"]));
 });
@@ -129,7 +129,7 @@ test("once everything is reviewed, the coach is told they're up to date - not th
 test("refetches once a same-tab sign-in completes", async () => {
   installMocks({ records: [] });
   render(<CoachReviewPanel />);
-  await waitFor(() => screen.getByText("No matching review records"));
+  await waitFor(() => screen.getByText("No matching sessions"));
 
   installMocks({});
   await act(async () => {
@@ -144,7 +144,7 @@ test("loads and displays a review record with the resolved athlete name and stat
   render(<CoachReviewPanel />);
 
   await waitFor(() => assert.deepEqual(cardTitles(), ["Upper body strength"]));
-  assert.ok(document.querySelector(".review-record-card")?.textContent?.includes("Jordan Athlete"));
+  assert.ok(document.querySelector(".review-row")?.textContent?.includes("Jordan Athlete"));
   assert.ok(screen.getAllByText("Awaiting review").length > 0);
 });
 
@@ -153,7 +153,7 @@ test("a session the athlete ran on their own is labelled self-directed, with no 
   render(<CoachReviewPanel />);
 
   await waitFor(() => assert.deepEqual(cardTitles(), ["Own squat day"]));
-  assert.ok(document.querySelector(".review-record-card")?.textContent?.includes("Self-directed"));
+  assert.ok(document.querySelector(".review-row")?.textContent?.includes("Self-directed"));
   await waitFor(() => screen.getByText("None - the athlete ran this session themselves"));
 });
 
@@ -162,7 +162,7 @@ test("an assigned session carries no self-directed label", async () => {
   render(<CoachReviewPanel />);
 
   await waitFor(() => assert.deepEqual(cardTitles(), ["Upper body strength"]));
-  assert.ok(!document.querySelector(".review-record-card")?.textContent?.includes("Self-directed"));
+  assert.ok(!document.querySelector(".review-row")?.textContent?.includes("Self-directed"));
 });
 
 test("search filters the list by athlete name and session title", async () => {
@@ -377,9 +377,9 @@ test("an athlete name and session title containing markup render as inert text, 
   render(<CoachReviewPanel />);
 
   await waitFor(() => assert.equal(cardTitles().length, 1));
-  assert.ok(document.querySelector(".review-record-card")?.textContent?.includes('<img src=y onerror="window.pwned=true">'));
+  assert.ok(document.querySelector(".review-row")?.textContent?.includes('<img src=y onerror="window.pwned=true">'));
   assert.equal((globalThis as Record<string, unknown>).pwned, undefined);
-  assert.equal(document.querySelectorAll(".review-record-card img").length, 0);
+  assert.equal(document.querySelectorAll(".review-row img").length, 0);
 });
 
 // Regression test: this note-caption line used to be a single hardcoded
@@ -428,7 +428,7 @@ test("a reviewed record's card shows when it was actually reviewed, not just whe
   fireEvent.change(await waitFor(() => screen.getByDisplayValue("Awaiting review")), { target: { value: "all" } });
 
   const card = await waitFor(() => {
-    const found = document.querySelector(".review-record-card");
+    const found = document.querySelector(".review-row");
     assert.ok(found);
     return found as Element;
   });
@@ -442,7 +442,7 @@ test("an awaiting-review record's card still shows the session's own date, since
   render(<CoachReviewPanel />);
 
   const card = await waitFor(() => {
-    const found = document.querySelector(".review-record-card");
+    const found = document.querySelector(".review-row");
     assert.ok(found);
     return found as Element;
   });
@@ -569,6 +569,34 @@ test("a coach sees what the app changed on its own - weeks skipped for the meet,
   render(<CoachReviewPanel />);
   await waitFor(() => assert.ok(screen.getAllByText("Skipped 2 build weeks so the taper lands in competition week (24 Oct)").length > 0));
   assert.ok(screen.getAllByText("Back after 15 days away: a lighter first week (a set fewer, lighter loads)").length > 0);
-  const cards = [...document.querySelectorAll(".review-record-card")];
+  const cards = [...document.querySelectorAll(".review-row")];
   assert.deepEqual(cards.map((card) => Boolean(card.querySelector("[data-testid=programme-adjustments]"))), [true, false], "only the adjusted session's card shows the list");
+});
+
+test("what stands out comes first, and the rest are marked reviewed together", async () => {
+  installMocks({
+    records: [
+      baseRecord({ session_id: "s1", session_title: "As planned one", done_summary: "18 of 18 sets", review_flags: [] }),
+      baseRecord({ session_id: "s2", session_title: "Needs a look", updated_at: "2026-08-01T10:00:00.000Z", done_summary: "12 of 18 sets", review_flags: ["Pain reported: knee"] }),
+      baseRecord({ session_id: "s3", session_title: "As planned two", review_flags: [] })
+    ]
+  });
+  const submitted: string[] = [];
+  const inner = globalThis.fetch;
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    if (init?.method === "POST") submitted.push(String(input));
+    return inner(input, init);
+  }) as typeof fetch;
+  render(<CoachReviewPanel />);
+  await waitFor(() => assert.equal(cardTitles()[0], "Needs a look"));
+  assert.ok(screen.getByText("Pain reported: knee"));
+  assert.ok(screen.getByText("1 session needs a look"));
+  const original = window.confirm;
+  window.confirm = () => true;
+  try {
+    await act(async () => { fireEvent.click(screen.getByText("Mark 2 as reviewed")); });
+    await waitFor(() => assert.equal(submitted.length, 2));
+    assert.equal(submitted.some((path) => path.includes("s2")), false, "the flagged one is left for the coach");
+  }
+  finally { window.confirm = original; }
 });

@@ -1,0 +1,56 @@
+// DEV NOTE: every athlete screen, in a file of its own: only someone signed in as
+// an athlete downloads it (workspace.ts asks for it).
+import React from "react";
+
+import { mount } from "./mounting";
+import { AthleteHistoryPanel } from "./screens/athlete/AthleteHistoryPanel";
+import { AthleteOnboardingPanel } from "./screens/athlete/AthleteOnboardingPanel";
+import { AthleteMyProgrammePanel } from "./screens/athlete/AthleteMyProgrammePanel";
+import { AthleteProgressReportsPanel } from "./screens/athlete/AthleteProgressReports";
+import { OtherTrainingPanel } from "./screens/athlete/OtherTrainingPanel";
+import { AthleteSelfBodyMetricsPanel } from "./screens/athlete/AthleteSelfBodyMetricsPanel";
+import { AthleteSelfDeviceSyncPanel } from "./screens/athlete/AthleteSelfDeviceSyncPanel";
+import { AthleteSelfGoalsPanel } from "./screens/athlete/AthleteSelfGoalsPanel";
+import { AthleteSelfHabitsPanel } from "./screens/athlete/AthleteSelfHabitsPanel";
+import { AthleteSelfNutritionPanel } from "./screens/athlete/AthleteSelfNutritionPanel";
+import { AthleteSelfProgressPhotosPanel } from "./screens/athlete/AthleteSelfProgressPhotosPanel";
+import { AthleteSelfProgressInsightsPanel } from "./screens/athlete/AthleteSelfProgressInsightsPanel";
+import { AthleteSelfWeeklyCheckinsPanel } from "./screens/athlete/AthleteSelfWeeklyCheckinsPanel";
+import { AthleteSessionExecutionPanel } from "./screens/athlete/AthleteSessionExecutionPanel";
+import { AthleteTodayHistoryCountBadge, AthleteTodayRecentActivityList } from "./screens/athlete/AthleteTodayRecentActivityPanel";
+import { AthleteTodayInstallPrompt, AthleteTodayCreateSessionButton, AthleteTodayEventCard, AthleteTodaySessionCard } from "./screens/athlete/AthleteTodayPanel";
+import { TodayWeeklyCheckin } from "./screens/athlete/TodayWeeklyCheckin";
+import { TodayReadiness } from "./screens/athlete/TodayReadiness";
+import { PainCheckInCard } from "./screens/athlete/PainCheckInCard";
+import { AthleteAttendanceEventsPanel } from "./screens/athlete/AthleteAttendanceEventsPanel";
+import { CoachLinkRequestCard } from "./screens/athlete/CoachLinkRequestCard";
+import { AthleteFirstStepsGuide } from "./screens/athlete/AthleteFirstStepsGuide";
+import { AthleteCheckinsCard } from "./screens/athlete/AthleteCheckinsCard";
+
+mount("athlete-progress-reports-root", <AthleteProgressReportsPanel />);
+mount("athlete-other-training-root", <OtherTrainingPanel />);
+mount("athlete-attendance-events-root", <AthleteAttendanceEventsPanel />);
+mount("athlete-today-create-session-root", <AthleteTodayCreateSessionButton />);
+mount("coach-link-request-root", <CoachLinkRequestCard />);
+mount("athlete-checkins-root", <AthleteCheckinsCard />);
+mount("athlete-first-steps-root", <AthleteFirstStepsGuide />);
+mount("athlete-today-pain-check-in-root", <PainCheckInCard dueOnly />);
+mount("athlete-today-readiness-root", <TodayReadiness />);
+mount("athlete-today-session-root", <AthleteTodaySessionCard />);
+mount("athlete-today-event-root", <AthleteTodayEventCard />);
+mount("athlete-today-install-root", <AthleteTodayInstallPrompt />);
+mount("today-weekly-checkin-root", <TodayWeeklyCheckin />);
+mount("today-history-count-root", <AthleteTodayHistoryCountBadge />);
+mount("today-recent-activity-root", <AthleteTodayRecentActivityList />);
+mount("athlete-history-root", <AthleteHistoryPanel />);
+mount("athlete-my-programme-root", <AthleteMyProgrammePanel />);
+mount("athlete-onboarding-root", <AthleteOnboardingPanel />);
+mount("athlete-self-weekly-checkins-root", <AthleteSelfWeeklyCheckinsPanel />);
+mount("athlete-self-progress-insights-root", <AthleteSelfProgressInsightsPanel />);
+mount("athlete-self-device-sync-root", <AthleteSelfDeviceSyncPanel />);
+mount("athlete-self-goals-root", <AthleteSelfGoalsPanel />);
+mount("athlete-self-body-metrics-root", <AthleteSelfBodyMetricsPanel />);
+mount("athlete-self-nutrition-root", <AthleteSelfNutritionPanel />);
+mount("athlete-self-habits-root", <AthleteSelfHabitsPanel />);
+mount("athlete-self-progress-photos-root", <AthleteSelfProgressPhotosPanel />);
+mount("athlete-session-root", <AthleteSessionExecutionPanel />);

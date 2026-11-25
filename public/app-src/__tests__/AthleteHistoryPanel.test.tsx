@@ -99,7 +99,7 @@ test("renders a session card with programme/event name, date, status and complet
   const card = document.querySelector(".record-card") as HTMLElement;
   assert.equal(within(card).getByRole("heading").textContent, "Peak Block");
   assert.match(card.textContent ?? "", /Regional Meet/u);
-  assert.ok(within(card).getByText("4 completed"));
+  assert.ok(within(card).getByText("4 of 5 exercises done"));
   assert.ok(within(card).getByText("1 dropped"));
   const badges = card.querySelectorAll(".badge");
   assert.equal(badges[0].textContent, "Partial");

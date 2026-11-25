@@ -1,7 +1,7 @@
 import React from "react";
 
 import { type JsonRecord } from "../api/transport";
-import { formatDate, titleCase } from "../utils/format";
+import { formatDate, sentenceCase } from "../utils/format";
 import { LineChart } from "./LineChart";
 
 // Estimated one-rep max from what the athlete actually lifted in training
@@ -10,7 +10,7 @@ import { LineChart } from "./LineChart";
 export function TrainingE1rmCard({ trend, exercises }: { trend: JsonRecord; exercises: JsonRecord[] }) {
   const exerciseId = String(trend.exercise_id);
   const match = exercises.find((entry) => entry.exercise_id === exerciseId);
-  const name = typeof match?.display_name === "string" ? match.display_name : titleCase(exerciseId);
+  const name = typeof match?.display_name === "string" ? match.display_name : sentenceCase(exerciseId);
   const unit = String(trend.unit ?? "kg");
   const change = trend.has_prior_value
     ? `${Number(trend.delta) > 0 ? "+" : ""}${trend.delta} ${unit} (${Number(trend.delta_percentage) > 0 ? "+" : ""}${trend.delta_percentage}%) since ${formatDate(trend.prior_date)}`

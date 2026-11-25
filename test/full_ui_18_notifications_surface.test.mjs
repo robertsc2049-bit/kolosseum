@@ -108,7 +108,7 @@ test("target availability is derived, not assumed - a stale relationship makes a
 test("notification bell, panel, loading, unavailable and empty states exist and are real focusable controls", () => {
   assert.ok(html.includes('id="notification-bell-root"'), "Expected the React mount point for the notification bell/panel");
 
-  assert.match(notificationPanel, /className="icon-button notification-bell"\s*\n\s*type="button"\s*\n\s*aria-label="Open notifications"/u);
+  assert.match(notificationPanel, /className="icon-button notification-bell"\s*\n\s*type="button"\s*\n\s*aria-label=\{unreadCount > 0 \? `Open notifications, \$\{unreadCount\} unread` : "Open notifications"\}/u);
   assert.match(notificationPanel, /className="notification-unread-badge"/u);
   assert.match(notificationPanel, /className="notification-panel" role="menu"/u);
   assert.match(notificationPanel, /className="button link" type="button" onClick=\{\(\) => markAllRead\(\)\}>Mark all read</u);

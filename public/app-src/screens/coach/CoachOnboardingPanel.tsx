@@ -5,6 +5,7 @@ import { AccessibilityCheckboxes } from "../../components/AccessibilityCheckboxe
 import { accessibilityLabel, accessibilityOf, type AccessibilityPreferences } from "../../utils/accessibilityPreferences";
 import { FRIENDLY_ERROR_MESSAGES } from "../../utils/friendlyError";
 import { useCoachOnboarding } from "./useCoachOnboarding";
+import { formatDate as formatRecordedDate } from "../../utils/format";
 
 // DEV NOTE: FULL-UI-04C coach onboarding profile/terms/completion view -
 // ported field-for-field from public/app/coach_onboarding_ui.js's
@@ -21,7 +22,7 @@ function humanise(value: unknown): string {
 
 function formatDate(value: unknown): string {
   const date = new Date(clean(value));
-  return Number.isNaN(date.getTime()) ? clean(value) : date.toLocaleString();
+  return Number.isNaN(date.getTime()) ? clean(value) : formatRecordedDate(value);
 }
 
 const ERROR_MESSAGES: Record<string, string> = {

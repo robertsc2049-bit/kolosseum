@@ -6,9 +6,10 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
+import { appSource } from "./helpers/app_source.mjs";
 
-const app = fs.readFileSync("public/app/app.js", "utf8");
-const saveState = app.slice(app.indexOf("function saveState()"), app.indexOf("function createId("));
+const app = appSource();
+const saveState = app.slice(app.indexOf("function saveState()"), app.indexOf("\n}\n", app.indexOf("function saveState()")) + 2);
 
 test("saveState leaves out the programme library and exercise list, and swallows a storage failure", () => {
   assert.match(app, /const UNSAVED_STATE_KEYS = \["coachTemplates", "templateExercises"\];/u);

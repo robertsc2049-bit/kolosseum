@@ -310,7 +310,7 @@ test("an existing note's exercise tag is rendered when present", async () => {
   ]);
 
   await screen.findByText("Depth was shallow.");
-  assert.match(document.body.textContent ?? "", /Exercise: Back Squat/u);
+  assert.match(document.body.textContent ?? "", /Exercise: Back squat/u);
 });
 
 test("an empty note shows a validation error and never sends", async () => {

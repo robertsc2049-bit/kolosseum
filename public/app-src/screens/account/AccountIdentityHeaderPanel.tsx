@@ -122,9 +122,9 @@ export function AccountCodeCard() {
 
   return (
     <article className="panel">
-      <p className="eyebrow">Account code</p>
-      <h3 id="accountCode">{code}</h3>
-      <p className="muted">Use this code only when intentionally connecting a coach and athlete.</p>
+      <h3>Account code</h3>
+      <p className="muted">For connecting a coach and an athlete. Share it only with someone you know.</p>
+      <details className="account-code-details"><summary>Show code</summary><code id="accountCode">{code}</code></details>
       <button className="button secondary" type="button" onClick={copyCode}>Copy code</button>
       {notice ? <p role="status" className="muted small">{notice}</p> : null}
     </article>

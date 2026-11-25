@@ -77,7 +77,7 @@ test("shows adherence percentage and counts when there is sufficient data", asyn
   });
 
   render(<AthleteSelfProgressInsightsPanel />);
-  await waitFor(() => screen.getByText("75% adherence — 9 of 12 sessions completed in the last 30 days."));
+  await waitFor(() => screen.getByText("9 of 12 sessions completed in the last 30 days (75%)."));
 });
 
 test("renders a strength trend card resolving the exercise's real display name from the catalog", async () => {
@@ -130,7 +130,7 @@ test("falls back to a title-cased exercise id when the catalog has no match", as
 
   render(<AthleteSelfProgressInsightsPanel />);
 
-  await waitFor(() => screen.getByText("Back Squat"));
+  await waitFor(() => screen.getByText("Back squat"));
   assert.ok(screen.getByText("No prior benchmark to compare yet."));
 });
 
@@ -235,7 +235,7 @@ test("refetches when kolosseum:history-changed fires", async () => {
     document.dispatchEvent(new CustomEvent("kolosseum:history-changed"));
   });
 
-  await waitFor(() => screen.getByText("100% adherence — 4 of 4 sessions completed in the last 30 days."));
+  await waitFor(() => screen.getByText("4 of 4 sessions completed in the last 30 days (100%)."));
 });
 
 test("refetches once a same-tab sign-in completes", async () => {
@@ -256,7 +256,7 @@ test("refetches once a same-tab sign-in completes", async () => {
     document.dispatchEvent(new CustomEvent("kolosseum:entry-auth-succeeded"));
   });
 
-  await waitFor(() => screen.getByText("100% adherence — 4 of 4 sessions completed in the last 30 days."));
+  await waitFor(() => screen.getByText("4 of 4 sessions completed in the last 30 days (100%)."));
 });
 
 test("charts a strength trend's series and falls back to a factual empty chart state when no series is present", async () => {
@@ -323,7 +323,7 @@ test("charts session adherence over time using the series field, keyed off windo
   });
 
   render(<AthleteSelfProgressInsightsPanel />);
-  await waitFor(() => screen.getByText("75% adherence — 9 of 12 sessions completed in the last 30 days."));
+  await waitFor(() => screen.getByText("9 of 12 sessions completed in the last 30 days (75%)."));
 
   const panel = document.querySelector(".progress-insights-panel") as HTMLElement;
   const path = panel.querySelector("svg path");
@@ -341,7 +341,7 @@ test("keeps the four labeled sections (Estimated maxes from training, Strength t
   await waitFor(() => screen.getByText("No sessions recorded in the last 30 days."));
 
   const headings = Array.from(document.querySelectorAll(".progress-insights-section h4")).map((node) => node.textContent);
-  assert.deepEqual(headings, ["Estimated maxes from training", "Strength trends", "Habit consistency", "Body-metric trends"]);
+  assert.deepEqual(headings, ["Estimated maxes from training", "Strength trends (0)", "Habit consistency (0)", "Body-metric trends (0)"]);
   assert.ok(screen.getByText("Log your sets with reps and load to see your estimated maxes here."));
   const panel = document.querySelector(".progress-insights-panel") as HTMLElement;
   assert.ok(within(panel).getByText("Progress insights"));

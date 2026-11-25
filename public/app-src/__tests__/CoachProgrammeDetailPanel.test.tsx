@@ -119,7 +119,7 @@ test("shows a factual placeholder description when none was recorded", async () 
   installMocks({ templates: [template({ description: "" })] });
   render(<CoachProgrammeDetailPanel />);
   await openDetail("tmpl_1_v1");
-  await screen.findByText("No programme description was recorded.");
+  await screen.findByText("No description yet.");
 });
 
 test("draft programmes show Edit draft, Check it's ready and Archive, but not Ready to send or Duplicate", async () => {
@@ -170,7 +170,7 @@ test("the version family lists every version, marking the currently open one", a
   render(<CoachProgrammeDetailPanel />);
   await openDetail("tmpl_1_v2");
 
-  await screen.findByText("Version metadata");
+  await screen.findByRole("heading", { name: "Versions" });
   const versionList = document.querySelector(".programme-version-list") as HTMLElement;
   const rows = within(versionList).getAllByRole("button");
   assert.equal(rows.length, 2);
@@ -205,7 +205,7 @@ test("shows a factual empty state when no assignments use this exact version", a
   await screen.findByText("No assignment records use this exact programme version.");
 });
 
-test("the usage list shows the real athlete name, assignment id and recorded date", async () => {
+test("the usage list shows the real athlete name and recorded date, and no internal id", async () => {
   installMocks({
     templates: [template()],
     assignments: [assignment({ assignment_id: "assign_7", assigned_athlete_id: "athlete_9", requested_at_iso8601: "2026-08-05T09:00:00.000Z" })],
@@ -215,7 +215,7 @@ test("the usage list shows the real athlete name, assignment id and recorded dat
   await openDetail("tmpl_1_v1");
 
   await screen.findByText("Jordan Coachee");
-  assert.ok(screen.getByText("assign_7"));
+  assert.equal(screen.queryByText("assign_7"), null);
   assert.equal(screen.getAllByText(/5 Aug 2026/u).length, 2);
   const usageSummary = document.querySelector(".programme-usage-summary") as HTMLElement;
   assert.equal(within(usageSummary).getByText("Assignments").closest("div")?.querySelector("strong")?.textContent, "1");

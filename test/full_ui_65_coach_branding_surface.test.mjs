@@ -10,6 +10,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
+import { appSource } from "./helpers/app_source.mjs";
 
 const root = process.cwd();
 const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
@@ -21,7 +22,7 @@ const lifecycle = read("shared/coach-branding/coachBrandingLifecycle.mjs");
 const recordStore = read("src/api/beta_product_record_store.ts");
 const schemaSql = read("schema.sql");
 const relationshipService = read("src/api/relationship_invitation_service.ts");
-const appJs = read("public/app/app.js");
+const appJs = appSource();
 const indexHtml = read("public/app/index.html");
 const guard = read("ci/guards/full_ui_completion_guard.mjs");
 const manifest = JSON.parse(read("product/ui/function_manifest.json"));
@@ -135,7 +136,7 @@ test("the coach settings panel is gated to coach accounts only, never shown unco
   // event, since a same-tab localStorage write never fires "storage" for
   // the tab that made it.
   const roleUtil = read("public/app-src/utils/role.ts");
-  const appJsSource = read("public/app/app.js");
+  const appJsSource = appSource();
   assert.match(roleUtil, /export function readRole\(\)/u);
   assert.match(roleUtil, /export function useRole\(\)/u);
   assert.match(roleUtil, /window\.localStorage\.getItem\(STORAGE_KEY\)/u);

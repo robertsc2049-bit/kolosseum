@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
+import { appSource } from "./helpers/app_source.mjs";
 
 const root = process.cwd();
 const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
@@ -13,7 +14,7 @@ const routes = read("src/api/device_sync.routes.ts");
 const serverTs = read("src/server.ts");
 const schema = read("schema.sql");
 const recordStore = read("src/api/beta_product_record_store.ts");
-const appJs = read("public/app/app.js");
+const appJs = appSource();
 const indexHtml = read("public/app/index.html");
 const manifest = JSON.parse(read("product/ui/function_manifest.json"));
 // DEV NOTE: the coach-side mirror moved to React - see

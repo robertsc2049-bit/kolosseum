@@ -3,8 +3,9 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { type JsonRecord } from "../../api/transport";
 import { InfoTooltip } from "../../components/InfoTooltip";
 import { PhoneDisclosure } from "../../components/PhoneDisclosure";
-import { formatDate, titleCase } from "../../utils/format";
+import { formatDate, sentenceCase, titleCase } from "../../utils/format";
 import { sportLabel } from "../../utils/sportLabel";
+import { exercisesDoneLabel } from "./AthleteTodayRecentActivityPanel";
 import { useTrainingHistory } from "./useTrainingHistory";
 import { topPersonalRecord } from "../../utils/personalRecords";
 import { finishedEarly } from "../../utils/sessionSummary";
@@ -23,7 +24,7 @@ function exerciseName(exercise: JsonRecord | undefined): string {
   if (exercise?.display_name) return String(exercise.display_name);
   if (exercise?.exercise_name) return String(exercise.exercise_name);
   const id = exercise?.exercise_id ?? exercise?.item_id;
-  return id ? titleCase(id) : "Exercise";
+  return id ? sentenceCase(id) : "Exercise";
 }
 
 function historyRecordStatusClass(executionStatus: string): string {
@@ -233,8 +234,8 @@ export function AthleteHistoryPanel() {
                   </p>
                 </div>
                 <div className="record-meta">
-                  <span className={`badge ${historyRecordStatusClass(executionStatus)}`}>{titleCase(executionStatus)}</span>
-                  <span className="badge neutral">{Number(session.completed_count ?? 0)} completed</span>
+                  <span className={`badge ${historyRecordStatusClass(executionStatus)}`}>{sentenceCase(executionStatus)}</span>
+                  <span className="badge neutral">{exercisesDoneLabel(session) || `${Number(session.completed_count ?? 0)} exercises done`}</span>
                   {droppedCount ? <span className="badge partial">{droppedCount} dropped</span> : null}
                 </div>
               </article>
@@ -261,7 +262,7 @@ export function AthleteHistoryPanel() {
                 <div>
                   <p className="eyebrow">Session detail</p>
                   <h3>{String(programme?.template_name || "Training session")}</h3>
-                  <p className="muted">{formatDate(detail.created_at)} · {titleCase(detail.execution_status)}</p>
+                  <p className="muted">{formatDate(detail.created_at)} · {sentenceCase(detail.execution_status)}</p>
                 </div>
                 <div className="button-row">
                   {canContinue ? (
@@ -272,10 +273,10 @@ export function AthleteHistoryPanel() {
               </div>
 
               <div className="history-facts">
-                <div><span>Status</span><strong>{titleCase(detail.execution_status)}</strong></div>
+                <div><span>Status</span><strong>{sentenceCase(detail.execution_status)}</strong></div>
                 <div><span>Stopped part-way<InfoTooltip label="About stopping part-way">Whether this session was stopped before the end - with "Finish session now", or "Stop and return later" - and what happened after.</InfoTooltip></span><strong>{stoppedPartWay(detail)}</strong></div>
                 <div><span>Programme</span><strong>{programme ? `${String(programme.template_name)} (v${String(programme.template_version)})` : "Not recorded"}</strong></div>
-                <div><span>Assignment</span><strong>{assignment?.assignment_status ? titleCase(assignment.assignment_status) : "Not recorded"}</strong></div>
+                <div><span>Assignment</span><strong>{assignment?.assignment_status ? sentenceCase(assignment.assignment_status) : "Not recorded"}</strong></div>
                 <div><span>Event</span><strong>{String(event?.event_name || "No linked event")}</strong></div>
               </div>
 
@@ -313,9 +314,9 @@ export function AthleteHistoryPanel() {
                     <div className="history-exercise-row" key={String(exercise.exercise_id ?? index)}>
                       <strong>{exerciseName(planned)}</strong>
                       <span className={`badge ${recordedState === "completed" ? "complete" : recordedState === "dropped" ? "partial" : "neutral"}`}>
-                        {titleCase(recordedState)}
+                        {sentenceCase(recordedState)}
                       </span>
-                      {exercise.skip_reason ? <small>Skip reason: {titleCase(exercise.skip_reason)}</small> : null}
+                      {exercise.skip_reason ? <small>Skip reason: {sentenceCase(exercise.skip_reason)}</small> : null}
                       {exercise.pain_reported ? <small>{exercise.pain_area && exercise.pain_area !== "other" ? `Pain reported (${String(exercise.pain_area) === "lumbar_low" ? "lower back" : String(exercise.pain_area)})` : "Pain reported"}</small> : null}
                       {exercise.rpe_reported ? <small>RPE reported: {String(exercise.rpe_reported)}</small> : null}
                       {exercise.borg_reported ? <small>Borg reported: {String(exercise.borg_reported)}</small> : null}

@@ -1,9 +1,10 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
+import { appSource } from "./helpers/app_source.mjs";
 
 const html = fs.readFileSync("public/app/index.html", "utf8");
-const app = fs.readFileSync("public/app/app.js", "utf8");
+const app = appSource();
 const styles = fs.readFileSync("public/app/styles.css", "utf8");
 const routes = fs.readFileSync("public/app/route_bootstrap.js", "utf8");
 
@@ -70,7 +71,7 @@ test("FULL-UI-05A exposes programme search filter sort and factual state counts"
 
   assert.match(libraryPanel, /placeholder="Name, activity, event or version"/u);
   assert.match(libraryPanel, /programme-clear-filters/u);
-  assert.match(libraryPanel, /Superseded versions/u);
+  assert.match(libraryPanel, /Older versions/u);
   assert.match(libraryHook, /function filteredProgrammeTemplates\(/u);
   assert.match(libraryHook, /function programmeDisplayState\(/u);
   assert.match(libraryPanel, /usage_desc/u);
@@ -97,9 +98,9 @@ test("FULL-UI-05A opens a complete programme detail and preview surface", () => 
 });
 
 test("FULL-UI-05A derives factual version families and superseded states", () => {
-  assert.match(app, /function programmeFamilyVersions\(/u);
-  assert.match(app, /function programmeDisplayState\(/u);
-  assert.match(app, /\["active", "archived"\]\.includes/u);
+  assert.match(libraryHook, /function programmeDisplayState\(/u);
+  assert.match(detailPanel, /programmeFamilyVersions\(/u);
+  assert.match(libraryHook, /\["active", "archived"\]\.includes/u);
   assert.match(app, /programmeVersionNumber/u);
   assert.match(detailPanel, /template-version-open/u);
 });

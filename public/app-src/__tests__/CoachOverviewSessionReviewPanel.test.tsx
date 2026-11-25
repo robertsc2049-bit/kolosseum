@@ -51,7 +51,7 @@ test("Open sessions lists records with review_status open, with athlete name, st
   render(<CoachOverviewOpenSessionsPanel />);
 
   await screen.findByText("Alex");
-  assert.match(document.body.textContent ?? "", /In Progress/u);
+  assert.match(document.body.textContent ?? "", /In progress/u);
   assert.match(document.body.textContent ?? "", /Squat day/u);
   assert.match(document.body.textContent ?? "", /4 exercises/u);
   assert.ok(screen.getByText("Open live status"));
@@ -179,4 +179,19 @@ test("refetches once a same-tab sign-in completes", async () => {
   });
 
   await screen.findByText("Alex");
+});
+
+test("Review queue: what stands out comes first with why, five at most, and how many more there are", async () => {
+  const records = Array.from({ length: 7 }, (_, index) => ({
+    artefact_id: `q${index}`, athlete_user_id: "athlete_2", review_status: "unreviewed", awaiting_review: true, session_status: "completed",
+    session_title: `Session ${index}`, updated_at: `2026-08-2${index}T10:00:00.000Z`, review_flags: index === 0 ? ["Pain reported: knee"] : []
+  }));
+  installMocks({ records, relationships: [{ athlete_user_id: "athlete_2", display_name: "Jordan" }] });
+  render(<CoachOverviewReviewQueuePanel />);
+  await screen.findByText("Pain reported: knee");
+  const cards = [...document.querySelectorAll(".record-card")];
+  assert.equal(cards.length, 5);
+  assert.match(cards[0].textContent ?? "", /Session 0.*Pain reported: knee/u);
+  assert.match(cards[1].textContent ?? "", /Session 6/u);
+  assert.ok(screen.getByText("2 more in Review."));
 });

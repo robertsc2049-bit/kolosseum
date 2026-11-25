@@ -143,6 +143,38 @@ export function useCoachReview() {
     }
   }, [refresh]);
 
+  // Several at once (nothing flagged): one after the other, then one refresh.
+  const markReviewed = useCallback(async (records: ReviewRecord[]): Promise<boolean> => {
+    setState((current) => ({ ...current, marking: true, markError: null }));
+    let done = 0;
+    try {
+      const account = await loadAccountDetail();
+      const csrfToken = typeof account.csrf_token === "string" ? account.csrf_token : "";
+      const coachUserId = String((account.account as JsonRecord | undefined)?.user_id ?? "");
+      for (const record of records) {
+        await submitCoachSessionReview(String(record.session_id), {
+          request_id: `session_review_${Date.now()}_${Math.random().toString(36).slice(2)}`,
+          requested_at_iso8601: new Date().toISOString(),
+          coach_user_id: coachUserId,
+          athlete_user_id: record.athlete_user_id,
+          artefact_id: record.artefact_id,
+          review_status: "reviewed"
+        }, csrfToken);
+        done += 1;
+      }
+      return true;
+    }
+    catch {
+      setState((current) => ({ ...current, markError: `${done} of ${records.length} marked as reviewed. Check your connection and try the rest again.` }));
+      return false;
+    }
+    finally {
+      setState((current) => ({ ...current, marking: false }));
+      await refresh();
+      document.dispatchEvent(new CustomEvent(OVERVIEW_CHANGED_EVENT));
+    }
+  }, [refresh]);
+
   const recordNote = useCallback(async (record: ReviewRecord, noteText: string, visibility: string, exerciseId: string): Promise<boolean> => {
     const relationship = athleteRelationshipsById[String(record.athlete_user_id ?? "")];
     if (!relationship) {
@@ -218,6 +250,7 @@ export function useCoachReview() {
     refresh,
     setSelectedAthleteId,
     markReview,
+    markReviewed,
     recordNote,
     dispatchNoteDirty
   };

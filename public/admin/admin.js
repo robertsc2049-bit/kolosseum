@@ -384,6 +384,8 @@ async function openAccountDetail(userId) {
   el("accountDetailUserId").textContent = account.user_id;
   el("accountDetailActorType").textContent = Array.isArray(account.roles) ? account.roles.join(" + ") : account.actor_type;
   el("accountDetailState").textContent = account.account_state;
+  el("accountToggleStateButton").textContent = account.account_state === "active" ? "Suspend account" : "Reactivate account";
+  el("accountToggleTestButton").textContent = account.is_test_account ? "Unmark as a test account" : "Mark as a test account";
   el("accountDetailTestFlag").textContent = account.is_test_account ? "Yes" : "No";
   el("accountDetailTestReasonWrap").hidden = !account.test_account_reason;
   el("accountDetailTestReason").textContent = account.test_account_reason ?? "";
@@ -417,7 +419,7 @@ function requestAccountStateToggle() {
   const nextState = currentState === "active" ? "suspended" : "active";
   state.pendingStateChange = { correlation_id: generateCorrelationId(), account_state: nextState };
   el("accountToggleStateConfirmButton").hidden = false;
-  el("accountToggleStateConfirmButton").textContent = `Confirm: set state to ${nextState}`;
+  el("accountToggleStateConfirmButton").textContent = `Confirm: ${nextState === "active" ? "reactivate" : "suspend"} this account`;
 }
 
 async function confirmAccountStateToggle() {
@@ -520,6 +522,7 @@ async function openOrgOwnerAccountDetail(userId) {
   el("orgOwnerAccountDetailSection").hidden = false;
   el("orgOwnerAccountDetailUserId").textContent = account.user_id;
   el("orgOwnerAccountDetailState").textContent = account.account_state;
+  el("orgOwnerAccountToggleStateButton").textContent = account.account_state === "active" ? "Suspend account" : "Reactivate account";
   el("orgOwnerAccountDetailEmail").textContent = account.email ?? "";
   el("orgOwnerAccountActionResult").hidden = true;
 
@@ -547,7 +550,7 @@ function requestOrgOwnerAccountStateToggle() {
   const nextState = currentState === "active" ? "suspended" : "active";
   state.pendingOrgOwnerStateChange = { correlation_id: generateCorrelationId(), account_state: nextState };
   el("orgOwnerAccountToggleStateConfirmButton").hidden = false;
-  el("orgOwnerAccountToggleStateConfirmButton").textContent = `Confirm: set state to ${nextState}`;
+  el("orgOwnerAccountToggleStateConfirmButton").textContent = `Confirm: ${nextState === "active" ? "reactivate" : "suspend"} this account`;
 }
 
 async function confirmOrgOwnerAccountStateToggle() {

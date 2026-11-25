@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
+import { appSource } from "./helpers/app_source.mjs";
 
 const root = process.cwd();
 const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
@@ -10,7 +11,8 @@ const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
 const service = read("src/api/beta18_programme_template_service.ts");
 const html = read("public/app/index.html");
 const css = read("public/app/styles.css");
-const js = read("public/app/app.js");
+const js = appSource();
+const format = read("public/app-src/utils/format.ts");
 const phase4 = read("engine/src/phases/phase4/types.ts");
 const phase6 = read("engine/src/phases/phase6.ts");
 // DEV NOTE: the builder's rep/load/duration/distance/prescription-mode
@@ -88,13 +90,13 @@ test("coach builder exposes Borg and modified-Borg (CR10) loading controls", () 
 });
 
 test("athlete session formatting distinguishes range and loading type", () => {
-  assert.ok(js.includes("${repRange.minimum}–${repRange.maximum} reps"));
-  assert.match(js, /% 1RM/u);
-  assert.ok(js.includes("details.push(`${Number(intensity.value)} ${unit}`)"));
-  assert.match(js, /details\.push\("Bodyweight"\)/u);
-  assert.match(js, /RPE \$\{Number\(intensity\.value\)\}/u);
-  assert.match(js, /Borg \$\{Number\(intensity\.value\)\}/u);
-  assert.match(js, /CR10 \$\{Number\(intensity\.value\)\}/u);
+  assert.ok(format.includes("${repRange?.minimum}–${repRange?.maximum} reps"));
+  // (Athletes see weights, never a percentage of a max.)
+  assert.ok(format.includes("`${Number(intensity.value)} ${unit}`"));
+  assert.match(format, /details\.push\("Bodyweight"\)/u);
+  assert.match(format, /RPE \$\{Number\(intensity\.value\)\}/u);
+  assert.match(format, /Borg \$\{Number\(intensity\.value\)\}/u);
+  assert.match(format, /CR10 \$\{Number\(intensity\.value\)\}/u);
 });
 
 test("template input supports duration and distance prescriptions alongside reps", () => {
@@ -127,9 +129,9 @@ test("coach builder exposes a prescription mode selector with duration and dista
 });
 
 test("athlete session formatting distinguishes duration, distance and tempo", () => {
-  assert.match(js, /Hold \$\{durationRange\.minimum\}–\$\{durationRange\.maximum\}s/u);
-  assert.match(js, /Hold \$\{exercise\.duration_seconds\}s/u);
-  assert.match(js, /Tempo \$\{tempo\}/u);
+  assert.match(format, /Hold \$\{durationRange\?\.minimum\}–\$\{durationRange\?\.maximum\}s/u);
+  assert.match(format, /Hold \$\{exercise\?\.duration_seconds\}s/u);
+  assert.match(format, /Tempo \$\{tempo\}/u);
 });
 
 test("template input supports set ranges and % / fixed-weight load ranges (the low end stays the single value)", () => {

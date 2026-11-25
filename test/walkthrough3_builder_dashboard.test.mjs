@@ -9,8 +9,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import { appSource } from "./helpers/app_source.mjs";
 
-const app = fs.readFileSync("public/app/app.js", "utf8");
+const app = appSource();
 const fnBody = (name) => {
   const start = app.indexOf(`function ${name}(`);
   assert.ok(start >= 0, name);

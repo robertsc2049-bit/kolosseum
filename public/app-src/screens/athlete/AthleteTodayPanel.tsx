@@ -6,7 +6,7 @@ import { type JsonRecord } from "../../api/transport";
 import { InfoTooltip } from "../../components/InfoTooltip";
 import { InstallAppPrompt } from "../../components/InstallAppPrompt";
 import { type DayItem, type ExerciseOption, TrainingDayEditor, newDayItem, toExerciseOption } from "../../components/TrainingDayEditor";
-import { countdownLabel, formatDate, programmeReentryNote, titleCase } from "../../utils/format";
+import { countdownLabel, formatDate, programmeReentryNote, sentenceCase, titleCase } from "../../utils/format";
 import { useAthleteToday } from "./useAthleteToday";
 import { TodayCoachInvitations } from "../account/AccountCoachInvitationsPanel";
 
@@ -271,6 +271,23 @@ export function TodaysSessionPicker({ options, onStart, onCancel }: {
   );
 }
 
+function todayItemName(item: JsonRecord): string {
+  return String(item.display_name ?? "") || sentenceCase(String(item.exercise_id ?? "").replace(/__r[0-9]+$/u, ""));
+}
+
+// "3 x 5, 70 kg": sets and reps, then the weight or effort if there is one.
+function todayItemWork(item: JsonRecord): string {
+  const range = isRecord(item.rep_range) ? item.rep_range : null;
+  const reps = range ? `${Number(range.minimum)}-${Number(range.maximum)}` : item.reps !== undefined && item.reps !== null ? String(item.reps) : "";
+  const load = isRecord(item.resolved_load) ? (item.resolved_load as JsonRecord) : null;
+  const intensity = isRecord(item.intensity) ? (item.intensity as JsonRecord) : null;
+  const work = item.sets ? `${Number(item.sets)}${reps ? ` × ${reps}` : ` set${Number(item.sets) === 1 ? "" : "s"}`}` : "";
+  const weight = load && Number.isFinite(Number(load.value)) ? `${Number(load.maximum_value) > Number(load.value) ? `${load.value}–${load.maximum_value}` : load.value} ${String(load.unit ?? "kg")}`
+    : intensity?.type === "load" ? `${intensity.value} ${String(intensity.unit ?? "kg")}`
+      : ["rpe", "borg", "cr10"].includes(String(intensity?.type)) ? `${String(intensity!.type) === "borg" ? "Borg" : String(intensity!.type).toUpperCase()} ${intensity!.value}` : "";
+  return [work, weight].filter(Boolean).join(", ");
+}
+
 export function AthleteTodaySessionCard() {
   const { loading, today, sessionState, actorType, refresh } = useAthleteToday();
   const unassigned = today?.state === "no_current_assignment";
@@ -286,7 +303,7 @@ export function AthleteTodaySessionCard() {
     return (
       <div className="panel session-hero">
         <div className="panel-kicker">
-          <span>Current session</span>
+          <span>Your session</span>
           <span className="badge neutral">Loading…</span>
         </div>
       </div>
@@ -299,7 +316,7 @@ export function AthleteTodaySessionCard() {
     return (
       <div className="panel session-hero">
         <div className="panel-kicker">
-          <span>Current session</span>
+          <span>Your session</span>
           <span className={`badge ${badge.className}`}>{badge.label}</span>
         </div>
         <div className="empty-state">
@@ -316,23 +333,21 @@ export function AthleteTodaySessionCard() {
   const session = (today?.session ?? null) as JsonRecord | null;
   const notes = Array.isArray(today?.notes) ? (today!.notes as JsonRecord[]) : [];
   const messageCopy = unassignedCopy ?? MESSAGE_STATE_COPY[stateKey];
-  const firstPlannedItem = Array.isArray(session?.planned_items) ? (session!.planned_items[0] as JsonRecord | undefined) : undefined;
-  const resolvedLoad = firstPlannedItem?.resolved_load as JsonRecord | undefined;
-  const resolvedLoadSource = resolvedLoad?.source as JsonRecord | undefined;
+  const plannedItems = (Array.isArray(session?.planned_items) ? (session!.planned_items as JsonRecord[]) : []).filter((item) => !["warm_up", "cool_down"].includes(String(item.segment ?? "")));
+  const resolvedLoad = plannedItems.find((item) => isRecord(item.resolved_load))?.resolved_load as JsonRecord | undefined;
   const activityId = String(assignment?.activity_id ?? "training");
   const sessionNotes = session?.template_session_coaching_notes;
 
   return (
     <div className="panel session-hero">
       <div className="panel-kicker">
-        <span>Current session</span>
+        <span>Your session</span>
         <span className={`badge ${badge.className}`}>{badge.label}</span>
       </div>
 
       {assignment ? (
         <div className="today-programme-summary">
-          <p className="eyebrow">{String(assignment.template_name || "Assigned programme")}</p>
-          <p className="muted">{assignment.template_version ? `Version ${assignment.template_version}` : ""}</p>
+          <p className="muted"><strong>{String(assignment.template_name || "Assigned programme")}</strong></p>
           <p className="muted">{todaySessionLabel(session)}</p>
         </div>
       ) : null}
@@ -354,24 +369,24 @@ export function AthleteTodaySessionCard() {
 
       {stateKey === "ok" ? (
         <div>
-          <p className="eyebrow">{titleCase(activityId)}</p>
-          <h3>{session?.template_session_title ? String(session.template_session_title) : `${titleCase(activityId)} session`}</h3>
+          <h3 className="today-session-title">{session?.template_session_title ? String(session.template_session_title) : `${titleCase(activityId)} session`}</h3>
           {sessionNotes ? <p className="muted">{String(sessionNotes)}</p> : null}
-          <div className="metric-row">
-            <div><strong>{countsFromSession(sessionState).completed.length}</strong><span>Completed</span></div>
-            <div><strong>{countsFromSession(sessionState).remaining.length}</strong><span>Remaining</span></div>
-            <div><strong>{countsFromSession(sessionState).dropped.length}</strong><span>Dropped</span></div>
-          </div>
-          {resolvedLoad ? (
-            <div className="today-resolved-load">
-              <span>Today's working weight<InfoTooltip label="About today's working weight">This is calculated from your recorded strength reference and the programme's prescribed percentage for today's session.</InfoTooltip></span>
-              <p className="today-resolved-load-value">{Number(resolvedLoad.maximum_value) > Number(resolvedLoad.value) ? `${resolvedLoad.value}–${resolvedLoad.maximum_value} ${resolvedLoad.unit}` : `${resolvedLoad.value} ${resolvedLoad.unit}`}</p>
-              <p className="muted">
-                {resolvedLoadSource ? "Worked out from your max" : ""}
-              </p>
-            </div>
+          {(() => {
+            const { completed, remaining, dropped } = countsFromSession(sessionState);
+            const total = completed.length + remaining.length + dropped.length;
+            return completed.length > 0 ? <p className="muted">{`${completed.length} of ${total} exercises done`}</p> : null;
+          })()}
+          {plannedItems.length ? (
+            <ul className="today-exercises">
+              {plannedItems.map((item, index) => (
+                <li key={`${String(item.exercise_id ?? index)}_${index}`}><span>{todayItemName(item)}</span><strong>{todayItemWork(item)}</strong></li>
+              ))}
+            </ul>
           ) : null}
-          <button className="button primary" type="button" onClick={continueToSession}>Open session</button>
+          {resolvedLoad ? (
+            <p className="muted small today-resolved-load-note">Weights worked out from your max<InfoTooltip label="About today's working weight">This is calculated from your recorded strength reference and the programme's prescribed percentage for today's session.</InfoTooltip></p>
+          ) : null}
+          <button className="button primary wide" type="button" onClick={continueToSession}>{sessionState?.started === true ? "Continue session" : "Open session"}</button>
         </div>
       ) : null}
 
@@ -390,9 +405,14 @@ export function AthleteTodaySessionCard() {
         </div>
       ) : null}
 
-      <InstallAppPrompt />
     </div>
   );
+}
+
+// Kept below everything to do with today's training.
+export function AthleteTodayInstallPrompt() {
+  const { today } = useAthleteToday();
+  return today ? <InstallAppPrompt /> : null;
 }
 
 export function AthleteTodayEventCard() {

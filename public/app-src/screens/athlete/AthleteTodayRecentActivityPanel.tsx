@@ -1,7 +1,7 @@
 import React from "react";
 
 import { type JsonRecord } from "../../api/transport";
-import { formatDate, titleCase } from "../../utils/format";
+import { formatDate, sentenceCase } from "../../utils/format";
 import { useAthleteTodayRecentActivity } from "./useAthleteTodayRecentActivity";
 
 // DEV NOTE: ported from app.js's renderTodayRecent()/recordCard()/
@@ -51,7 +51,7 @@ export function AthleteTodayRecentActivityList() {
     <div className="record-list">
       {recentSessions.map((session: JsonRecord, index: number) => {
         const sessionId = String(session.session_id ?? "");
-        const status = titleCase(String(session.status ?? "recorded"));
+        const status = sentenceCase(String(session.status ?? "recorded"));
         return (
           <article
             className="record-card interactive"

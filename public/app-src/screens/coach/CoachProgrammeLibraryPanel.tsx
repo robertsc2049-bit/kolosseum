@@ -75,11 +75,11 @@ export function CoachProgrammeMetricsPanel() {
 
   return (
     <>
-      <article className="panel metric-card"><span>Draft programmes</span><strong>{counts.draft}</strong></article>
-      <article className="panel metric-card"><span>Complete programmes</span><strong>{counts.complete}</strong></article>
-      <article className="panel metric-card"><span>Active programmes</span><strong>{counts.active}</strong></article>
-      <article className="panel metric-card"><span>Archived programmes</span><strong>{counts.archived}</strong></article>
-      <article className="panel metric-card"><span>Superseded versions</span><strong>{counts.superseded}</strong></article>
+      <article className="panel metric-card" data-zero={counts.draft === 0}><span>Draft programmes</span><strong>{counts.draft}</strong></article>
+      <article className="panel metric-card" data-zero={counts.complete === 0}><span>Complete programmes</span><strong>{counts.complete}</strong></article>
+      <article className="panel metric-card" data-zero={counts.active === 0}><span>Active programmes</span><strong>{counts.active}</strong></article>
+      <article className="panel metric-card" data-zero={counts.archived === 0}><span>Archived programmes</span><strong>{counts.archived}</strong></article>
+      <article className="panel metric-card" data-zero={counts.superseded === 0}><span>Older versions</span><strong>{counts.superseded}</strong></article>
     </>
   );
 }

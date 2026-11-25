@@ -57,7 +57,7 @@ function GroupTable({ title, groups, testId, minGroups = 2 }: { title: string; g
     <section className="panel analysis-section" data-testid={testId}>
       <h3>{title}</h3>
       <div className="analysis-table-wrap">
-        <table className="analysis-table">
+        <table aria-label="Groups" className="analysis-table">
           <thead><tr><th>Group</th><th>Athletes</th><th>Need a look</th><th>Sessions done</th><th>Load vs usual</th><th>Low readiness</th><th>What stands out</th></tr></thead>
           <tbody>
             {groups.map((group) => {

@@ -44,6 +44,8 @@ import { painFlagsRouter } from "./api/pain_flags.routes.js";
 import { standDownRouter } from "./api/medical_stand_down.routes.js";
 import { attendanceEventRouter } from "./api/attendance_event.routes.js";
 import { athleteOnboardingRouter } from "./api/athlete_onboarding.routes.js";
+import { openingRouter } from "./api/opening.routes.js";
+import { productAssets, productFilesRateLimit, productPage } from "./api/product_assets.js";
 import { coachOnboardingRouter } from "./api/coach_onboarding.routes.js";
 import { productCommercialRouter } from "./api/product_commercial.routes.js";
 import { productCommercialWebhookRouter } from "./api/product_commercial_webhook.routes.js";
@@ -134,6 +136,13 @@ const orgAppDir = path.join(publicDir, "org");
 app.get("/", (_req, res) => {
   return res.redirect(302, "/app/");
 });
+// Fonts never change under their name: kept for a year.
+app.use("/app/fonts", express.static(path.join(productAppDir, "fonts"), { immutable: true, maxAge: "365d" }));
+// Scripts and styles never change under their name either: the page asks for
+// them at /app/v/<version of the files>/..., so nothing is rechecked until an
+// update, and then everything is new together.
+app.get(["/app/", "/app/index.html"], productFilesRateLimit, productPage(productAppDir));
+app.use("/app/v/:version", productFilesRateLimit, productAssets(productAppDir));
 app.use("/app", express.static(productAppDir));
 /**
  * Founder/admin operations workspace.
@@ -183,6 +192,7 @@ app.get("/ui/decision-summary/:run_id", (req, res) => {
   return res.redirect(`/ui/decision-summary.html?run_id=${encodeURIComponent(runId)}`);
 });
 
+app.use("/account/opening", openingRouter);
 app.use("/account/commercial", productCommercialRouter);
 app.use("/account/coach-onboarding", coachOnboardingRouter);
 app.use("/account/onboarding", athleteOnboardingRouter);

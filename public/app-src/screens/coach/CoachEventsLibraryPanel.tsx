@@ -79,15 +79,15 @@ export function CoachEventsMetricCards() {
 
   return (
     <>
-      <article className="panel metric-card">
+      <article className="panel metric-card" data-zero={events.length === 0}>
         <span>Events</span>
         <strong>{events.length}</strong>
       </article>
-      <article className="panel metric-card">
+      <article className="panel metric-card" data-zero={upcomingCount === 0}>
         <span>Upcoming</span>
         <strong>{upcomingCount}</strong>
       </article>
-      <article className="panel metric-card">
+      <article className="panel metric-card" data-zero={linkedCount === 0}>
         <span>Athlete links</span>
         <strong>{linkedCount}</strong>
       </article>

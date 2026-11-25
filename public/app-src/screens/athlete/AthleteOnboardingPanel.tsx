@@ -17,7 +17,7 @@ import {
   STAGES,
   useAthleteOnboarding
 } from "./useAthleteOnboarding";
-import { titleCase } from "../../utils/format";
+import { titleCase, formatDate as formatRecordedDate } from "../../utils/format";
 import { TrainingPlanFields, trainingPlanOf } from "../../components/TrainingPlanFields";
 import { planDatesLabel } from "../../utils/trainingPlan";
 import { AthleteEquipmentCard } from "./AthleteEquipmentCard";
@@ -48,7 +48,7 @@ type OnboardingApi = ReturnType<typeof useAthleteOnboarding>;
 function formatDate(value: unknown): string {
   if (!value) return "not recorded";
   const date = new Date(String(value));
-  return Number.isNaN(date.getTime()) ? String(value) : date.toLocaleString("en-GB");
+  return Number.isNaN(date.getTime()) ? String(value) : formatRecordedDate(value);
 }
 
 const JURISDICTION_LABELS: Record<string, string> = { england_wales: "England and Wales", scotland: "Scotland", northern_ireland: "Northern Ireland", other: "Other" };
@@ -135,10 +135,10 @@ function DeclarationFacts({ fields, promptPosition = false, onChoosePosition }: 
         </div>
       ) : null}
       <div className="declaration-fact"><span>Who sets your sessions</span><strong>{fields.execution_scope === "coach_managed" ? "My coach sets them" : fields.execution_scope === "individual" ? "I train myself" : label(fields.execution_scope)}</strong></div>
-      <div className="declaration-fact"><span>Product acknowledgement</span><strong>{fields.product_acknowledged ? "Accepted" : "Not accepted"}</strong></div>
+      <div className="declaration-fact"><span>Terms of use</span><strong>{fields.product_acknowledged ? "Accepted" : "Not accepted"}</strong></div>
       <div className="declaration-fact"><span>Jurisdiction<InfoTooltip label="About jurisdiction">The legal jurisdiction you selected yourself when you set up your account - it isn't inferred from your location.</InfoTooltip></span><strong>{label(fields.jurisdiction_code)}</strong></div>
       <div className="declaration-fact"><span>Accessibility</span><strong>{accessibilityLabel(fields.accessibility_preferences)}</strong></div>
-      <div className="declaration-fact"><span>Instruction density</span><strong>{label(fields.instruction_density)}</strong></div>
+      <div className="declaration-fact"><span>Amount of instruction</span><strong>{label(fields.instruction_density)}</strong></div>
       <div className="declaration-fact"><span>Training focus</span><strong>{trainingFocusLabel(fields.training_focus)}</strong></div>
     </div>
   );
@@ -460,7 +460,7 @@ function PreferenceEditor({ api, fields }: { api: OnboardingApi; fields: JsonRec
       {activityId ? <TrainingPlanFields activityId={activityId} value={plan} onChange={setPlan} /> : null}
       <AccessibilityCheckboxes value={accessibility} onChange={setAccessibility} />
       <label className="field">
-        <span>Instruction density</span>
+        <span>Amount of instruction</span>
         <select value={density} onChange={(event) => setDensity(event.target.value)}>
           <option value="minimal">Concise</option>
           <option value="standard">Standard</option>
@@ -471,7 +471,7 @@ function PreferenceEditor({ api, fields }: { api: OnboardingApi; fields: JsonRec
       {activityId ? <PositionSelect activityId={activityId} value={position} onChange={setPosition} /> : null}
       <div className="onboarding-actions">
         <button className="button secondary" type="button" onClick={cancelEditing}>Cancel</button>
-        <button className="button primary" type="submit" disabled={busy}>Save new declaration</button>
+        <button className="button primary" type="submit" disabled={busy}>Save changes</button>
       </div>
     </form>
   );
@@ -708,11 +708,10 @@ function CompletedView({ api }: { api: OnboardingApi }) {
       ) : null}
       {validationError ? <ValidationErrors error={validationError} /> : null}
       <article className="onboarding-card" data-declaration-status="current">
-        <p className="eyebrow">Current declaration</p>
-        <h3>Current effective declaration</h3>
+                <h3>Your setup now</h3>
         <p>Version {String(current.declaration_version)} · effective {formatDate(current.effective_at_iso8601)}</p>
         <DeclarationFacts fields={fields} promptPosition />
-        <p className="onboarding-boundary">This declaration does not indicate ability, safety, readiness, suitability, risk or medical clearance.</p>
+        <p className="onboarding-boundary">This does not indicate ability, safety, readiness, suitability, risk or medical clearance.</p>
         <div className="onboarding-actions">
           <button className="button primary" type="button" onClick={openWorkspace}>Open training workspace</button>
           <button className="button secondary" type="button" onClick={startEditing}>Edit preferences</button>
@@ -738,7 +737,7 @@ function CompletedView({ api }: { api: OnboardingApi }) {
       <ActivityChangeCard api={api} currentActivityId={String(fields.activity_id ?? "")} />
       <PositionChangeCard api={api} />
       <article className="onboarding-card">
-        <h3>Historical declarations</h3>
+        <h3>Earlier versions</h3>
         <p>Superseded declarations can't be changed.</p>
         <HistoricalDeclarations items={history} />
       </article>

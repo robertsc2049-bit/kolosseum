@@ -69,7 +69,7 @@ export function ProfileForm({
     <form className="panel form-panel" onSubmit={handleSubmit}>
       <div>
         <p className="eyebrow">Profile</p>
-        <h3>Identity details</h3>
+        <h3>Your details</h3>
       </div>
 
       <label className="field">

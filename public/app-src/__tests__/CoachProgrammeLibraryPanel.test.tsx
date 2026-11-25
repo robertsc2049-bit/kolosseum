@@ -76,7 +76,7 @@ test("shows factual draft/complete/active/archived/superseded counts", async () 
 
   const draftCard = screen.getByText("Draft programmes").closest("article")!;
   const activeCard = screen.getByText("Active programmes").closest("article")!;
-  const supersededCard = screen.getByText("Superseded versions").closest("article")!;
+  const supersededCard = screen.getByText("Older versions").closest("article")!;
 
   await within(draftCard).findByText("1");
   await within(activeCard).findByText("2");

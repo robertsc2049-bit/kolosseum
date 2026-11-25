@@ -140,7 +140,7 @@ test("falls back to a title-cased exercise id when the exercise isn't in the loa
     })
   );
 
-  assert.match(document.body.textContent ?? "", /Unknown Lift/u);
+  assert.match(document.body.textContent ?? "", /Unknown lift/u);
 });
 
 test("closing the profile clears the panel back to rendering nothing", async () => {

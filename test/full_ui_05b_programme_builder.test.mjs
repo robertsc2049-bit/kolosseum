@@ -1,9 +1,10 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
+import { appSource } from "./helpers/app_source.mjs";
 
 const html = fs.readFileSync("public/app/index.html", "utf8");
-const app = fs.readFileSync("public/app/app.js", "utf8");
+const app = appSource();
 const styles = fs.readFileSync("public/app/styles.css", "utf8");
 // DEV NOTE: FULL-UI-05B the completion validation list moved to React -
 // see CoachProgrammeBuilderValidationList.tsx, mounted directly into the
@@ -116,7 +117,7 @@ test("FULL-UI-05B a just-completed template's builder correctly resets its dirty
   // resumeRecoveredTemplateDraft()) are untouched by this check.
   const completeOpenTemplateBody = app.slice(
     app.indexOf("async function completeOpenTemplate("),
-    app.indexOf("async function activateTemplateById(")
+    app.indexOf("async function activateOpenTemplate(")
   );
   assert.doesNotMatch(completeOpenTemplateBody, /preserveBaseline:\s*true/u);
   assert.match(completeOpenTemplateBody, /templateRecordToDraft\(completed\)/u);
@@ -158,7 +159,7 @@ test("FULL-UI-05B remains presentation-only and engine-inert", () => {
     helperSource,
     /runPipelineFromDist|planSessionService|compileBlock|engine_runner/u
   );
-  assert.match(helperSource, /programmeActivationIssues/u);
+  assert.match(app, /function currentTemplateBuilderIssues[\s\S]*?programmeActivationIssues/u);
   // #1076 rewrote this list's "The server remains authoritative" pass
   // message into plain consumer language ("All checks pass.") - the
   // presentation-only/engine-inert invariant this test cares about is
@@ -192,11 +193,13 @@ function loadDraftRecoveryHarness(storage) {
       "templateDraftSnapshot",
       "templateDraftIsDirty",
       "currentTemplateDraftOwnerUserId",
+      "dropTemplateDraft",
       "hasRecoverableTemplateDraft",
       "clearTemplateDraftState"
     ].map((name) => extractTopLevel(app, `function ${name}(`)),
     "let templateBuilderSaveError = \"\";",
     "function broadcastProgrammeDraft() {}",
+    "function coachPart() { return null; }",
     "const state = loadState();",
     "return { state, saveState, applyAccountIdentity, hasRecoverableTemplateDraft, currentTemplateDraftOwnerUserId };"
   ].join("\n");

@@ -1,4 +1,4 @@
-import { formatDate, titleCase } from "../../utils/format";
+import { formatDate, sentenceCase } from "../../utils/format";
 import { type JsonRecord } from "../../api/transport";
 // eslint-disable-next-line import/no-unresolved
 import { V1_ACTIVITY_IDS } from "../../../../shared/v1-boundary/v1ActivityRegistry.mjs";
@@ -926,7 +926,7 @@ export function programmePreviewSets(workItem: ProgrammeWorkItemDraft): string {
 
 export function exerciseDisplayName(exerciseId: string, templateExercises: JsonRecord[]): string {
   const match = templateExercises.find((exercise) => exercise.exercise_id === exerciseId);
-  return String(match?.display_name ?? titleCase(exerciseId));
+  return String(match?.display_name ?? sentenceCase(exerciseId));
 }
 
 // DEV NOTE: the exercise registry's movement_pattern_id is a fine-grained

@@ -11,6 +11,7 @@ import {
   routeForView,
   serializeProductRoute
 } from "../public/app/route_bootstrap.js";
+import { appSource } from "./helpers/app_source.mjs";
 
 const service = await import(
   "../dist/src/api/athlete_onboarding_service.js"
@@ -305,7 +306,7 @@ test("FULL-UI-03C UI distinguishes all required product states", () => {
     "Check your answers",
     "Draft saved",
     "Setup complete",
-    "Current declaration",
+    "Your setup now",
     "Superseded declaration",
     "Not available right now",
     "Only training level, competition event, training plan, accessibility, instruction-density, training-focus and position preferences can be changed after confirmation",
@@ -373,14 +374,17 @@ test("FULL-UI-03C declared accessibility preferences are actually applied to the
   // exact data attribute the UI sets - not just a declared-but-empty rule.
   for (const [attribute, mustContain] of [
     ["data-a11y-reduced-motion", "animation-duration"],
-    ["data-a11y-high-contrast", "--stone"],
+    ["data-a11y-high-contrast", "--k-text: #FFFFFF"],
     ["data-a11y-larger-text", "font-size"],
     ["data-a11y-screen-reader-optimised", "--stone-dim"]
   ]) {
     const selector = `html[${attribute}="true"]`;
-    const start = css.indexOf(selector);
+    // Colours (higher contrast) live in theme.css, the rest in styles.css.
+    const sheets = `${css}
+${fs.readFileSync(new URL("../public/app/theme.css", import.meta.url), "utf8")}`;
+    const start = sheets.indexOf(selector);
     assert.ok(start >= 0, `Expected a CSS rule for ${selector}`);
-    const block = css.slice(start, css.indexOf("}", start) + 1);
+    const block = sheets.slice(start, sheets.indexOf("}", start) + 1);
     assert.match(block, new RegExp(mustContain.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&"), "u"));
   }
 });
@@ -449,7 +453,7 @@ test("FULL-UI-03C manifest and closure contain no partial or missing onboarding 
 });
 
 test("a powerlifter who isn't competing can start a session: the guard checks the declaration, not the engine input", () => {
-  const app = fs.readFileSync("public/app/app.js", "utf8");
+  const app = appSource();
   assert.match(app, /state\.phase1Input\?\.activity_id === "powerlifting" && !state\.phase1Input\?\.competition_event &&\s*!\(await declaredCompetitionEvent\(\)\)\) \{/u);
   assert.match(app, /onboarding\?\.current_effective_declaration\?\.fields\?\.competition_event/u);
   const service = fs.readFileSync("src/api/athlete_onboarding_service.ts", "utf8");

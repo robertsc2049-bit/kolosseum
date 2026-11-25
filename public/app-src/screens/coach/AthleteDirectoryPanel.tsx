@@ -115,7 +115,7 @@ export function AthleteDirectoryPanel() {
     <>
       <div className="metric-cards relationship-metric-cards" role="status" aria-live="polite">
         {COUNT_LABELS.map(([label, key]) => (
-          <article className="panel metric-card relationship-metric-card" key={key}>
+          <article className="panel metric-card relationship-metric-card" data-zero={counts[key] === 0} key={key}>
             <span>{label}</span>
             <strong>{counts[key]}</strong>
           </article>
@@ -183,7 +183,7 @@ export function AthleteDirectoryPanel() {
                 </div>
 
                 <div className="record-meta athlete-record-meta">
-                  <span className={`badge ${relationshipBadgeClass(effectiveState)}`}>{titleCase(effectiveState)}</span>
+                  <span className={effectiveState === "accepted" ? "relationship-state" : `badge ${relationshipBadgeClass(effectiveState)}`}>{titleCase(effectiveState)}</span>
 
                   {onPackage?.payment_claimed ? <span className="badge active">Says they've paid</span> : onPackage?.payment_due ? <span className="badge partial">Payment due</span> : null}
 

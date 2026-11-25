@@ -63,7 +63,7 @@ export function TestingSection({ athleteUserId, tests, onChanged, readOnly = fal
     <div className="testing" data-testid="testing">
       {tests.length ? (
         <div className="analysis-table-wrap">
-          <table className="analysis-table">
+          <table aria-label="Test results" className="analysis-table">
             <thead><tr><th>Test</th><th>Latest</th><th>Previous</th><th>Change</th><th>Best</th><th>Verdict</th><th>All results</th></tr></thead>
             <tbody>
               {tests.map((test) => {

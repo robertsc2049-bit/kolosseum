@@ -3,16 +3,14 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
+import { appSource } from "./helpers/app_source.mjs";
 
 const html = fs.readFileSync(
   new URL("../public/app/index.html", import.meta.url),
   "utf8"
 );
 
-const application = fs.readFileSync(
-  new URL("../public/app/app.js", import.meta.url),
-  "utf8"
-);
+const application = appSource();
 
 const styles = fs.readFileSync(
   new URL("../public/app/styles.css", import.meta.url),
@@ -86,8 +84,8 @@ test("FULL-UI-03 exposes the complete factual coach dashboard", () => {
 
   assert.ok(html.includes('id="coach-overview-metrics-root"'), "missing coach-overview-metrics-root");
   assert.ok(coachOverviewMetricsPanel.includes("Connected athletes"));
-  assert.ok(coachOverviewMetricsPanel.includes("Assignments recorded"));
-  assert.ok(coachOverviewMetricsPanel.includes("Session records"));
+  assert.ok(coachOverviewMetricsPanel.includes("Programmes assigned"));
+  assert.ok(coachOverviewMetricsPanel.includes("Sessions logged"));
   assert.ok(coachOverviewMetricsPanel.includes("Open sessions"));
   assert.ok(coachOverviewMetricsPanel.includes("Awaiting review"));
   assert.ok(coachOverviewMetricsPanel.includes("Upcoming events"));

@@ -122,7 +122,6 @@ function UsageList({ templateId, assignments, relationships }: { templateId: str
             <article className="programme-assignment-record" key={assignmentId}>
               <div>
                 <strong>{String(athlete?.display_name ?? athleteId ?? "Athlete")}</strong>
-                <small>{assignmentId}</small>
               </div>
               <div>
                 <span className="badge neutral">{titleCase(assignmentState)}</span>
@@ -162,7 +161,7 @@ export function CoachProgrammeDetailPanel() {
   return (
     <>
       <div className="programme-detail-facts">
-        <div><span>Family versions</span><strong>{versions.length}</strong></div>
+        <div><span>Versions</span><strong>{versions.length}</strong></div>
         <div><span>Blocks</span><strong>{Number(template.block_count ?? 0)}</strong></div>
         <div><span>Weeks</span><strong>{Number(template.week_count ?? 0)}</strong></div>
         <div><span>Sessions</span><strong>{Number(template.session_count ?? 0)}</strong></div>
@@ -172,7 +171,7 @@ export function CoachProgrammeDetailPanel() {
       </div>
 
       <p className="programme-detail-description muted">
-        {String(template.description ?? "").trim() || "No programme description was recorded."}
+        {String(template.description ?? "").trim() || "No description yet."}
       </p>
 
       <div className="button-row programme-detail-actions">
@@ -222,8 +221,7 @@ export function CoachProgrammeDetailPanel() {
         <article className="programme-detail-section">
           <div className="panel-header">
             <div>
-              <p className="eyebrow">Version family</p>
-              <h4>Version metadata</h4>
+              <h4>Versions</h4>
             </div>
           </div>
           <div className="programme-version-list">
@@ -234,8 +232,7 @@ export function CoachProgrammeDetailPanel() {
         <article className="programme-detail-section">
           <div className="panel-header">
             <div>
-              <p className="eyebrow">Recorded use</p>
-              <h4>Assignment usage</h4>
+              <h4>Who has it</h4>
             </div>
           </div>
           <div className="programme-usage-list">

@@ -5,6 +5,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
+import { appSource } from "./helpers/app_source.mjs";
 
 const root = process.cwd();
 const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
@@ -22,7 +23,7 @@ const orgProgressRollupService = read("src/api/org_progress_rollup_service.ts");
 const messagingRoutes = read("src/api/messaging.routes.ts");
 const serverTs = read("src/server.ts");
 const schema = read("schema.sql");
-const appJs = read("public/app/app.js");
+const appJs = appSource();
 const routeBootstrap = read("public/app/route_bootstrap.js");
 const orgDashboardHtml = read("public/org/index.html");
 const orgDashboardJs = read("public/org/org.js");

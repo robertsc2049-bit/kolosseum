@@ -232,6 +232,27 @@ function painLeftOutNote(leftOut: JsonRecord[]): string | null {
 
 // What they've rated this exercise, so a rating is never a guess ("did that
 // save?") and a wrong one is easy to see and rate again.
+// How hard it was, in one tap and in the scale the programme uses (RPE when it
+// doesn't name one). Any other value or scale is under More.
+const EFFORT_CHOICES = { rpe: [5, 6, 7, 8, 9, 10], cr10: [4, 5, 6, 7, 8, 9, 10], borg: [9, 11, 13, 15, 17, 19] } as const;
+const EFFORT_NAMES = { rpe: "RPE", cr10: "CR10", borg: "Borg" } as const;
+function EffortRow({ exercise, ratings, busy, onRate }: { exercise: JsonRecord; ratings: JsonRecord; busy: boolean; onRate: (scale: "rpe" | "borg" | "cr10", value: number) => void }) {
+  const type = String((exercise.intensity as JsonRecord | undefined)?.type ?? "");
+  const scale = type === "borg" || type === "cr10" ? type : "rpe";
+  const rated = typeof ratings[scale] === "number" ? Number(ratings[scale]) : null;
+  const says = rated === null ? "" : scale === "rpe" ? rpeReserveLabel(rated) : scale === "borg" ? borgAnchorLabel(rated) : cr10AnchorLabel(rated);
+  return (
+    <div className="effort-row" role="group" aria-label={`How hard was it? (${EFFORT_NAMES[scale]})`} data-testid="effort-row">
+      <p className="effort-row-label"><strong>{`How hard? (${EFFORT_NAMES[scale]})`}</strong><span className="muted">{says}</span></p>
+      <div className="effort-chips">
+        {EFFORT_CHOICES[scale].map((value) => (
+          <button key={value} type="button" className="effort-chip" disabled={busy} aria-label={`${EFFORT_NAMES[scale]} ${value}`} aria-pressed={rated === value} onClick={() => onRate(scale, value)}>{value}</button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function EffortRatingNote({ ratings }: { ratings: JsonRecord }) {
   const said = [["rpe", "RPE"], ["borg", "Borg"], ["cr10", "CR10"]]
     .filter(([key]) => typeof ratings[key] === "number")
@@ -247,6 +268,15 @@ export function AthleteSessionExecutionPanel() {
   const [addSearch, setAddSearch] = useState("");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const captionInputRef = useRef<HTMLTextAreaElement | null>(null);
+  // A panel just opened (pain, skip, swap...) comes into view and takes focus.
+  const actionPanelRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const panel = session.actionPanel ? actionPanelRef.current?.firstElementChild : null;
+    if (!(panel instanceof HTMLElement)) return;
+    panel.scrollIntoView?.({ block: "center" });
+    panel.tabIndex = -1;
+    panel.focus({ preventScroll: true });
+  }, [session.actionPanel]);
   // No rest after the last exercise: an ended session stops any rest timer.
   const sessionEnded = ["completed", "partial"].includes(String(session.sessionState?.execution_status ?? ""));
   const { restRemainingSeconds, stopRestTimer } = session;
@@ -361,6 +391,9 @@ export function AthleteSessionExecutionPanel() {
     ...counts.dropped.map((row) => ({ exercise: row, status: "dropped" as const }))
   ];
 
+  const nextRow = rows.find(({ status }) => status === "remaining");
+  const nextName = nextRow ? exerciseName(nextRow.exercise) : "";
+
   const prescribedExerciseIds = new Set(
     rows.map(({ exercise: row }) => String(row?.exercise_id ?? row?.item_id ?? ""))
   );
@@ -387,12 +420,24 @@ export function AthleteSessionExecutionPanel() {
         <span className={`badge ${classification.className}`}>{classification.label}</span>
       </div>
 
-      <div className="session-layout">
+      <div className="session-layout session-layout-single">
         <article className="panel current-work">
           <div className="panel-kicker">
-            <span>Current work</span>
             <span>{`${counts.completed.length} of ${total} complete`}</span>
+            {counts.dropped.length ? <span>{`${counts.dropped.length} not done`}</span> : null}
           </div>
+          <div className="progress-track" aria-hidden="true"><span style={{ width: `${progress}%` }}></span></div>
+
+          <p className="sr-only" role="status">{session.restRemainingSeconds === null ? "" : session.restDone ? "Rest complete" : "Rest started"}</p>
+          {session.restRemainingSeconds !== null ? (
+            <div className={`rest-timer-panel${session.restDone ? " rest-timer-done" : ""}`}>
+              <p className="eyebrow">Resting</p>
+              <p className="rest-timer-remaining">{session.restDone ? "Rest complete" : formatRestClock(session.restRemainingSeconds)}</p>
+              <div className="button-row">
+                <button id="skipRestButton" className="button secondary" type="button" onClick={() => session.stopRestTimer()}>Skip rest</button>
+              </div>
+            </div>
+          ) : null}
 
           <div>
             {!step ? (
@@ -407,7 +452,6 @@ export function AthleteSessionExecutionPanel() {
               <GroupWorkoutFocus step={step} />
             ) : (
               <div className="exercise-focus">
-                <p className="eyebrow">Current exercise</p>
                 <h3>{exerciseName(exercise)}</h3>
                 <div className="exercise-detail-row">
                   {String(exercise?.segment ?? "working") !== "working" ? (
@@ -472,11 +516,53 @@ export function AthleteSessionExecutionPanel() {
                     logSet={session.logSet}
                   />
                 ) : null}
+                {started && exercise && currentId && !["warm_up", "cool_down"].includes(String(exercise.segment ?? "")) ? (
+                  <EffortRow
+                    exercise={exercise}
+                    ratings={{ ...((sessionState.effort_ratings as JsonRecord | undefined)?.[currentId] as JsonRecord | undefined), ...session.effortRatings[currentId] }}
+                    busy={session.busy}
+                    onRate={(scale, value) => { void session.rateEffort(scale, value); }}
+                  />
+                ) : null}
                 {currentId ? <EffortRatingNote ratings={{ ...((sessionState.effort_ratings as JsonRecord | undefined)?.[currentId] as JsonRecord | undefined), ...session.effortRatings[currentId] }} /> : null}
               </div>
             )}
           </div>
 
+          {step && step.type !== "RETURN_DECISION" ? (
+            <div className="session-actions">
+              {!started ? (
+                <button id="startSessionButton" className="button primary wide" type="button" disabled={session.busy} onClick={() => session.startSession()}>Start session</button>
+              ) : step.type === "GROUP_WORKOUT" ? (
+                <>
+                  <GroupWorkoutActions step={step} session={session} />
+                  <button id="splitSessionButton" className="button secondary wide" type="button" disabled={session.busy} onClick={() => session.splitSession()}>Stop and return later</button>
+                  <button id="finishSessionNowButton" className="button secondary wide" type="button" disabled={session.busy} onClick={() => { session.finishNow().catch(() => {}); }}>Finish session now</button>
+                </>
+              ) : (
+                <>
+                  <div className="session-quick">
+                    <button id="reportPainButton" className="button secondary" type="button" onClick={() => session.openActionPanel("pain")}>Report pain</button>
+                    <button id="requestSubstitutionButton" className="button secondary" type="button" onClick={() => session.openActionPanel("substitution")}>Swap exercise</button>
+                    <button id="skipExerciseButton" className="button secondary" type="button" onClick={() => session.openActionPanel("skip")}>Skip exercise</button>
+                  </div>
+                  <details className="session-more">
+                    <summary>More</summary>
+                    <div className="session-more-list">
+                      <button id="recordVideoFeedbackButton" className="text-button" type="button" onClick={() => session.openActionPanel("video")}>Record form-check video</button>
+                      <button id="reportRpeButton" className="text-button" type="button" onClick={() => session.openActionPanel("rpe")}>Report RPE</button>
+                      <button id="reportBorgButton" className="text-button" type="button" onClick={() => session.openActionPanel("borg")}>Report Borg</button>
+                      <button id="reportCr10Button" className="text-button" type="button" onClick={() => session.openActionPanel("cr10")}>Report CR10</button>
+                      <button id="splitSessionButton" className="text-button" type="button" disabled={session.busy} onClick={() => session.splitSession()}>Stop and return later</button>
+                      <button id="finishSessionNowButton" className="text-button" type="button" disabled={session.busy} onClick={() => { session.finishNow().catch(() => {}); }}>Finish session now</button>
+                    </div>
+                  </details>
+                </>
+              )}
+            </div>
+          ) : null}
+
+          <div ref={actionPanelRef}>
           {step?.type === "RETURN_DECISION" ? (
             <div className="return-decision">
               <h3>Continue this session?</h3>
@@ -636,43 +722,7 @@ export function AthleteSessionExecutionPanel() {
               ) : null}
             </>
           )}
-
-          {session.restRemainingSeconds !== null ? (
-            <div className={`rest-timer-panel${session.restDone ? " rest-timer-done" : ""}`}>
-              <p className="eyebrow">Resting</p>
-              <p className="rest-timer-remaining">{session.restDone ? "Rest complete" : formatRestClock(session.restRemainingSeconds)}</p>
-              <div className="button-row">
-                <button id="skipRestButton" className="button secondary" type="button" onClick={() => session.stopRestTimer()}>Skip rest</button>
-              </div>
-            </div>
-          ) : null}
-
-          {step && step.type !== "RETURN_DECISION" ? (
-            <div className="session-actions">
-              {!started ? (
-                <button id="startSessionButton" className="button primary wide" type="button" disabled={session.busy} onClick={() => session.startSession()}>Start session</button>
-              ) : step.type === "GROUP_WORKOUT" ? (
-                <>
-                  <GroupWorkoutActions step={step} session={session} />
-                  <button id="splitSessionButton" className="button secondary wide" type="button" disabled={session.busy} onClick={() => session.splitSession()}>Stop and return later</button>
-                  <button id="finishSessionNowButton" className="button secondary wide" type="button" disabled={session.busy} onClick={() => { session.finishNow().catch(() => {}); }}>Finish session now</button>
-                </>
-              ) : (
-                <>
-                  <button id="completeExerciseButton" className="button primary wide" type="button" disabled={session.busy} onClick={() => session.completeStep()}>Mark exercise complete</button>
-                  <button id="skipExerciseButton" className="button secondary wide" type="button" onClick={() => session.openActionPanel("skip")}>Skip exercise</button>
-                  <button id="reportPainButton" className="button secondary wide" type="button" onClick={() => session.openActionPanel("pain")}>Report pain</button>
-                  <button id="reportRpeButton" className="button secondary wide" type="button" onClick={() => session.openActionPanel("rpe")}>Report RPE</button>
-                  <button id="reportBorgButton" className="button secondary wide" type="button" onClick={() => session.openActionPanel("borg")}>Report Borg</button>
-                  <button id="reportCr10Button" className="button secondary wide" type="button" onClick={() => session.openActionPanel("cr10")}>Report CR10</button>
-                  <button id="requestSubstitutionButton" className="button secondary wide" type="button" onClick={() => session.openActionPanel("substitution")}>Swap exercise</button>
-                  <button id="recordVideoFeedbackButton" className="button secondary wide" type="button" onClick={() => session.openActionPanel("video")}>Record form-check video</button>
-                  <button id="splitSessionButton" className="button secondary wide" type="button" disabled={session.busy} onClick={() => session.splitSession()}>Stop and return later</button>
-                  <button id="finishSessionNowButton" className="button secondary wide" type="button" disabled={session.busy} onClick={() => { session.finishNow().catch(() => {}); }}>Finish session now</button>
-                </>
-              )}
-            </div>
-          ) : null}
+          </div>
 
           {session.mutationError ? <p className="muted" role="status" aria-live="polite">{session.mutationError}</p> : null}
           {session.offlinePending > 0 ? (
@@ -685,17 +735,13 @@ export function AthleteSessionExecutionPanel() {
               {`${session.offlineDropped} ${session.offlineDropped === 1 ? "entry" : "entries"} saved on this phone couldn't be recorded - check this session's sets and log ${session.offlineDropped === 1 ? "it" : "them"} again if needed.`}
             </p>
           ) : null}
+          {step && step.type !== "RETURN_DECISION" && step.type !== "GROUP_WORKOUT" && started ? (
+            <div className="session-next">
+              <button id="completeExerciseButton" className="button primary wide" type="button" disabled={session.busy} onClick={() => session.completeStep()}>Mark exercise complete{nextName ? <small>{`Next: ${nextName}`}</small> : null}</button>
+            </div>
+          ) : null}
         </article>
 
-        <aside className="panel session-summary">
-          <p className="eyebrow">Session progress</p>
-          <div className="progress-track"><span style={{ width: `${progress}%` }}></span></div>
-          <div className="metric-stack">
-            <div><span>Completed</span><strong>{counts.completed.length}</strong></div>
-            <div><span>Remaining</span><strong>{counts.remaining.length}</strong></div>
-            <div><span>Dropped</span><strong>{counts.dropped.length}</strong></div>
-          </div>
-        </aside>
       </div>
 
       {isEnded ? (
@@ -709,10 +755,7 @@ export function AthleteSessionExecutionPanel() {
           <p className="muted">
             {executionStatus === "completed" ? "Every exercise in this session was completed." : "This session ended with one or more exercises dropped."}
           </p>
-          <div className="metric-stack">
-            <div><span>Completed</span><strong>{counts.completed.length}</strong></div>
-            <div><span>Dropped</span><strong>{counts.dropped.length}</strong></div>
-          </div>
+          {counts.dropped.length ? <p className="muted">{`${counts.completed.length} done, ${counts.dropped.length} not done.`}</p> : null}
           <SessionEffortCard sessionId={String(session.sessionId)} />
         </article>
       ) : null}
@@ -720,7 +763,6 @@ export function AthleteSessionExecutionPanel() {
       <article className="panel">
         <div className="panel-header">
           <div>
-            <p className="eyebrow">Session order</p>
             <h3>Exercises</h3>
           </div>
         </div>

@@ -144,9 +144,9 @@ test("load formats bodyweight, fixed weight, RPE, Borg, CR10 and percent-1RM cor
   assert.equal(programmePreviewLoad(percent), "75% 1RM");
 });
 
-test("exercise display name prefers the registry's display_name, falling back to a title-cased id", () => {
+test("exercise display name prefers the registry's display_name, falling back to the id in words", () => {
   assert.equal(exerciseDisplayName("back_squat", [{ exercise_id: "back_squat", display_name: "Back Squat" }]), "Back Squat");
-  assert.equal(exerciseDisplayName("unknown_exercise", []), "Unknown Exercise");
+  assert.equal(exerciseDisplayName("unknown_exercise", []), "Unknown exercise");
 });
 
 // --- Component coverage ---

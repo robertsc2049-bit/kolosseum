@@ -117,7 +117,7 @@ export function LoggedMuscleVolume({ weekly, coach = false }: { weekly: unknown;
         volume={groups}
         title="Sets per muscle group, last 7 days"
         note="Hard strength sets logged in the last 7 days; a secondary muscle counts as half a set. Jumps, sprints, throws, Olympic lifts, carries and conditioning aren't counted."
-        open
+        open={coach}
         level={typeof level === "string" ? level : DEFAULT_VOLUME_LEVEL}
         activityId={typeof activityId === "string" ? activityId : ""}
         coach={coach}
