@@ -110,7 +110,8 @@ export function EntryAuthPanel() {
     setMode, submitCreate, submitSignIn, submitResetRequest, submitResetComplete
   } = useEntryAuth();
 
-  const [role, setRole] = useState("athlete");
+  // The website's "For coaches" button opens sign-up as a coach (?as=coach).
+  const [role, setRole] = useState(() => (new URLSearchParams(window.location.search).get("as") === "coach" ? "coach" : "athlete"));
   const [displayName, setDisplayName] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [betaConsent, setBetaConsent] = useState(false);

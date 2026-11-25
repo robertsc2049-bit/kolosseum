@@ -59,6 +59,18 @@ test("renders create mode by default with role and consent fields - and no sport
   assert.ok(screen.getByLabelText(/I agree to the Terms of Service/));
 });
 
+test("a coach's sign-up link opens with Coach chosen; any other opens with Athlete", async () => {
+  installMocks();
+  const chosen = () => (document.querySelector("input[name='role']:checked") as HTMLInputElement | null)?.value;
+  for (const [query, role] of [["?as=coach", "coach"], ["?as=athlete", "athlete"], ["?as=admin", "athlete"], ["", "athlete"]]) {
+    window.history.replaceState(null, "", `/app/${query}`);
+    const view = render(<EntryAuthPanel />);
+    await screen.findByText("v3");
+    assert.equal(chosen(), role, query);
+    view.unmount();
+  }
+});
+
 test("sign-up links to the Terms of Service and the Privacy Notice, and asks for explicit consent to health information", async () => {
   installMocks();
   render(<EntryAuthPanel />);
