@@ -1,3 +1,4 @@
+import { tryAgain } from "../../utils/friendlyError";
 import { useSyncExternalStore } from "react";
 
 import { loadAccountDetail } from "../../api/client";
@@ -81,7 +82,7 @@ async function refresh(athleteUserId: string) {
     if (store.athleteUserId !== athleteUserId) return;
     setStore({
       loading: false,
-      error: "Athlete history could not be loaded. Check your connection and try again."
+      error: tryAgain("Athlete history could not be loaded.")
     });
   }
 }

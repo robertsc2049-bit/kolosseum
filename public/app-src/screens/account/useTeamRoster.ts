@@ -1,3 +1,4 @@
+import { tryAgain } from "../../utils/friendlyError";
 import { useCallback, useEffect, useState } from "react";
 
 import { loadAccountDetail } from "../../api/client";
@@ -59,7 +60,7 @@ export function useTeamRoster() {
       setState((current) => ({
         ...current,
         loading: false,
-        error: "Team roster records could not be loaded. Check your connection and try again."
+        error: tryAgain("Team roster records could not be loaded.")
       }));
     }
   }, []);

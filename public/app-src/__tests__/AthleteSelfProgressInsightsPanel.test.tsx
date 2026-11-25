@@ -63,7 +63,7 @@ test("shows a factual no-data message and empty states when nothing has been rec
 test("shows an error message when the fetch fails", async () => {
   installMocks({ insightsFail: true });
   render(<AthleteSelfProgressInsightsPanel />);
-  await waitFor(() => screen.getByText("Progress insights could not be loaded. Check your connection and try again."));
+  await waitFor(() => screen.getByText("Progress insights could not be loaded. Try again in a moment."));
 });
 
 test("shows adherence percentage and counts when there is sufficient data", async () => {

@@ -1,3 +1,4 @@
+import { tryAgain } from "../../utils/friendlyError";
 import React, { useCallback, useEffect, useState } from "react";
 
 import { loadAccountDetail } from "../../api/client";
@@ -35,7 +36,7 @@ function HandoverRow({ handover, onDone }: { handover: Handover; onDone: (messag
     catch (caught) {
       const code = caught instanceof ApiRequestError ? `${caught.code} ${caught.message}` : "";
       const known = Object.keys(MESSAGES).find((key) => code.includes(key));
-      setError(known ? MESSAGES[known] : "Couldn't take the organisation over. Check your connection and try again.");
+      setError(known ? MESSAGES[known] : tryAgain("Couldn't take the organisation over."));
     }
     finally {
       setBusy(false);

@@ -71,3 +71,18 @@ test("what a style or script points at doesn't move with it", () => {
     for (const [, url] of fs.readFileSync(path.join(root, name), "utf8").matchAll(/url\("?([^")]+)/gu)) assert.match(url, /^(?:\/app\/|data:)/u, `${name}: ${url.slice(0, 60)}`);
   }
 });
+
+test("a release's page loads the bundled code and compacted styles; without a fresh build it loads the sources", async () => {
+  const { builtPage, releaseBuilt } = await import("../dist/src/api/product_assets.js");
+  const html = fs.readFileSync("public/app/index.html", "utf8");
+  assert.equal(builtPage(html, false), html);
+  const page = builtPage(html, true);
+  for (const gone of ['"/app/app.js"', '"/app/route_bootstrap.js"', '"/app/guided_tours.js"', '"/app/pwa_bootstrap.js"', '"/app/section_tabs_bootstrap.js"', '"/app/core/', '"/app/styles.css"', '"/app/theme.css"']) assert.equal(page.includes(gone), false, gone);
+  for (const here of ['"/app/shell-dist/shell.js"', '"/app/shell-dist/base.js"', '"/app/shell-dist/styles.css"', 'data-coach="shell-dist/coach.js"', '"/app/react-dist/kolosseum-react.js"']) assert.ok(page.includes(here), here);
+  assert.match(fs.readFileSync("public/app/shell.js", "utf8"), /app\.js[\s\S]*route_bootstrap\.js[\s\S]*pwa_bootstrap\.js[\s\S]*section_tabs_bootstrap\.js[\s\S]*guided_tours\.js/u);
+
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "kolosseum-release-"));
+  fs.mkdirSync(path.join(dir, "shell-dist"));
+  fs.writeFileSync(path.join(dir, "app.js"), "1");
+  assert.equal(releaseBuilt(dir), false, "not built");
+});

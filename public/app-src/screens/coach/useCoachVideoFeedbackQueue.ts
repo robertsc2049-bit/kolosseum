@@ -1,3 +1,4 @@
+import { tryAgain } from "../../utils/friendlyError";
 import { useCallback, useEffect, useState } from "react";
 
 import { loadAccountDetail } from "../../api/client";
@@ -54,7 +55,7 @@ export function useCoachVideoFeedbackQueue() {
       setState((current) => ({
         ...current,
         loading: false,
-        error: "Video feedback queue could not be loaded. Check your connection and try again."
+        error: tryAgain("Video feedback queue could not be loaded.")
       }));
     }
   }, []);

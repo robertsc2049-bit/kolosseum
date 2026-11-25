@@ -1,3 +1,4 @@
+import { tryAgain } from "../../utils/friendlyError";
 import { useCallback, useEffect, useState } from "react";
 
 import { loadAccountDetail } from "../../api/client";
@@ -67,7 +68,7 @@ export function useCoachOverviewAssignments() {
       setState((current) => ({
         ...current,
         loading: false,
-        error: "The assignment action queue could not be loaded. Check your connection and try again."
+        error: tryAgain("The assignment action queue could not be loaded.")
       }));
     }
   }, []);

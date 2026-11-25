@@ -1,3 +1,4 @@
+import { tryAgain } from "../../utils/friendlyError";
 import React, { useEffect, useState } from "react";
 
 // DEV NOTE: reused verbatim rather than re-derived - this is the same
@@ -218,7 +219,7 @@ export function AthleteStrengthProfilePanel() {
       setResult("Athlete profile saved.");
     }
     catch {
-      setResult("Athlete profile could not be saved. Check your connection and try again.");
+      setResult(tryAgain("Athlete profile could not be saved."));
     }
     finally {
       setSaving(false);

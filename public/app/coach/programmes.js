@@ -943,8 +943,9 @@ document.addEventListener("kolosseum:open-programme-detail", (event) => {
   if (!templateId) return;
   coachTemplateById(templateId)
     .then((template) => {
-      if (template) openProgrammeDetail(templateId);
-      else handleError(new Error("That programme could not be found - refresh the programme library."));
+      if (template) { openProgrammeDetail(templateId); return; }
+      closedPlace("coach_programme_detail");
+      handleError(new Error("That programme could not be found - refresh the programme library."));
     })
     .catch(handleError);
 });
@@ -993,15 +994,11 @@ document.addEventListener("kolosseum:archive-programme", (event) => {
   if (templateId) archiveTemplate(templateId).catch(handleError);
 });
 
-elements.refreshTemplatesButton.addEventListener("click", () => {
-  refreshProgrammeLibrary().catch(handleError);
-});
-
 elements.templateDetailCloseButton.addEventListener(
   "click",
   closeProgrammeDetail
 );
 
 document.addEventListener("kolosseum:close-place", (event) => {
-  if (event.detail?.view === "templates" && !elements.templateDetailPanel.hidden) closeProgrammeDetail({ updateRoute: false });
+  if (event.detail?.view === "templates" && !event.detail.opening && !elements.templateDetailPanel.hidden) closeProgrammeDetail({ updateRoute: false });
 });

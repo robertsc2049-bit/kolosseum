@@ -1,3 +1,4 @@
+import { tryAgain } from "../../utils/friendlyError";
 import { useCallback, useEffect, useState } from "react";
 
 import { accountMayBeAthlete, loadAccountDetail } from "../../api/client";
@@ -49,7 +50,7 @@ export function useAthleteGoalsSelf() {
       setState((current) => ({
         ...current,
         loading: false,
-        error: "Goals could not be loaded. Check your connection and try again."
+        error: tryAgain("Goals could not be loaded.")
       }));
     }
   }, []);

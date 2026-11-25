@@ -64,14 +64,14 @@ test.afterEach(() => {
 test("shows a factual empty state when no submissions are pending", async () => {
   installMocks({});
   render(<CoachVideoFeedbackQueuePanel />);
-  await waitFor(() => screen.getByText("No pending video submissions"));
-  assert.ok(screen.getByText("No pending video submissions."));
+  await waitFor(() => screen.getByText(/^No videos waiting for feedback/u));
+  assert.ok(screen.getByText(/^No videos waiting for feedback/u));
 });
 
 test("refetches once a same-tab sign-in completes", async () => {
   installMocks({});
   render(<CoachVideoFeedbackQueuePanel />);
-  await waitFor(() => screen.getByText("No pending video submissions"));
+  await waitFor(() => screen.getByText(/^No videos waiting for feedback/u));
 
   installMocks({
     submissions: [
@@ -131,7 +131,7 @@ test("distinguishes zero pending submissions from zero search matches", async ()
   fireEvent.change(search, { target: { value: "nonexistent" } });
 
   await waitFor(() => screen.getByText("No submissions match"));
-  assert.equal(screen.queryByText("No pending video submissions"), null);
+  assert.equal(screen.queryByText(/^No videos waiting for feedback/u), null);
 });
 
 test("search filters by both exercise label and resolved athlete name", async () => {
@@ -194,7 +194,7 @@ test("sending feedback removes the submission from the queue", async () => {
   const sendButton = screen.getByText("Send feedback");
   fireEvent.click(sendButton);
 
-  await waitFor(() => screen.getByText("No pending video submissions"));
+  await waitFor(() => screen.getByText(/^No videos waiting for feedback/u));
 });
 
 test("shows a submit error when the server rejects the feedback", async () => {

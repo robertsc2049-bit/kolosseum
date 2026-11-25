@@ -1,3 +1,4 @@
+import { tryAgain } from "../../utils/friendlyError";
 import { useCallback, useEffect, useState } from "react";
 
 import { loadAccountDetail } from "../../api/client";
@@ -41,7 +42,7 @@ export function useCoachEventsLibrary() {
       setState((current) => ({
         ...current,
         loading: false,
-        error: "The event library could not be loaded. Check your connection and try again."
+        error: tryAgain("The event library could not be loaded.")
       }));
     }
   }, []);

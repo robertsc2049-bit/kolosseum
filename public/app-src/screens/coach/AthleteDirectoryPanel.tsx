@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 
+import { LoadFailed } from "../../components/LoadFailed";
 import { type JsonRecord } from "../../api/transport";
 import { titleCase } from "../../utils/format";
 import { useAthleteDirectory } from "./useAthleteDirectory";
@@ -78,7 +79,7 @@ const COUNT_LABELS: Array<[string, EffectiveState]> = [
 ];
 
 export function AthleteDirectoryPanel() {
-  const { loading, error, relationships, assignments, templates, unreadByAthlete, packageByAthlete } = useAthleteDirectory();
+  const { loading, error, relationships, assignments, templates, unreadByAthlete, packageByAthlete, refresh } = useAthleteDirectory();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
 
@@ -108,7 +109,7 @@ export function AthleteDirectoryPanel() {
   }
 
   if (error) {
-    return <p role="status" className="muted small error">{error}</p>;
+    return <LoadFailed message={error} onRetry={() => { void refresh(); }} />;
   }
 
   return (
@@ -135,9 +136,9 @@ export function AthleteDirectoryPanel() {
         </label>
 
         <label className="field">
-          <span>Relationship state</span>
+          <span>Show</span>
           <select value={filter} onChange={(event) => setFilter(event.target.value)}>
-            <option value="all">All relationships</option>
+            <option value="all">Everyone</option>
             <option value="accepted">Accepted</option>
             <option value="invited">Pending</option>
             <option value="expired">Expired</option>
@@ -150,7 +151,6 @@ export function AthleteDirectoryPanel() {
       <div className="record-list">
         {!loading && !error && relationships.length === 0 ? (
           <div className="empty-state" data-testid="roster-empty">
-            <div className="empty-icon">A</div>
             <h3>No athletes yet</h3>
             <p>Invite an athlete by email, or send them your share link - they join your roster once they accept.</p>
             <div className="inline-controls">
@@ -160,7 +160,6 @@ export function AthleteDirectoryPanel() {
           </div>
         ) : visible.length === 0 ? (
           <div className="empty-state">
-            <div className="empty-icon">A</div>
             <h3>No matching relationships</h3>
             <p>Change the search or relationship-state filter.</p>
           </div>
@@ -198,6 +197,7 @@ export function AthleteDirectoryPanel() {
                     type="button"
                     data-relationship-action="audit"
                     data-relationship-athlete-id={athleteUserId}
+                    aria-label={`History: ${String(record.display_name || "Connected athlete")}`}
                   >
                     History
                   </button>
@@ -206,6 +206,7 @@ export function AthleteDirectoryPanel() {
                     <button
                       className="button secondary small-button open-athlete-profile"
                       type="button"
+                      aria-label={`Open profile: ${String(record.display_name || "Connected athlete")}`}
                       onClick={() => requestOpenProfile(athleteUserId)}
                     >
                       Open profile

@@ -76,7 +76,6 @@ test(
   () => {
     for (const id of [
       "athleteDetailHistoryPanel",
-      "athleteDetailRefreshButton",
       "athleteDetailStatus"
     ]) {
       assert.match(

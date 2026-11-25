@@ -4,6 +4,7 @@ import { loadAthleteHistoryDetail, loadTemplateExercises } from "../../api/coach
 import { loadSessionSummary } from "../../api/sessionSummaryClient";
 import { closedPlace, onClosePlace, onOpenPlace, openedPlace } from "../../utils/place";
 import { type JsonRecord } from "../../api/transport";
+import { LoadFailed } from "../../components/LoadFailed";
 import { PhoneDisclosure } from "../../components/PhoneDisclosure";
 import { TickIcon } from "../../components/TickIcon";
 import { formatDate, sentenceCase, titleCase } from "../../utils/format";
@@ -438,7 +439,7 @@ export function CoachReviewPanel() {
   }
 
   if (error) {
-    return <p role="status" className="muted small error">{error}</p>;
+    return <LoadFailed message={error} onRetry={() => { void refresh(); }} />;
   }
 
   return (
@@ -474,7 +475,6 @@ export function CoachReviewPanel() {
               <option value="all">All sessions</option>
             </select>
           </label>
-          <button className="button secondary" type="button" disabled={Object.keys(athleteNamesById).length === 0} onClick={() => refresh()}>Refresh</button>
           </PhoneDisclosure>
         </div>
       </div>
@@ -501,7 +501,6 @@ export function CoachReviewPanel() {
                 </div>
               ) : (
                 <div className="panel empty-state">
-                  <div className="empty-icon">R</div>
                   <h3>No matching sessions</h3>
                   <p>Finished sessions appear here for you to review, and open read-only sessions while an athlete is training.</p>
                 </div>

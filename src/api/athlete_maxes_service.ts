@@ -101,8 +101,8 @@ async function trainingEstimates(userId: string): Promise<Map<string, { value: n
   const insights = await getProgressInsightsForAthlete(userId).catch(() => null);
   const trends = isRecord(insights) && Array.isArray(insights.training_e1rm_trends) ? insights.training_e1rm_trends.filter(isRecord) : [];
   return new Map(trends
-    .filter((t) => Number.isFinite(Number(t.current_e1rm)) && Number(t.current_e1rm) > 0)
-    .map((t) => [text(t.exercise_id), { value: Number(t.current_e1rm), unit: t.unit === "lb" ? "lb" : "kg", date: text(t.current_date) }]));
+    .filter((t) => Number.isFinite(Number(t.latest_e1rm)) && Number(t.latest_e1rm) > 0)
+    .map((t) => [text(t.exercise_id), { value: Number(t.latest_e1rm), unit: t.unit === "lb" ? "lb" : "kg", date: text(t.latest_date) }]));
 }
 
 // The lifts the athlete's programme prescribes as a % of 1RM (named lifts and

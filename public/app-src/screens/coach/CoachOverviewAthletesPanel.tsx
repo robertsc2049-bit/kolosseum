@@ -32,7 +32,7 @@ function AthleteCard({ athlete }: { athlete: CoachOverviewAthleteEntry }) {
             ? `${athlete.referenceCount} max${athlete.referenceCount === 1 ? "" : "es"} recorded`
             : "No maxes recorded"}
         </span>
-        <button className="button secondary small-button" type="button" onClick={() => openProfile(athlete.athleteUserId)}>
+        <button className="button secondary small-button" type="button" aria-label={`Open profile: ${athlete.displayName}`} onClick={() => openProfile(athlete.athleteUserId)}>
           Open profile
         </button>
       </div>

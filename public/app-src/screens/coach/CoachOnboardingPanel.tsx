@@ -62,8 +62,7 @@ function ProfileForm({ profile, busy, onSave, formRef }: {
     <form className="panel form-panel" ref={formRef} onSubmit={handleSubmit}>
       <div>
         <p className="eyebrow">Coach profile</p>
-        <h3>Identity details</h3>
-        <p className="muted">This is your account profile. It doesn't affect how training is calculated.</p>
+        <h3>Your name and email</h3>
       </div>
       <label className="field">
         <span>Display name</span>
@@ -122,9 +121,8 @@ function AccessibilityForm({ preferences, busy, onSave }: {
   return (
     <form className="panel form-panel" onSubmit={handleSubmit}>
       <div>
-        <p className="eyebrow">Accessibility preferences</p>
-        <h3>Presentation preferences</h3>
-        <p className="muted">These control how the app looks and behaves for you. They don't affect how training is calculated.</p>
+        <p className="eyebrow">Accessibility</p>
+        <h3>How the app looks for you</h3>
       </div>
       <AccessibilityCheckboxes value={value} onChange={setValue} />
       <button className="button primary" type="submit" disabled={busy}>Save accessibility preferences</button>
@@ -152,29 +150,6 @@ function ReviewPanel({ profile, termsAccepted, accessibilityPreferences, busy, o
       </div>
       <p className="muted">Completing this gives you access to the coach workspace. It doesn't change any training, eligibility or legal rules.</p>
       <button className="button primary" type="button" disabled={busy} onClick={onComplete}>Complete coach onboarding</button>
-    </section>
-  );
-}
-
-function openWorkspace() {
-  window.location.hash = "#/coach/overview";
-}
-
-function openCommercial() {
-  window.location.hash = "#/account";
-}
-
-function CompletedPanel({ onEditProfile }: { onEditProfile: () => void }) {
-  return (
-    <section className="panel">
-      <p className="eyebrow">Completed onboarding</p>
-      <h3>Coach workspace available</h3>
-      <p className="muted">The completion state is stored on the server and survives refresh and restart.</p>
-      <div className="commercial-actions">
-        <button className="button primary" type="button" onClick={openWorkspace}>Open coach workspace</button>
-        <button className="button secondary" type="button" onClick={onEditProfile}>Update coach profile</button>
-        <button className="button secondary" type="button" onClick={openCommercial}>Open commercial account</button>
-      </div>
     </section>
   );
 }
@@ -259,16 +234,14 @@ export function CoachOnboardingPanel() {
   const accessibilityPreferences = accessibilityOf(serverState.accessibility_preferences);
   const history = Array.isArray(serverState.history) ? (serverState.history as JsonRecord[]) : [];
 
-  function handleEditProfile() {
-    profileFormRef.current?.scrollIntoView({ block: "start", behavior: "smooth" });
-  }
-
   return (
     <>
-      <span className={`badge ${completed ? "success" : "warning"}`}>{completed ? "Completed onboarding" : "Incomplete onboarding"}</span>
-      <div className="panel coach-onboarding-progress">
-        {completed ? "Coach profile saved · Coach terms accepted · Setup complete" : `Current step: ${humanise(stage)}`}
-      </div>
+      {completed ? null : (
+        <>
+          <span className="badge warning">Setup not finished</span>
+          <div className="panel coach-onboarding-progress">{`Current step: ${humanise(stage)}`}</div>
+        </>
+      )}
       {validationError ? <p className="inline-result" data-tone="error">{errorMessage(validationError)}</p> : null}
       {!validationError && confirmation ? <p className="inline-result" data-tone="success">{confirmation}</p> : null}
       {/* The forms start from the saved values and are remounted (keyed) when
@@ -295,13 +268,14 @@ export function CoachOnboardingPanel() {
           onComplete={handleComplete}
         />
       ) : null}
-      {completed ? <CompletedPanel onEditProfile={handleEditProfile} /> : null}
-      <section className="panel">
-        <p className="eyebrow">Onboarding history</p>
-        <div className="record-list compact-record-list">
-          <HistoryList items={history} />
-        </div>
-      </section>
+      {completed ? null : (
+        <section className="panel">
+          <p className="eyebrow">Setup so far</p>
+          <div className="record-list compact-record-list">
+            <HistoryList items={history} />
+          </div>
+        </section>
+      )}
     </>
   );
 }

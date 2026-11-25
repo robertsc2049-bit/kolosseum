@@ -1,3 +1,4 @@
+import { tryAgain } from "../../utils/friendlyError";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { loadAccountDetail } from "../../api/client";
@@ -88,7 +89,7 @@ export function useCoachProgrammeMarketplaceSharing() {
       setState((current) => ({
         ...current,
         loading: false,
-        error: "The marketplace sharing details could not be loaded. Check your connection and try again."
+        error: tryAgain("The marketplace sharing details could not be loaded.")
       }));
     }
   }, []);

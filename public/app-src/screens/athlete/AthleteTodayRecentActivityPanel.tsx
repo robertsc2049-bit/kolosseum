@@ -51,7 +51,7 @@ export function AthleteTodayRecentActivityList() {
     <div className="record-list">
       {recentSessions.map((session: JsonRecord, index: number) => {
         const sessionId = String(session.session_id ?? "");
-        const status = sentenceCase(String(session.status ?? "recorded"));
+        const status = sentenceCase(session.status === "created" ? "started" : String(session.status ?? "recorded"));
         return (
           <article
             className="record-card interactive"

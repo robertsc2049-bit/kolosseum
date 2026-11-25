@@ -1,3 +1,4 @@
+import { tryAgain } from "../../utils/friendlyError";
 import React, { useEffect, useState } from "react";
 
 import { loadAthleteRelationshipsMine } from "../../api/accountRelationshipsClient";
@@ -98,7 +99,7 @@ const SESSION_IN_PROGRESS_COPY = {
   heading: "Session in progress",
   body: "You've started a session and not finished it yet - carry on where you left off.",
   badgeLabel: "In progress",
-  badgeClass: "partial"
+  badgeClass: "active"
 };
 
 type CoachState = "coached" | "waiting" | "self";
@@ -240,7 +241,8 @@ export function AthleteTodayCreateSessionButton() {
   // below); a second session would skip them ahead in their programme.
   // Likewise a self-coached session in progress: the card's "Continue
   // session" carries on with it.
-  if (coachedWithOpenSession || selfCoachedOpenSession(today)) return null;
+  // And nothing while Today itself couldn't be loaded (the card has Retry).
+  if (coachedWithOpenSession || selfCoachedOpenSession(today) || String(today?.state ?? "service_unavailable") === "service_unavailable") return null;
   return (
     <button className="button primary" type="button" disabled={checking} onClick={() => void start()}>
       {createSessionButtonLabel(today)}
@@ -322,7 +324,7 @@ export function AthleteTodaySessionCard() {
         <div className="empty-state">
           <div className="empty-icon">!</div>
           <h3>Today is unavailable right now</h3>
-          <p>We could not reach the server to load your current programme. Check your connection and try again.</p>
+          <p>{tryAgain("We could not reach the server to load your current programme.")}</p>
           <button className="button secondary" type="button" onClick={() => refresh()}>Retry</button>
         </div>
       </div>

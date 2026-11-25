@@ -996,7 +996,7 @@ button:focus-visible,
 .record-card .line-chart { grid-column: 1 / -1; }
 
 .line-chart { display: flex; flex-direction: column; gap: 0.4rem; }
-.line-chart-compact { min-width: 96px; max-width: 160px; }
+.line-chart-compact { min-width: 96px; width: 100%; max-width: 420px; }
 .line-chart-legend { display: flex; flex-wrap: wrap; gap: 0.6rem; }
 .line-chart-legend-item { display: inline-flex; align-items: center; gap: 0.35rem; color: var(--stone-dim); font-size: 0.8rem; }
 .line-chart-legend-swatch { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
@@ -4383,7 +4383,7 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
   :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel, #historyWellbeing, #view-coach-progress) [data-collapsed="true"] > :first-child,
   :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel, #historyWellbeing, #view-coach-progress) [data-collapsed="true"][data-collapsible="2"] > :nth-child(2) { margin-bottom: 0; }
   :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel, #historyWellbeing, #view-coach-progress) [data-collapsed="true"] > :first-child :is(p, button, .button):not(.eyebrow):not(.section-toggle):not(.analysis-headline),
-  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel, #historyWellbeing, #view-coach-progress) [data-collapsed="true"] > :first-child > :not(:has(h2, h3, h4)):not(h2, h3, h4):not(.eyebrow) { display: none; }
+  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel, #historyWellbeing, #view-coach-progress) [data-collapsed="true"] > :first-child > :not(:has(h2, h3, h4)):not(h2, h3, h4):not(.eyebrow):not(.section-toggle) { display: none; }
   :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel, #historyWellbeing, #view-coach-progress) [data-collapsed="true"] :is(h2, h3, h4) { margin: 0; padding-right: 40px; font-size: 1.05rem; }
   :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel, #historyWellbeing, #view-coach-progress) [data-collapsed="true"] .eyebrow { margin-bottom: 2px; }
   :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel, #historyWellbeing, #view-coach-progress) [data-collapsible] > .page-heading { min-height: 0; margin: 0; }
@@ -4828,7 +4828,7 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
 #view-athletes:has(#athleteProfilePanel:not([hidden])) > .athlete-actions,
 #view-athletes:has(#athleteProfilePanel:not([hidden])) > .athlete-directory-layout,
 #view-athletes:has(#athleteProfilePanel:not([hidden])) > #athlete-relationship-detail-root { display: none; }
-.athlete-profile-header { flex-direction: row-reverse; justify-content: flex-end; align-items: center; gap: var(--k-space-3); }
+.athlete-profile-header { display: grid; justify-items: start; gap: 0; }
 
 /* Rarely-changed athlete settings, after the training record. */
 .athlete-settings { margin-top: var(--k-space-4); border-top: 1px solid var(--line-soft); padding-top: var(--k-space-3); }
@@ -5828,4 +5828,66 @@ details.progress-insights-section > summary h4 { margin: 0; }
   .builder-expand-controls[data-single="true"], #templateBuilderView .template-facts { display: none; }
   .builder-action-row > [data-direction="-1"]:disabled:has(+ [data-direction="1"]:disabled),
   .builder-action-row > [data-direction="-1"]:disabled + [data-direction="1"]:disabled { display: none; }
+}
+
+/* Third review */
+.load-failed { display: grid; justify-items: start; gap: var(--k-space-3); padding: var(--k-space-4); border: 1px solid var(--k-border); border-radius: var(--k-radius-m); }
+.load-failed p { margin: 0; color: var(--k-danger-text); }
+.appearance-panel { margin-bottom: var(--k-space-2); }
+.button-row.quick-build { margin-bottom: var(--k-space-4); }
+.programme-library-controls { margin-top: var(--k-space-4); }
+.athlete-profile-header h3 { margin: 0; font-size: 1.6rem; }
+.athlete-profile-header p { margin: 0; }
+#athleteDetailStatus:empty, #coachDashboardStatus:empty { display: none; }
+.video-queue-empty { margin: var(--k-space-4) 0 0; }
+.consent-box input, .checkbox-field > input[type="checkbox"] { flex: none; }
+form > .checkbox-field { align-items: start; margin-block: var(--k-space-3); }
+form > .checkbox-field > input[type="checkbox"] { margin-top: 0.25em; }
+
+/* One programme, one row */
+.template-card { gap: var(--k-space-3); }
+.template-card p.template-card-facts { display: block; margin: 2px 0 0; }
+.template-card h3 { margin: 0; }
+@media (max-width: 759px) {
+  .template-card { padding: var(--k-space-3); gap: var(--k-space-2); }
+  .template-card-actions { display: grid; grid-template-columns: minmax(0, 1fr) 44px; gap: var(--k-space-2); }
+  .template-card-actions > .template-detail { min-height: 44px; }
+  .template-card-actions .row-actions > .phone-more-body { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--k-space-2); }
+  .template-card-actions .row-actions[data-open="false"] > .phone-more-body { display: none; }
+}
+
+/* History: one line a session, with what was lifted */
+.record-list:has(> .history-row) { gap: 0; }
+.history-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: var(--k-space-3); min-height: 60px; padding: 10px 0; border-top: 1px solid var(--k-hairline); cursor: pointer; }
+.history-row:last-child { border-bottom: 1px solid var(--k-hairline); }
+.history-row h3 { margin: 0; font-size: 1.05rem; }
+.history-row p { margin: 2px 0 0; }
+.history-row:hover { background: var(--k-surface-2); }
+.history-lifted { color: var(--k-text); font-size: 0.9rem; overflow-wrap: anywhere; }
+.history-state { width: 28px; text-align: center; color: var(--k-text-secondary); font-weight: 700; }
+.history-state.is-completed { color: var(--k-accent-bright); }
+@media (max-width: 900px) {
+  .history-layout[data-open="true"] > :not(:last-child) { display: none; }
+  #view-history:has(.history-layout[data-open="true"]) > .page-heading, #view-history:has(.history-layout[data-open="true"]) > .section-tabs { display: none; }
+  .panel:has(> .review-layout[data-open="true"]) ~ *, section:has(> .panel > .review-layout[data-open="true"]) ~ * { display: none; }
+  #coach-review-root:has(.review-layout[data-open="true"]) ~ * { display: none; }
+}
+
+/* Bigger text: nothing spills or is cut off. */
+.metric-card span { overflow-wrap: anywhere; }
+@media (max-width: 900px) {
+  .metric-cards { grid-template-columns: repeat(auto-fill, minmax(min(100%, 6.6rem), 1fr)); }
+  .tab-item span { font-size: min(0.78rem, 3.3vw); }
+  .notification-unread-badge { font-size: min(0.72rem, 13px); }
+}
+
+/* A phone on its side: the workout, not the bars. */
+@media (max-height: 480px) and (max-width: 950px) and (orientation: landscape) {
+  .topbar { min-height: 44px; padding-block: 2px; position: static; }
+  .topbar .brand-mark { width: 30px; height: 30px; }
+  .tab-bar { min-height: 44px; }
+  .tab-item { min-height: 44px; padding-block: 0; }
+  .tab-icon { width: 20px; height: 20px; }
+  .session-next { position: static; }
+  .page-heading { min-height: 0; padding-top: 0; margin-top: 0; }
 }

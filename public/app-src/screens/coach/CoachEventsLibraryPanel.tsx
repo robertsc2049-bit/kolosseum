@@ -109,7 +109,6 @@ export function CoachEventsListPanel() {
   if (events.length === 0) {
     return (
       <div className="empty-state">
-        <div className="empty-icon">E</div>
         <h3>No competitions yet</h3>
         <p>Add a meet, race or match day, then choose it when you assign an athlete's programme - the programme is timed to peak for it.</p>
       </div>

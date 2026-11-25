@@ -13,7 +13,7 @@ import {
 } from "../../api/coachWorkspaceClient";
 import { closedPlace, onClosePlace } from "../../utils/place";
 import { ApiRequestError, type JsonRecord } from "../../api/transport";
-import { FRIENDLY_ERROR_MESSAGES, genericFriendlyMessageForStatus } from "../../utils/friendlyError";
+import { FRIENDLY_ERROR_MESSAGES, genericFriendlyMessageForStatus, tryAgain } from "../../utils/friendlyError";
 
 // DEV NOTE: FULL-UI-09C event detail/lifecycle (cancel/archive/re-version/
 // link/unlink an athlete) - ported from the now-deleted event_lifecycle_ui.js
@@ -104,7 +104,7 @@ export function useCoachEventDetail() {
       setState((current) => ({
         ...current,
         loading: false,
-        error: "This event record could not be loaded. Check your connection and try again."
+        error: tryAgain("This event record could not be loaded.")
       }));
     }
   }, []);

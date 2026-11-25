@@ -124,7 +124,7 @@ const targets = [
         "path": "public/app-src/screens/coach/AthleteDirectoryPanel.tsx",
         "all": [
           "Search athletes",
-          "Relationship state"
+          "Everyone"
         ]
       }
     ],

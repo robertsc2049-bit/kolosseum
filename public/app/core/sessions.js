@@ -499,5 +499,4 @@ document.addEventListener("kolosseum:athlete-relationship-changed", () => {
   loadAthleteToday().catch(handleError);
 });
 document.addEventListener("kolosseum:create-session", (event) => createSession(event?.detail ?? {}).catch(handleError));
-elements.refreshHistoryButton.addEventListener("click", () => refreshHistory().catch(handleError));
 elements.exportHistoryButton.addEventListener("click", () => exportHistory().catch(handleError));

@@ -253,22 +253,9 @@ async function applyEntityRoute(route) {
     return true;
   }
 
-  if (route.route_id === "coach_programme_detail") {
-    const target = await waitForSelector(
-      `[data-template-id="${escapeSelector(params.template_id)}"]`
-    );
-    if (target) {
-      const detail = target.matches(".template-detail")
-        ? target
-        : target.querySelector(".template-detail");
-      const edit = target.matches(".template-edit")
-        ? target
-        : target.querySelector(".template-edit");
-      if (detail) detail.click();
-      else if (edit) edit.click();
-      else markRouteTarget(target.closest(".template-card") ?? target);
-      return true;
-    }
+  if (route.route_id === "coach_programme_detail" && params.template_id) {
+    document.dispatchEvent(new CustomEvent("kolosseum:open-programme-detail", { detail: { template_id: params.template_id } }));
+    return true;
   }
 
   // DEV NOTE: React owns the review queue now (CoachReviewPanel.tsx/
@@ -482,8 +469,8 @@ async function applyProductRouteNow(options) {
     else {
       // Going back to a screen closes what was open on it, unless they choose
       // to stay (the builder, with something unsaved).
-      if (route.entity_key === null && visibleViewName() === route.view) {
-        const closing = new CustomEvent("kolosseum:close-place", { detail: { view: route.view }, cancelable: true });
+      if (visibleViewName() === route.view && route.route_id !== "coach_programme_builder") {
+        const closing = new CustomEvent("kolosseum:close-place", { detail: { view: route.view, opening: route.entity_key !== null }, cancelable: true });
         if (!document.dispatchEvent(closing)) {
           if (closing.detail.stay) history.pushState({ kolosseum_route: closing.detail.stay, opened_from: location.hash }, "", closing.detail.stay);
           return true;

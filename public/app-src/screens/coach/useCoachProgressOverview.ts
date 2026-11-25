@@ -1,3 +1,4 @@
+import { tryAgain } from "../../utils/friendlyError";
 import { useCallback, useEffect, useState } from "react";
 
 import { loadCoachProgressRollup } from "../../api/coachWorkspaceClient";
@@ -35,7 +36,7 @@ export function useCoachProgressOverview() {
       setState((current) => ({
         ...current,
         loading: false,
-        error: "Progress overview could not be loaded. Check your connection and try again."
+        error: tryAgain("Progress overview could not be loaded.")
       }));
     }
   }, []);

@@ -1,3 +1,4 @@
+import { tryAgain } from "../../utils/friendlyError";
 import React, { useEffect, useRef, useState } from "react";
 
 import { withPendingSetLogs } from "../../api/offlineSessionQueue";
@@ -314,7 +315,7 @@ export function AthleteSessionExecutionPanel() {
         <div className="panel empty-state">
           <div className="empty-icon">!</div>
           <h3>Session could not be loaded</h3>
-          <p>The session record could not be fetched. Check your connection and try again.</p>
+          <p>{tryAgain("The session record could not be fetched.")}</p>
           <button id="sessionRetryButton" className="button primary" type="button" onClick={() => session.refresh()}>Retry</button>
         </div>
       </>
@@ -324,18 +325,9 @@ export function AthleteSessionExecutionPanel() {
   if (!session.sessionId || !session.sessionState) {
     return (
       <>
-        <div className="page-heading session-heading">
-          <div>
-            <p className="eyebrow">Session</p>
-            <h2>No session selected</h2>
-            <p className="muted">Create or open a session to begin.</p>
-          </div>
-          <span className="badge neutral">No session</span>
-        </div>
         <div className="panel empty-state">
-          <div className="empty-icon">S</div>
-          <h3>No session selected</h3>
-          <p>Return to Today and create a session.</p>
+          <h2>No session open</h2>
+          <p>Start or carry on with your session from Today.</p>
           <button className="button primary" type="button" onClick={goToToday}>Go to Today</button>
         </div>
       </>
@@ -672,7 +664,7 @@ export function AthleteSessionExecutionPanel() {
                   {session.substitutionOptions?.exerciseId !== currentId || session.substitutionOptions?.status === "loading" ? (
                     <p className="muted" role="status">Checking what this exercise needs...</p>
                   ) : session.substitutionOptions.status === "error" ? (
-                    <p role="status">Couldn't check the swaps for this exercise. Check your connection and try again.</p>
+                    <p role="status">{tryAgain("Couldn't check the swaps for this exercise.")}</p>
                   ) : session.substitutionOptions.mainLift ? (
                     <p role="status" data-testid="main-lift-no-substitute">This is one of your main lifts, so it isn't swapped for something else. If the kit is busy, wait for it - or skip it with a reason so your coach can see why.</p>
                   ) : !session.substitutionOptions.hasSubstitutes ? (

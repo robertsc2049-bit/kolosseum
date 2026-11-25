@@ -1,3 +1,4 @@
+import { tryAgain } from "../../utils/friendlyError";
 import React, { useState } from "react";
 
 import { loadAccountDetail } from "../../api/client";
@@ -40,7 +41,7 @@ export function CoachDemoVideoEditor({ exerciseId, referenceMedia, onChanged }: 
     catch (error) {
       setMessage(error instanceof ApiRequestError && /demo_video_link_invalid/u.test(`${error.code} ${error.message}`)
         ? "That isn't a YouTube or Vimeo video link."
-        : "Couldn't save the demo. Check your connection and try again.");
+        : tryAgain("Couldn't save the demo."));
     }
     finally {
       setBusy(false);
@@ -60,7 +61,7 @@ export function CoachDemoVideoEditor({ exerciseId, referenceMedia, onChanged }: 
     catch (error) {
       const code = error instanceof ApiRequestError ? `${error.code} ${error.message}` : "";
       const known = Object.keys(UPLOAD_MESSAGES).find((key) => code.includes(key));
-      setMessage(known ? UPLOAD_MESSAGES[known] : "Couldn't upload the clip. Check your connection and try again.");
+      setMessage(known ? UPLOAD_MESSAGES[known] : tryAgain("Couldn't upload the clip."));
     }
     finally {
       setBusy(false);
@@ -77,7 +78,7 @@ export function CoachDemoVideoEditor({ exerciseId, referenceMedia, onChanged }: 
       setMessage("Removed - your athletes see the default demo.");
     }
     catch {
-      setMessage("Couldn't remove the demo. Check your connection and try again.");
+      setMessage(tryAgain("Couldn't remove the demo."));
     }
     finally {
       setBusy(false);

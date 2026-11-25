@@ -1,3 +1,4 @@
+import { tryAgain } from "../../utils/friendlyError";
 import { useCallback, useEffect, useState } from "react";
 
 import { loadAccountDetail } from "../../api/client";
@@ -65,7 +66,7 @@ export function useAccountOrgContext() {
       setState((current) => ({
         ...current,
         loading: false,
-        error: "Organisation records could not be loaded. Check your connection and try again."
+        error: tryAgain("Organisation records could not be loaded.")
       }));
     }
   }, []);

@@ -161,7 +161,6 @@ test(
 test(
   "FULL-UI-04A provides search filters counts and audit facts",
   () => {
-    assert.match(html, /id="refreshAthleteDirectoryButton"/u);
 
     assert.match(html, /id="athlete-directory-root"/u);
     assert.match(html, /id="connect-athlete-root"/u);
@@ -175,7 +174,7 @@ test(
 
     assert.match(athleteDirectoryPanel, /useAthleteDirectory/u);
     assert.match(athleteDirectoryPanel, /Search athletes/u);
-    assert.match(athleteDirectoryPanel, /Relationship state/u);
+    assert.match(athleteDirectoryPanel, /<span>Show<\/span>/u);
     assert.match(athleteDirectoryPanel, /data-relationship-action="audit"/u);
 
     assert.match(connectAthletePanel, /Relationship state/u);

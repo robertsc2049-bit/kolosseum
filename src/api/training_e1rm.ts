@@ -59,8 +59,10 @@ export function setE1rmKg(set: LoggedSet): number | null {
   return epleyE1rm(loadKg, set.reps);
 }
 
-// Per exercise: the best e1RM on each training day, the latest day's value
-// and the change from the nearest day at least windowDays earlier.
+// Per exercise: the best estimate over windowDays, against the best of the
+// windowDays before. A planned lighter week isn't a weaker athlete, so one
+// day's lighter sets never bring the estimate down on their own.
+// latest_e1rm / latest_date stay the last day's own best set.
 export function computeTrainingE1rmTrends(
   sets: readonly LoggedSet[],
   displayUnit: "kg" | "lb",
@@ -85,10 +87,17 @@ export function computeTrainingE1rmTrends(
     const days = [...(byExercise.get(exerciseId) as Map<string, number>).entries()]
       .sort(([a], [b]) => a.localeCompare(b));
     const [latestDate, latest] = days[days.length - 1];
-    const cutoffMs = Date.parse(`${latestDate}T00:00:00Z`) - windowDays * 86_400_000;
-    const prior = [...days].reverse().find(([date]) => Date.parse(`${date}T00:00:00Z`) <= cutoffMs) ?? null;
+    const dayMs = (date: string) => Date.parse(`${date}T00:00:00Z`);
+    const windowMs = windowDays * 86_400_000;
+    const bestOf = (from: number, to: number) => days
+      .filter(([date]) => dayMs(date) > from && dayMs(date) <= to)
+      .reduce<[string, number] | null>((best, day) => (best === null || day[1] >= best[1] ? day : best), null);
+    const cutoffMs = dayMs(latestDate) - windowMs;
+    const best = bestOf(cutoffMs, dayMs(latestDate)) ?? [latestDate, latest] as [string, number];
+    // The month before, or the nearest training before that.
+    const prior = bestOf(cutoffMs - windowMs, cutoffMs) ?? [...days].reverse().find(([date]) => dayMs(date) <= cutoffMs) ?? null;
     const value = (kg: number) => round1(fromKg(kg, displayUnit));
-    const current = value(latest);
+    const current = value(best[1]);
     const priorValue = prior ? value(prior[1]) : null;
     trends.push(Object.freeze({
       exercise_id: exerciseId,
@@ -96,13 +105,15 @@ export function computeTrainingE1rmTrends(
       method: "epley",
       includes_bodyweight: sets.some((logged) => logged.exercise_id.replace(/__r[0-9]+$/, "") === exerciseId && logged.bodyweight_lift === true && Boolean(logged.bodyweight_kg)),
       current_e1rm: current,
-      current_date: latestDate,
+      current_date: best[0],
+      latest_e1rm: value(latest),
+      latest_date: latestDate,
       has_prior_value: prior !== null,
       prior_e1rm: priorValue,
       prior_date: prior ? prior[0] : null,
       delta: priorValue !== null ? round1(current - priorValue) : null,
       delta_percentage: priorValue ? round1((100 * (current - priorValue)) / priorValue) : null,
-      series: Object.freeze(days.map(([date, est]) => Object.freeze({ date, e1rm: value(est) })))
+      series: Object.freeze(days.map(([date]) => Object.freeze({ date, e1rm: value((bestOf(dayMs(date) - windowMs, dayMs(date)) as [string, number])[1]) })))
     }));
   }
   return trends;

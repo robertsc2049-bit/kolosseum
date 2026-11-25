@@ -1,3 +1,4 @@
+import { tryAgain } from "../../utils/friendlyError";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { loadAccountDetail } from "../../api/client";
@@ -93,7 +94,7 @@ export function useAccountCoachRelationship() {
       setState((current) => ({
         ...current,
         loading: false,
-        error: "Relationship records could not be loaded. Check your connection and try again."
+        error: tryAgain("Relationship records could not be loaded.")
       }));
     }
   }, [refreshMessages]);

@@ -1,3 +1,4 @@
+import { tryAgain } from "../../utils/friendlyError";
 import { useCallback, useEffect, useState } from "react";
 
 import { accountMayBeAthlete, loadAccountDetail } from "../../api/client";
@@ -52,7 +53,7 @@ export function useWeeklyCheckins() {
       setState((current) => ({
         ...current,
         loading: false,
-        error: "Weekly check-ins could not be loaded. Check your connection and try again."
+        error: tryAgain("Weekly check-ins could not be loaded.")
       }));
     }
   }, []);

@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 
 import { type JsonRecord } from "../../api/transport";
 import { countdownLabel, formatDate, titleCase } from "../../utils/format";
+import { PhoneMore } from "../../components/PhoneMore";
 import { PhoneDisclosure } from "../../components/PhoneDisclosure";
 import { programmeSportGroup } from "./kolosseumProgrammeGroups";
 import { KolosseumStarterForm } from "./KolosseumStarterForm";
@@ -35,13 +36,8 @@ export function templateStatusBadgeClass(status: string): { label: string; class
   return { label: "Draft", className: "badge active" };
 }
 
-// Same capturing-phase click-listener race documented in
-// CoachEventsLibraryPanel.tsx's openEventDetail() - route_bootstrap.js's
-// global click listener also matches this button's [data-template-id]
-// ancestor, so the bridge event is dispatched directly rather than relying
-// solely on the resulting hashchange.
+// Opening it gives it its own address (openedPlace, coach/programmes.js).
 function openProgrammeDetail(templateId: string) {
-  window.location.hash = `#/coach/programmes/${encodeURIComponent(templateId)}`;
   document.dispatchEvent(new CustomEvent("kolosseum:open-programme-detail", { detail: { template_id: templateId } }));
 }
 
@@ -99,16 +95,18 @@ function TemplateCard({ template, allTemplates, assignments }: { template: JsonR
   const badge = templateStatusBadgeClass(displayState);
 
   return (
-    <article className="template-card" data-template-id={templateId} data-template-state={displayState}>
+    <article className="template-card" data-programme-id={templateId} data-template-state={displayState}>
       <div>
         <h3>{String(template.template_name ?? "")}</h3>
         <p>{programmeSportGroup(template)} · Version {version} of {versions.length}</p>
-        <div className="template-card-facts">
-          <span>{blockCount} block{blockCount === 1 ? "" : "s"}</span>
-          <span>{weekCount} week{weekCount === 1 ? "" : "s"}</span>
-          <span>{sessionCount} session{sessionCount === 1 ? "" : "s"}</span>
-          <span>{usage.assignmentCount} assignment{usage.assignmentCount === 1 ? "" : "s"}</span>
-        </div>
+        <p className="template-card-facts muted small">
+          {[
+            `${blockCount} block${blockCount === 1 ? "" : "s"}`,
+            `${weekCount} week${weekCount === 1 ? "" : "s"}`,
+            `${sessionCount} session${sessionCount === 1 ? "" : "s"}`,
+            `${usage.assignmentCount} assignment${usage.assignmentCount === 1 ? "" : "s"}`
+          ].join(" · ")}
+        </p>
         {eventPlan ? (
           <div className="template-event-line">
             <span className="badge neutral">{titleCase(eventPlan.event_type)}</span>
@@ -123,34 +121,36 @@ function TemplateCard({ template, allTemplates, assignments }: { template: JsonR
         </div>
       </div>
       <div className="template-card-actions">
-        <button className="button secondary small-button template-detail" type="button" onClick={() => openProgrammeDetail(templateId)}>
-          View detail
+        <button className="button secondary small-button template-detail" type="button" aria-label={`Open ${String(template.template_name ?? "programme")}`} onClick={() => openProgrammeDetail(templateId)}>
+          Open
         </button>
-        {storedStatus !== "archived" ? (
-          <button className="button secondary small-button template-edit" type="button" onClick={() => dispatchProgrammeAction("kolosseum:edit-programme", templateId)}>
-            {storedStatus !== "draft" && template.sent === true ? "Edit as a new version" : "Edit"}
-          </button>
-        ) : null}
-        {storedStatus === "draft" ? (
-          <button className="button secondary small-button template-complete" type="button" onClick={() => dispatchProgrammeAction("kolosseum:complete-programme", templateId)}>
-            Check it's ready
-          </button>
-        ) : null}
-        {storedStatus === "complete" ? (
-          <button className="button primary small-button template-activate" type="button" onClick={() => dispatchProgrammeAction("kolosseum:activate-programme", templateId)}>
-            Ready to send
-          </button>
-        ) : null}
-        {storedStatus !== "draft" ? (
-          <button className="button secondary small-button template-duplicate" type="button" onClick={() => dispatchProgrammeAction("kolosseum:duplicate-programme", templateId)}>
-            Duplicate version
-          </button>
-        ) : null}
-        {storedStatus !== "archived" ? (
-          <button className="button secondary small-button template-archive" type="button" onClick={() => dispatchProgrammeAction("kolosseum:archive-programme", templateId)}>
-            Archive
-          </button>
-        ) : null}
+        <PhoneMore icon="•••" label={`More for ${String(template.template_name ?? "programme")}`} className="row-actions">
+          {storedStatus !== "archived" ? (
+            <button className="button secondary small-button template-edit" type="button" onClick={() => dispatchProgrammeAction("kolosseum:edit-programme", templateId)}>
+              {storedStatus !== "draft" && template.sent === true ? "Edit as a new version" : "Edit"}
+            </button>
+          ) : null}
+          {storedStatus === "draft" ? (
+            <button className="button secondary small-button template-complete" type="button" onClick={() => dispatchProgrammeAction("kolosseum:complete-programme", templateId)}>
+              Check it's ready
+            </button>
+          ) : null}
+          {storedStatus === "complete" ? (
+            <button className="button primary small-button template-activate" type="button" onClick={() => dispatchProgrammeAction("kolosseum:activate-programme", templateId)}>
+              Ready to send
+            </button>
+          ) : null}
+          {storedStatus !== "draft" ? (
+            <button className="button secondary small-button template-duplicate" type="button" onClick={() => dispatchProgrammeAction("kolosseum:duplicate-programme", templateId)}>
+              Duplicate version
+            </button>
+          ) : null}
+          {storedStatus !== "archived" ? (
+            <button className="button secondary small-button template-archive" type="button" onClick={() => dispatchProgrammeAction("kolosseum:archive-programme", templateId)}>
+              Archive
+            </button>
+          ) : null}
+        </PhoneMore>
       </div>
     </article>
   );
@@ -238,21 +238,18 @@ export function CoachProgrammeLibraryPanel() {
         </PhoneDisclosure>
       </div>
 
-      <div className="programme-library-result-line">
+      {error ? null : <div className="programme-library-result-line">
         <p className="muted small">{visible.length} of {templates.length} programme{templates.length === 1 ? "" : "s"}</p>
         <p className="muted small" role="status" aria-live="polite">
           {loading
             ? "Loading programme records…"
-            : error
-              ? error
-              : `Updated ${new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit" }).format(new Date())}.`}
+            : `Updated ${new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit" }).format(new Date())}.`}
         </p>
-      </div>
+      </div>}
 
       {error ? (
         <div className="empty-state">
           <h3>Programme library could not be loaded</h3>
-          <p>{error}</p>
           <button className="button secondary" type="button" onClick={() => refresh()}>Retry</button>
         </div>
       ) : templates.length === 0 && !loading ? (

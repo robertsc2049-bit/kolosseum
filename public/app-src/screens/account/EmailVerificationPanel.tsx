@@ -1,3 +1,4 @@
+import { tryAgain } from "../../utils/friendlyError";
 import React, { useState } from "react";
 
 import { completeEmailVerification, requestEmailVerification } from "../../api/client";
@@ -37,7 +38,7 @@ export function EmailVerificationPanel({
       );
     }
     catch {
-      setResult("The verification code could not be requested. Check your connection and try again.");
+      setResult(tryAgain("The verification code could not be requested."));
     }
     finally {
       setRequesting(false);

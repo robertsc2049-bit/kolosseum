@@ -1,3 +1,4 @@
+import { tryAgain } from "../../utils/friendlyError";
 import { useCallback, useEffect, useState } from "react";
 
 import { loadAccountDetail } from "../../api/client";
@@ -31,7 +32,7 @@ export function useAttendanceEventDetail() {
     }
     catch (error_) {
       setLoading(false);
-      setError(error_ instanceof Error ? error_.message : "Events could not be loaded. Check your connection and try again.");
+      setError(error_ instanceof Error ? error_.message : tryAgain("Events could not be loaded."));
     }
   }, []);
 

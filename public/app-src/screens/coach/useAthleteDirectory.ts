@@ -1,3 +1,4 @@
+import { tryAgain } from "../../utils/friendlyError";
 import { useCallback, useEffect, useState } from "react";
 
 import { loadPackageMembers } from "../../api/checkinsClient";
@@ -70,7 +71,7 @@ export function useAthleteDirectory() {
       setState((current) => ({
         ...current,
         loading: false,
-        error: "The athlete directory could not be loaded. Check your connection and try again."
+        error: tryAgain("The athlete directory could not be loaded.")
       }));
     }
   }, []);

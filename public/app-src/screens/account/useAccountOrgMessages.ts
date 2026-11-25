@@ -1,3 +1,4 @@
+import { tryAgain } from "../../utils/friendlyError";
 import { useCallback, useEffect, useState } from "react";
 
 import { accountMayBeAthlete, loadAccountDetail } from "../../api/client";
@@ -89,7 +90,7 @@ export function useAccountOrgMessages() {
       setState((current) => ({
         ...current,
         loading: false,
-        error: "Team messages could not be loaded. Check your connection and try again."
+        error: tryAgain("Team messages could not be loaded.")
       }));
     }
   }, []);

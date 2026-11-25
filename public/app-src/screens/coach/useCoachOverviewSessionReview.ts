@@ -1,3 +1,4 @@
+import { tryAgain } from "../../utils/friendlyError";
 import { useCallback, useEffect, useState } from "react";
 
 import { loadAccountDetail } from "../../api/client";
@@ -82,7 +83,7 @@ export function useCoachOverviewSessionReview() {
       setState((current) => ({
         ...current,
         loading: false,
-        error: "Session and review records could not be loaded. Check your connection and try again."
+        error: tryAgain("Session and review records could not be loaded.")
       }));
     }
   }, []);

@@ -82,6 +82,10 @@ export function CoachVideoFeedbackQueuePanel() {
     return <p role="status" className="muted small error">{error}</p>;
   }
 
+  if (submissions.length === 0) {
+    return <p className="muted video-queue-empty">No videos waiting for feedback. Athletes' form-check clips appear here.</p>;
+  }
+
   const statusText = submissions.length
     ? `${submissions.length} video submission${submissions.length === 1 ? "" : "s"} awaiting review.`
     : "No pending video submissions.";
@@ -110,7 +114,6 @@ export function CoachVideoFeedbackQueuePanel() {
           <div className="record-list">
             {submissions.length === 0 ? (
               <div className="panel empty-state">
-                <div className="empty-icon">V</div>
                 <h3>No pending video submissions</h3>
                 <p>Athlete form-check videos awaiting your feedback will appear here.</p>
               </div>

@@ -95,14 +95,12 @@ test("renders a session card with programme/event name, date, status and complet
 
   render(<AthleteHistoryPanel />);
 
-  await waitFor(() => document.querySelector(".record-card"));
-  const card = document.querySelector(".record-card") as HTMLElement;
+  await waitFor(() => document.querySelector(".history-row"));
+  const card = document.querySelector(".history-row") as HTMLElement;
   assert.equal(within(card).getByRole("heading").textContent, "Peak Block");
   assert.match(card.textContent ?? "", /Regional Meet/u);
-  assert.ok(within(card).getByText("4 of 5 exercises done"));
-  assert.ok(within(card).getByText("1 dropped"));
-  const badges = card.querySelectorAll(".badge");
-  assert.equal(badges[0].textContent, "Partial");
+  assert.match(card.textContent ?? "", /4 of 5 exercises done/u);
+  assert.match(card.textContent ?? "", /Partial.*1 dropped/u);
 });
 
 test("the activity/programme/event filter dropdowns are populated from the fetched sessions", async () => {
@@ -153,7 +151,7 @@ test("apply filters sends a real server round-trip with the selected values, and
   });
 
   await waitFor(() => {
-    const cards = document.querySelectorAll(".record-card");
+    const cards = document.querySelectorAll(".history-row");
     assert.equal(cards.length, 1);
   });
 });
@@ -171,7 +169,7 @@ test("clear filters resets to the last unfiltered fetch without a new request", 
 
   render(<AthleteHistoryPanel />);
   await waitFor(() => {
-    assert.equal(document.querySelectorAll(".record-card").length, 2);
+    assert.equal(document.querySelectorAll(".history-row").length, 2);
   });
 
   const statusSelect = screen.getByDisplayValue("All statuses");
@@ -180,14 +178,14 @@ test("clear filters resets to the last unfiltered fetch without a new request", 
     screen.getByText("Apply filters").click();
   });
   await waitFor(() => {
-    assert.equal(document.querySelectorAll(".record-card").length, 1);
+    assert.equal(document.querySelectorAll(".history-row").length, 1);
   });
 
   await act(async () => {
     screen.getByText("Clear filters").click();
   });
 
-  assert.equal(document.querySelectorAll(".record-card").length, 2);
+  assert.equal(document.querySelectorAll(".history-row").length, 2);
   assert.equal((screen.getByDisplayValue("All statuses") as HTMLSelectElement).value, "");
 });
 
@@ -217,7 +215,7 @@ test("opening a session shows its detail: facts, exercises, and a continue-sessi
   await waitFor(() => screen.getByText("Training session"));
 
   await act(async () => {
-    document.querySelector(".record-card")!.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    document.querySelector(".history-row")!.dispatchEvent(new MouseEvent("click", { bubbles: true }));
   });
 
   await waitFor(() => screen.getByText("Back Squat"));
@@ -242,7 +240,7 @@ test("opening a session shows its detail: facts, exercises, and a continue-sessi
 
   assert.equal(dispatchedSessionId, "s1");
 
-  const closeButton = screen.getByText("Close detail");
+  const closeButton = screen.getByText("All sessions");
   await act(async () => {
     closeButton.click();
   });
@@ -283,7 +281,7 @@ test("opening a session shows the neutral session summary facts fetched from GET
   await waitFor(() => screen.getByText("Training session"));
 
   await act(async () => {
-    document.querySelector(".record-card")!.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    document.querySelector(".history-row")!.dispatchEvent(new MouseEvent("click", { bubbles: true }));
   });
 
   await waitFor(() => screen.getByText("5"));
@@ -330,7 +328,7 @@ test("shows a PR badge only on the extra set and added exercise that were actual
   await waitFor(() => screen.getByText("Training session"));
 
   await act(async () => {
-    document.querySelector(".record-card")!.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    document.querySelector(".history-row")!.dispatchEvent(new MouseEvent("click", { bubbles: true }));
   });
 
   await waitFor(() => screen.getByText("Back Squat"));
@@ -363,7 +361,7 @@ test("video feedback submissions render in the detail panel, inert to markup", a
   await waitFor(() => screen.getByText("Training session"));
 
   await act(async () => {
-    document.querySelector(".record-card")!.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    document.querySelector(".history-row")!.dispatchEvent(new MouseEvent("click", { bubbles: true }));
   });
 
   await waitFor(() => screen.getByText(/img src=x/iu));

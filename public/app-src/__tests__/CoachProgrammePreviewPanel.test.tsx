@@ -279,5 +279,5 @@ test("shows a factual error when the structure fails to load", async () => {
   render(<CoachProgrammePreviewPanel />);
   await openDetail("tmpl_1_v1");
 
-  await screen.findByText("The programme structure could not be loaded. Check your connection and try again.");
+  await screen.findByText("The programme structure could not be loaded. Try again in a moment.");
 });

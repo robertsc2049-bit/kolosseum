@@ -1,3 +1,4 @@
+import { tryAgain } from "../../utils/friendlyError";
 import { useCallback, useEffect, useState } from "react";
 
 import { accountMayBeAthlete, loadAccountDetail } from "../../api/client";
@@ -80,7 +81,7 @@ export function useTrainingHistory() {
       setState((current) => ({
         ...current,
         loading: false,
-        error: "Training history could not be fetched. Check your connection and try again."
+        error: tryAgain("Training history could not be fetched.")
       }));
     }
   }, []);
@@ -97,7 +98,7 @@ export function useTrainingHistory() {
       setState((current) => ({
         ...current,
         loading: false,
-        error: "Training history could not be fetched. Check your connection and try again."
+        error: tryAgain("Training history could not be fetched.")
       }));
     }
   }, []);

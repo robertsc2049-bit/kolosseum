@@ -3,7 +3,7 @@ import { friendlyError } from "./api.js";
 import { coachPart, loadCoachPart } from "./coachPart.js";
 import { elements } from "./elements.js";
 import { connectMessagingSocket } from "./messaging.js";
-import { handleError, hideBusy, showBusy, showNotice } from "./notices.js";
+import { hideBusy, showBusy, showNotice } from "./notices.js";
 import { loadAthleteToday, refreshHistory } from "./sessions.js";
 import { actorHomeView, renderIdentity, renderRoleNavigation, setView, showConnection } from "./shell.js";
 import { STORAGE_KEY, cloneDefaultState, currentTemplateDraftOwnerUserId, dropTemplateDraft, saveState, state } from "./state.js";
@@ -285,14 +285,6 @@ function showEntry() {
   // The sign-in panel mounts now, before anything is said to it.
   document.dispatchEvent(new CustomEvent("kolosseum:view-shown", { detail: { view: "entry" } }));
 }
-
-elements.refreshAccountButton.addEventListener(
-  "click",
-  () => {
-    loadPersistentAccountDetail()
-      .catch(handleError);
-  }
-);
 
 // DEV NOTE: React drives accountProfileForm/requestVerificationButton/
 // completeVerificationButton/accountPasswordForm submits directly now (see

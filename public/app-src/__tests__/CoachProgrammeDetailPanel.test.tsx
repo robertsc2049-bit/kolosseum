@@ -271,5 +271,5 @@ test("shows a factual error when the detail fails to load", async () => {
   render(<CoachProgrammeDetailPanel />);
   await openDetail("tmpl_1_v1");
 
-  await screen.findByText("The programme detail could not be loaded. Check your connection and try again.");
+  await screen.findByText("The programme detail could not be loaded. Try again in a moment.");
 });

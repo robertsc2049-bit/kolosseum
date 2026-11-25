@@ -1,3 +1,4 @@
+import { tryAgain } from "../../utils/friendlyError";
 import { useCallback, useEffect, useState } from "react";
 
 import { accountMayBeAthlete, loadAccountDetail } from "../../api/client";
@@ -54,7 +55,7 @@ export function useDeviceSync() {
       setState((current) => ({
         ...current,
         loading: false,
-        error: "Device sync could not be loaded. Check your connection and try again."
+        error: tryAgain("Device sync could not be loaded.")
       }));
     }
   }, []);

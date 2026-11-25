@@ -1,3 +1,4 @@
+import { tryAgain } from "../../utils/friendlyError";
 import React, { useEffect, useState } from "react";
 
 import { completeEmailVerification, requestEmailVerification } from "../../api/client";
@@ -65,7 +66,7 @@ export function VerifyEmailPrompt() {
       setResult(developmentCode ? `Development code: ${developmentCode}` : "New code sent - it can take a minute, so check your spam folder too.");
     }
     catch {
-      setResult("A new code couldn't be sent. Check your connection and try again.");
+      setResult(tryAgain("A new code couldn't be sent."));
     }
     finally {
       setBusy(false);

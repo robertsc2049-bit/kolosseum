@@ -1,3 +1,4 @@
+import { tryAgain } from "../../utils/friendlyError";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { loadAccountDetail } from "../../api/client";
@@ -65,7 +66,7 @@ export function useCoachProgrammeDetail() {
       setState((current) => ({
         ...current,
         loading: false,
-        error: "The programme detail could not be loaded. Check your connection and try again."
+        error: tryAgain("The programme detail could not be loaded.")
       }));
     }
   }, []);

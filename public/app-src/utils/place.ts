@@ -11,7 +11,8 @@ export function closedPlace(routeId: string) {
 // Back on this screen. Returns how to stop listening.
 export function onClosePlace(view: string, close: () => void): () => void {
   const handler = (event: Event) => {
-    if ((event as CustomEvent<{ view?: string }>).detail?.view === view) close();
+    const detail = (event as CustomEvent<{ view?: string; opening?: boolean }>).detail;
+    if (detail?.view === view && !detail.opening) close();
   };
   document.addEventListener("kolosseum:close-place", handler);
   return () => document.removeEventListener("kolosseum:close-place", handler);

@@ -1,7 +1,7 @@
 import { api } from "../core/api.js";
 import { elements } from "../core/elements.js";
-import { formatDate, nowIso, titleCase } from "../core/format.js";
-import { catchWithViewRetry, handleError, hideBusy, showBusy, showNotice } from "../core/notices.js";
+import { nowIso, titleCase } from "../core/format.js";
+import { handleError, hideBusy, showBusy, showNotice } from "../core/notices.js";
 import { closedPlace, openedPlace, setView } from "../core/shell.js";
 import { saveState, state } from "../core/state.js";
 import { loadTemplateExercises, refreshTemplates } from "./programmes.js";
@@ -562,7 +562,7 @@ function renderAthleteDetail() {
 
   elements.athleteDetailStatus
     .textContent =
-      `${sessions.length} session${sessions.length === 1 ? "" : "s"} · ${notes.length} note${notes.length === 1 ? "" : "s"}`;
+      "";
 }
 
 async function refreshAthleteDetail(
@@ -587,7 +587,7 @@ async function refreshAthleteDetail(
   ) {
     elements.athleteDetailStatus
       .textContent =
-        "Loading persisted athlete records…";
+        "Loading…";
   }
 
   try {
@@ -925,8 +925,7 @@ export function renderCoachDashboard() {
     );
   }
   else if (state.coachDashboardUpdatedAt) {
-    elements.coachDashboardStatus.textContent =
-      `Dashboard refreshed ${formatDate(state.coachDashboardUpdatedAt)}.`;
+    elements.coachDashboardStatus.textContent = "";
 
     elements.coachDashboardStatus.classList.remove(
       "dashboard-status-warning"
@@ -951,7 +950,7 @@ export async function refreshCoachDashboard(
   }
 
   elements.coachDashboardStatus.textContent =
-    "Refreshing factual coach records…";
+    "Loading…";
 
   try {
     const refreshers = [];
@@ -1088,14 +1087,6 @@ export function renderCoachEvents() {
   );
 }
 
-elements.coachDashboardRefreshButton.addEventListener("click", () => {
-  refreshCoachDashboard().catch(handleError);
-});
-
-elements.refreshEventsButton.addEventListener("click", () => {
-  refreshCoachEvents().catch(handleError);
-});
-
 elements.closeAthleteProfileButton.addEventListener("click", closeAthleteProfile);
 
 // DEV NOTE: React owns the strength-profile editor now (see
@@ -1183,21 +1174,6 @@ document.addEventListener(
 );
 
 // FULL-UI-04A relationship directory event wiring.
-elements.refreshAthleteDirectoryButton
-  ?.addEventListener(
-    "click",
-    () => {
-      refreshCoachAthletes()
-        .catch(
-          catchWithViewRetry(
-            elements.athleteDirectoryStatus,
-            () => refreshCoachAthletes(),
-            "Athlete directory could not be loaded."
-          )
-        );
-    }
-  );
-
 // The "View audit" button lives in the already-React AthleteDirectoryPanel.
 // tsx and the "Open training profile"/revoke/cancel controls live in the
 // also-React AthleteRelationshipDetailPanel.tsx now - this global click
@@ -1220,17 +1196,6 @@ document.addEventListener(
   }
 );
 
-// FULL-UI-04B athlete-detail controls.
-elements.athleteDetailRefreshButton
-  ?.addEventListener(
-    "click",
-    () => {
-      refreshAthleteDetail(
-        state.selectedCoachAthleteId
-      ).catch(handleError);
-    }
-  );
-
 document.addEventListener("kolosseum:close-place", (event) => {
-  if (event.detail?.view === "athletes" && state.selectedCoachAthleteId) closeAthleteProfile();
+  if (event.detail?.view === "athletes" && !event.detail.opening && state.selectedCoachAthleteId) closeAthleteProfile();
 });

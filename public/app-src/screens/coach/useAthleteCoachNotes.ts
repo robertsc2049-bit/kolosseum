@@ -1,3 +1,4 @@
+import { tryAgain } from "../../utils/friendlyError";
 import { useCallback, useEffect, useState } from "react";
 
 import { loadAccountDetail } from "../../api/client";
@@ -86,7 +87,7 @@ export function useAthleteCoachNotes() {
       setState((current) => ({
         ...current,
         loading: false,
-        error: "Coach notes could not be loaded. Check your connection and try again."
+        error: tryAgain("Coach notes could not be loaded.")
       }));
     }
   }, []);
