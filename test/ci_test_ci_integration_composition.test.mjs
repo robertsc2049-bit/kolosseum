@@ -65,6 +65,7 @@ test("package.json test:ci:integration is single-owner and resolves from determi
     "node test/peak_timing_persistent.integration.test.mjs",
     "node test/coach_general_programme_any_sport_persistent.integration.test.mjs",
     "node test/athlete_my_programme_persistent.integration.test.mjs",
+    "node test/block_award_persistent.integration.test.mjs",
     "node test/coach_review_self_directed_persistent.integration.test.mjs",
     "node test/ci_test_ci_integration_launch_03_account_access_manifest_file.test.mjs",
     "node test/ci_test_ci_integration_launch_03_account_access_manifest.test.mjs",

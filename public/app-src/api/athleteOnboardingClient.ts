@@ -188,6 +188,11 @@ export function loadAthleteMyProgramme(): Promise<JsonRecord> {
   return request("GET", "/account/onboarding/my-programme");
 }
 
+// Blocks the athlete has finished, newest first.
+export function loadBlockAwards(): Promise<JsonRecord> {
+  return request("GET", "/account/onboarding/block-awards");
+}
+
 // Programmes coaches have given the athlete (src/api/programme_grant_service.ts).
 export function loadProgrammeGrants(): Promise<JsonRecord> {
   return request("GET", "/account/onboarding/programme-grants");
