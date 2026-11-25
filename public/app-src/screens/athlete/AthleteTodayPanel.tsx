@@ -324,7 +324,7 @@ export function AthleteTodaySessionCard() {
         <div className="empty-state">
           <div className="empty-icon">!</div>
           <h3>Today is unavailable right now</h3>
-          <p>{tryAgain("We could not reach the server to load your current programme.")}</p>
+          <p>{tryAgain("Your current programme could not be loaded.")}</p>
           <button className="button secondary" type="button" onClick={() => refresh()}>Retry</button>
         </div>
       </div>
