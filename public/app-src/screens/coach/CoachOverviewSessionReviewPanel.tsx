@@ -40,7 +40,7 @@ function SessionCard({ record, athleteName, badgeClass, buttonLabel }: {
       </div>
       <div className="record-meta">
         <span className={badgeClass === "complete" ? "muted small" : `badge ${badgeClass}`}>{formatDate(record.updated_at ?? record.created_at)}</span>
-        <button className="button secondary small-button" type="button" onClick={() => openReview(athleteUserId)}>
+        <button className="button secondary small-button" type="button" aria-label={`${buttonLabel}: ${athleteName}, ${String(record.session_title || "Training session")}, ${formatDate(record.updated_at ?? record.created_at)}`} onClick={() => openReview(athleteUserId)}>
           {buttonLabel}
         </button>
       </div>

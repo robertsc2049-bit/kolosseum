@@ -73,6 +73,16 @@ function announceView(view) {
   elements.topbarTitle.focus({ preventScroll: true });
 }
 
+// What's open on a screen, for the address and the Back button
+// (route_bootstrap.js).
+export function openedPlace(routeId, params) {
+  document.dispatchEvent(new CustomEvent("kolosseum:place-opened", { detail: { route_id: routeId, params } }));
+}
+
+export function closedPlace(routeId) {
+  document.dispatchEvent(new CustomEvent("kolosseum:place-closed", { detail: { route_id: routeId } }));
+}
+
 export function setView(view) {
   if (!confirmCoachNoteDeparture()) {
     document.dispatchEvent(new CustomEvent("kolosseum:view-kept"));
@@ -236,7 +246,7 @@ function setNavigationDrawerOpen(open, { focusMenu = false, returnFocus = false 
   // Closed on a phone the menu is only slid off screen: inert keeps it out of
   // the keyboard's and a screen reader's way, and open it's the only way on.
   elements.sidebar.inert = drawerMedia.matches && !open;
-  for (const behind of document.querySelectorAll(".topbar, .views")) behind.inert = drawerMedia.matches && open;
+  for (const behind of document.querySelectorAll(".topbar, .views, .tab-bar, .skip-link")) behind.inert = drawerMedia.matches && open;
   if (open && focusMenu) {
     const items = [...elements.sidebar.querySelectorAll(".nav-item")].filter((item) => item.offsetParent !== null);
     (items.find((item) => item.classList.contains("active")) ?? items[0])?.focus();

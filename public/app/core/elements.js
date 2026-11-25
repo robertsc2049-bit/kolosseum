@@ -18,22 +18,17 @@ export const elements = {
 
   todayGreeting: document.getElementById("todayGreeting"),
 
-  refreshHistoryButton: document.getElementById("refreshHistoryButton"),
   exportHistoryButton: document.getElementById("exportHistoryButton"),
 
   coachGreeting: document.getElementById("coachGreeting"),
   coachDashboardStatus: document.getElementById("coachDashboardStatus"),
-  coachDashboardRefreshButton: document.getElementById("coachDashboardRefreshButton"),
-  refreshAthleteDirectoryButton: document.getElementById("refreshAthleteDirectoryButton"),
   athleteDirectoryStatus: document.getElementById("athleteDirectoryStatus"),
   eventsStatus: document.getElementById("eventsStatus"),
   athleteProfilePanel: document.getElementById("athleteProfilePanel"),
   athleteProfileHeading: document.getElementById("athleteProfileHeading"),
   athleteProfileActivity: document.getElementById("athleteProfileActivity"),
   closeAthleteProfileButton: document.getElementById("closeAthleteProfileButton"),
-  refreshEventsButton: document.getElementById("refreshEventsButton"),
   athleteDetailHistoryPanel: document.getElementById("athleteDetailHistoryPanel"),
-  athleteDetailRefreshButton: document.getElementById("athleteDetailRefreshButton"),
   athleteDetailStatus: document.getElementById("athleteDetailStatus"),
   athleteDetailAssignmentCount: document.getElementById("athleteDetailAssignmentCount"),
   athleteDetailStrengthCount: document.getElementById("athleteDetailStrengthCount"),
@@ -44,7 +39,6 @@ export const elements = {
   templateLibraryView: document.getElementById("templateLibraryView"),
   templateBuilderView: document.getElementById("templateBuilderView"),
   newTemplateButton: document.getElementById("newTemplateButton"),
-  refreshTemplatesButton: document.getElementById("refreshTemplatesButton"),
   templateDraftRecovery: document.getElementById("templateDraftRecovery"),
   templateDraftRecoveryTitle: document.getElementById("templateDraftRecoveryTitle"),
   templateDraftRecoveryText: document.getElementById("templateDraftRecoveryText"),
@@ -73,6 +67,5 @@ export const elements = {
   compileEventCalendarButton: document.getElementById("compileEventCalendarButton"),
   fitFinalBlockButton: document.getElementById("fitFinalBlockButton"),
   templateBlocks: document.getElementById("templateBlocks"),
-  addTemplateBlockButton: document.getElementById("addTemplateBlockButton"),
-  refreshAccountButton: document.getElementById("refreshAccountButton")
+  addTemplateBlockButton: document.getElementById("addTemplateBlockButton")
 };

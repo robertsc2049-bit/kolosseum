@@ -1,3 +1,4 @@
+import { tryAgain } from "../../utils/friendlyError";
 import { useCallback, useEffect, useState } from "react";
 
 import { loadAthleteProgressPhotos } from "../../api/coachWorkspaceClient";
@@ -54,7 +55,7 @@ export function useAthleteProgressPhotos() {
       setState((current) => ({
         ...current,
         loading: false,
-        error: "Progress photos could not be loaded. Check your connection and try again."
+        error: tryAgain("Progress photos could not be loaded.")
       }));
     }
   }, []);

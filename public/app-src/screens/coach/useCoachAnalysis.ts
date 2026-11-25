@@ -1,3 +1,4 @@
+import { tryAgain } from "../../utils/friendlyError";
 import { useCallback, useEffect, useState } from "react";
 
 import { request, type JsonRecord } from "../../api/transport";
@@ -22,7 +23,7 @@ export function useCoachAnalysisRoster() {
       setError(null);
     }
     catch {
-      setError("Analysis could not be loaded. Check your connection and try again.");
+      setError(tryAgain("Analysis could not be loaded."));
     }
   }, []);
   useEffect(() => {
@@ -44,7 +45,7 @@ export function useCoachAnalysisRoster() {
       observer?.disconnect();
     };
   }, [refresh]);
-  return { roster, error, refresh };
+  return { roster, error, retry: () => { void refresh(); } };
 }
 
 export function useCoachAthleteAnalysis(athleteUserId: string | null, weeks: number) {

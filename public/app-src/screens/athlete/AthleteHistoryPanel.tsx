@@ -1,3 +1,4 @@
+import { tryAgain } from "../../utils/friendlyError";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
 import { type JsonRecord } from "../../api/transport";
@@ -27,13 +28,6 @@ function exerciseName(exercise: JsonRecord | undefined): string {
   return id ? sentenceCase(id) : "Exercise";
 }
 
-function historyRecordStatusClass(executionStatus: string): string {
-  if (executionStatus === "completed") return "complete";
-  if (executionStatus === "partial") return "partial";
-  if (executionStatus === "in_progress") return "active";
-  return "neutral";
-}
-
 function renderVideoSubmissionCard(submission: JsonRecord, index: number) {
   const feedback = Array.isArray(submission.feedback) ? (submission.feedback as JsonRecord[]) : [];
   const reviewed = submission.review_status === "reviewed";
@@ -60,7 +54,7 @@ function stoppedPartWay(detail: JsonRecord): string {
   const decision = String(detail.split_return_decision ?? "");
   if (/continue/iu.test(decision)) return "Yes - came back and carried on";
   if (/skip/iu.test(decision)) return "Yes - finished there";
-  return "Yes - not finished yet";
+  return detail.execution_status === "completed" ? "Yes" : "Yes - not finished yet";
 }
 
 function dispatchContinueSession(sessionId: string) {
@@ -83,7 +77,9 @@ export function AthleteHistoryPanel() {
   const [draft, setDraft] = useState<DraftFilters>(EMPTY_FILTERS);
   const detailRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    if (selectedSessionId) detailRef.current?.scrollIntoView?.({ block: "start", behavior: "smooth" });
+    if (!selectedSessionId) return;
+    if (window.matchMedia?.("(max-width: 900px)").matches) window.scrollTo?.(0, 0);
+    else detailRef.current?.scrollIntoView?.({ block: "nearest", behavior: "smooth" });
   }, [selectedSessionId]);
 
   const filterOptions = useMemo(() => {
@@ -119,6 +115,7 @@ export function AthleteHistoryPanel() {
     clearFilters();
   }
 
+  const selectedSession = sessions.find((session) => session.session_id === selectedSessionId);
   const programme = detail?.provenance ? ((detail.provenance as JsonRecord).programme as JsonRecord | undefined) : undefined;
   const assignment = detail?.provenance ? ((detail.provenance as JsonRecord).assignment as JsonRecord | undefined) : undefined;
   const event = detail?.provenance ? ((detail.provenance as JsonRecord).event as JsonRecord | undefined) : undefined;
@@ -128,7 +125,7 @@ export function AthleteHistoryPanel() {
   const splitReturnEvents = Array.isArray(detail?.split_return_events) ? (detail!.split_return_events as JsonRecord[]) : [];
 
   return (
-    <>
+    <div className="history-layout" data-open={Boolean(selectedSessionId)}>
       <div className="history-filters">
         <PhoneDisclosure label="Filters" openLabel="Hide filters" count={Object.values(draft).filter(Boolean).length}>
         <label className="field">
@@ -189,7 +186,7 @@ export function AthleteHistoryPanel() {
         <div className="panel empty-state">
           <div className="empty-icon">!</div>
           <h3>History could not be loaded</h3>
-          <p>Training history could not be fetched. Check your connection and try again.</p>
+          <p>{tryAgain("Training history could not be fetched.")}</p>
           <button className="button primary" type="button" onClick={() => refresh()}>Retry</button>
         </div>
       ) : null}
@@ -198,7 +195,6 @@ export function AthleteHistoryPanel() {
         {sessions.length === 0 ? (
           !loading && !error ? (
             <div className="panel empty-state">
-              <div className="empty-icon">H</div>
               <h3>No sessions recorded</h3>
               <p>Your session history will appear here.</p>
             </div>
@@ -213,7 +209,7 @@ export function AthleteHistoryPanel() {
 
             return (
               <article
-                className="record-card interactive"
+                className="history-row interactive"
                 key={String(session.session_id ?? index)}
                 data-history-detail-id={String(session.session_id ?? "")}
                 role="button"
@@ -228,16 +224,12 @@ export function AthleteHistoryPanel() {
               >
                 <div>
                   <h3>{String(session.session_title || programmeName || "Training session")}</h3>
-                  <p>
-                    {formatDate(session.updated_at ?? session.created_at)}
-                    {eventName ? ` · ${String(eventName)}` : ""}
+                  <p className="muted small">
+                    {[formatDate(session.updated_at ?? session.created_at), eventName ? String(eventName) : "", executionStatus === "completed" ? "" : sentenceCase(executionStatus === "ready" ? "started" : executionStatus), executionStatus === "completed" ? "" : exercisesDoneLabel(session), droppedCount ? `${droppedCount} dropped` : ""].filter(Boolean).join(" · ")}
                   </p>
+                  {session.lifted ? <p className="history-lifted">{String(session.lifted)}</p> : null}
                 </div>
-                <div className="record-meta">
-                  <span className={`badge ${historyRecordStatusClass(executionStatus)}`}>{sentenceCase(executionStatus)}</span>
-                  <span className="badge neutral">{exercisesDoneLabel(session) || `${Number(session.completed_count ?? 0)} exercises done`}</span>
-                  {droppedCount ? <span className="badge partial">{droppedCount} dropped</span> : null}
-                </div>
+                <span className={`history-state is-${executionStatus}`} aria-hidden="true">{executionStatus === "completed" ? "✓" : "›"}</span>
               </article>
             );
           })
@@ -252,7 +244,7 @@ export function AthleteHistoryPanel() {
             <>
               <div className="panel-header">
                 <div><p className="eyebrow">Session detail</p><h3>Could not load this session</h3></div>
-                <button className="button secondary" type="button" onClick={closeDetail}>Close detail</button>
+                <button className="button secondary" type="button" onClick={closeDetail}>All sessions</button>
               </div>
               <p className="muted">{detailError}</p>
             </>
@@ -261,14 +253,14 @@ export function AthleteHistoryPanel() {
               <div className="panel-header">
                 <div>
                   <p className="eyebrow">Session detail</p>
-                  <h3>{String(programme?.template_name || "Training session")}</h3>
-                  <p className="muted">{formatDate(detail.created_at)} · {sentenceCase(detail.execution_status)}</p>
+                  <h3>{String(detail.session_title || selectedSession?.session_title || programme?.template_name || "Training session")}</h3>
+                  <p className="muted">{formatDate(selectedSession?.updated_at ?? detail.created_at)} · {sentenceCase(detail.execution_status)}</p>
                 </div>
                 <div className="button-row">
                   {canContinue ? (
                     <button className="button primary" type="button" onClick={() => dispatchContinueSession(String(detail.session_id))}>Continue session</button>
                   ) : null}
-                  <button className="button secondary" type="button" onClick={closeDetail}>Close detail</button>
+                  <button className="button secondary" type="button" onClick={closeDetail}>All sessions</button>
                 </div>
               </div>
 
@@ -390,6 +382,6 @@ export function AthleteHistoryPanel() {
           ) : null}
         </div>
       ) : null}
-    </>
+    </div>
   );
 }

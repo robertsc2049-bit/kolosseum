@@ -49,7 +49,9 @@ jobs:
   protect-main:
     name: Auto-revert failing main push
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    # The required workflows take over half an hour, so the wait below (90
+    # minutes) must fit: at 12 minutes every run was cancelled before it decided.
+    timeout-minutes: 100
 
     env:
       # DEV NOTE: This list is the workflow allowlist this guard observes.
@@ -100,8 +102,8 @@ jobs:
           # A timeout is reported but does not create a revert PR. Required
           # workflows remain the source of truth; this workflow only reacts once
           # their run state is visible for the target SHA.
-          max_attempts=80
-          sleep_seconds=15
+          max_attempts=180
+          sleep_seconds=30
 
           # DEV NOTE: jq is used to parse the JSON allowlist deterministically
           # instead of relying on shell word splitting.

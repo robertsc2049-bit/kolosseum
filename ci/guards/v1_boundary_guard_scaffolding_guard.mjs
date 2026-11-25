@@ -121,6 +121,7 @@ const explicitLaterSliceAllowedChangedPaths =
     "public/app/pwa_bootstrap.js",
     "public/app/route_bootstrap.js",
     "public/app/section_tabs_bootstrap.js",
+    "public/app/shell.js",
     "public/app/styles.css",
     "public/app/sw.js",
     "public/app/theme.css",

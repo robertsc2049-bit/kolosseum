@@ -1,3 +1,4 @@
+import { tryAgain } from "../../utils/friendlyError";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { loadAccountDetail } from "../../api/client";
@@ -282,7 +283,7 @@ export function useAthleteProfileAssignment() {
       });
     }
     catch {
-      setState((current) => ({ ...current, loading: false, error: "Athlete assignment records could not be loaded. Check your connection and try again." }));
+      setState((current) => ({ ...current, loading: false, error: tryAgain("Athlete assignment records could not be loaded.") }));
     }
   }, []);
 

@@ -53,14 +53,45 @@ export function versionedPage(html: string, version: string): string {
   return html.replace(/(\b(?:src|href)=")\/app\/([\w./-]+\.(?:js|css))(")/gu, (_all, before: string, name: string, after: string) => `${before}/app/v/${version}/${name}${after}`);
 }
 
+// The page as released: one file of code and one of styles in place of their
+// sources (public/app-src/vite.shell.config.ts). Without a build, as written.
+const SHELL_SOURCES = ["app.js", "route_bootstrap.js", "pwa_bootstrap.js", "section_tabs_bootstrap.js", "guided_tours.js"];
+export function builtPage(html: string, built: boolean): string {
+  if (!built) return html;
+  const gone = [...SHELL_SOURCES.slice(1).map((name) => `src="/app/${name}"`), 'rel="modulepreload" href="/app/core/'];
+  const page = html
+    .split("\n").filter((line) => !gone.some((text) => line.includes(text))).join("\n")
+    .replace('<link rel="stylesheet" href="/app/theme.css" />', '<link rel="modulepreload" href="/app/shell-dist/base.js" /><link rel="stylesheet" href="/app/shell-dist/theme.css" />')
+    .replace('href="/app/styles.css"', 'href="/app/shell-dist/styles.css"')
+    .replace('<script src="/app/opening.js">', '<script src="/app/opening.js" data-coach="shell-dist/coach.js">');
+  return page.replace('src="/app/app.js"', 'src="/app/shell-dist/shell.js"');
+}
+
 // Generous: a whole gym opens the app from one address.
 export const productFilesRateLimit = rateLimit({ windowMs: 60 * 1000, limit: 6000, standardHeaders: true, legacyHeaders: false });
+
+// Built, and since the sources were last written.
+const RELEASE_FILES = ["shell.js", "base.js", "coach.js", "theme.css", "styles.css"];
+const releases = new Map<string, { built: boolean; at: number }>();
+export function releaseBuilt(dir: string): boolean {
+  const known = releases.get(dir);
+  if (known && Date.now() - known.at < VERSION_REUSED_MS) return known.built;
+  const made = RELEASE_FILES.map((name) => path.join(dir, "shell-dist", name)).map((file) => (fs.existsSync(file) ? fs.statSync(file).mtimeMs : 0));
+  const sources = ["", "core", "coach"].flatMap((folder) => {
+    const at = path.join(dir, folder);
+    return fs.existsSync(at) ? fs.readdirSync(at).filter((name) => /[.](?:js|css)$/u.test(name)).map((name) => fs.statSync(path.join(at, name)).mtimeMs) : [];
+  });
+  const built = Math.min(...made) > Math.max(0, ...sources);
+  releases.set(dir, { built, at: Date.now() });
+  return built;
+}
 
 export function productPage(dir: string): RequestHandler {
   return (_request: Request, response: Response) => {
     const html = fs.readFileSync(path.join(dir, "index.html"), "utf8");
     response.setHeader("cache-control", "no-cache");
-    response.type("html").send(versionedPage(html, currentVersion(dir)));
+    const built = releaseBuilt(dir);
+    response.type("html").send(versionedPage(builtPage(html, built), currentVersion(dir)));
   };
 }
 

@@ -1,3 +1,4 @@
+import { tryAgain } from "../../utils/friendlyError";
 import { useCallback, useEffect, useState } from "react";
 
 import { accountMayBeAthlete, loadAccountDetail } from "../../api/client";
@@ -56,7 +57,7 @@ export function useAccountCoachInvitations() {
       setState((current) => ({
         ...current,
         loading: false,
-        error: "Coach invitations could not be loaded. Check your connection and try again."
+        error: tryAgain("Coach invitations could not be loaded.")
       }));
     }
   }, []);

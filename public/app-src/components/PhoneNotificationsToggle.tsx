@@ -1,3 +1,4 @@
+import { tryAgain } from "../utils/friendlyError";
 import React, { useCallback, useEffect, useState } from "react";
 
 import { loadAccountDetail } from "../api/client";
@@ -65,7 +66,7 @@ export function PhoneNotificationsToggle() {
       setStatus("on");
     }
     catch {
-      setError("Couldn't turn notifications on. Check your connection and try again.");
+      setError(tryAgain("Couldn't turn notifications on."));
       setStatus("off");
     }
   };
@@ -83,7 +84,7 @@ export function PhoneNotificationsToggle() {
       setStatus("off");
     }
     catch {
-      setError("Couldn't turn notifications off. Check your connection and try again.");
+      setError(tryAgain("Couldn't turn notifications off."));
       setStatus("on");
     }
   };

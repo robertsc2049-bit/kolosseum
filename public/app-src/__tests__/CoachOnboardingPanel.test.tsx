@@ -6,7 +6,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import React from "react";
-import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 
 import { CoachOnboardingPanel } from "../screens/coach/CoachOnboardingPanel";
 import { ENTRY_AUTH_SUCCEEDED_EVENT } from "../screens/entry/useEntryAuth";
@@ -92,9 +92,9 @@ test.afterEach(() => {
 test("shows the incomplete-onboarding status and the profile stage on first load", async () => {
   installMocks({});
   render(<CoachOnboardingPanel />);
-  await screen.findByText("Incomplete onboarding", undefined, SETTLE_TIMEOUT);
+  await screen.findByText("Setup not finished", undefined, SETTLE_TIMEOUT);
   assert.ok(screen.getByText("Current step: Profile"));
-  assert.ok(screen.getByText("Identity details"));
+  assert.ok(screen.getByText("Your name and email"));
 });
 
 test("shows the unavailable state on a load failure, with a working retry", async () => {
@@ -116,7 +116,7 @@ test("shows the unavailable state on a load failure, with a working retry", asyn
     screen.getByText("Retry").click();
   });
 
-  await screen.findByText("Incomplete onboarding", undefined, SETTLE_TIMEOUT);
+  await screen.findByText("Setup not finished", undefined, SETTLE_TIMEOUT);
 });
 
 test("a stale sign-in-required error from before registration clears itself once entry auth succeeds, with no manual retry needed", async () => {
@@ -145,7 +145,7 @@ test("a stale sign-in-required error from before registration clears itself once
     document.dispatchEvent(new CustomEvent("kolosseum:entry-auth-succeeded", { detail: { mode: "create" } }));
   });
 
-  await screen.findByText("Incomplete onboarding", undefined, SETTLE_TIMEOUT);
+  await screen.findByText("Setup not finished", undefined, SETTLE_TIMEOUT);
 });
 
 test("saving the profile moves to the terms stage and shows a confirmation and history entry", async () => {
@@ -157,7 +157,7 @@ test("saving the profile moves to the terms stage and shows a confirmation and h
     })
   });
   render(<CoachOnboardingPanel />);
-  await screen.findByText("Identity details", undefined, SETTLE_TIMEOUT);
+  await screen.findByText("Your name and email", undefined, SETTLE_TIMEOUT);
 
   fireEvent.change(screen.getByLabelText("Display name"), { target: { value: "Coach Test" } });
   fireEvent.change(screen.getByLabelText("Email"), { target: { value: "coach@example.test" } });
@@ -199,7 +199,7 @@ test("saving accessibility preferences moves to the review stage and shows a con
     initialState: baseState({ current_stage: "accessibility", terms_accepted: true })
   });
   render(<CoachOnboardingPanel />);
-  await screen.findByText("Presentation preferences", undefined, SETTLE_TIMEOUT);
+  await screen.findByText("How the app looks for you", undefined, SETTLE_TIMEOUT);
 
   fireEvent.click(screen.getByText("Higher contrast"));
   await act(async () => {
@@ -223,14 +223,14 @@ test("ticked accessibility preferences survive the panel re-rendering before the
     }
   });
   render(<CoachOnboardingPanel />);
-  await screen.findByText("Presentation preferences", undefined, SETTLE_TIMEOUT);
+  await screen.findByText("How the app looks for you", undefined, SETTLE_TIMEOUT);
 
   fireEvent.click(screen.getByText("Reduce motion"));
   // Anything that re-renders the panel - here a background refetch.
   await act(async () => {
     document.dispatchEvent(new CustomEvent(ENTRY_AUTH_SUCCEEDED_EVENT));
   });
-  await screen.findByText("Presentation preferences", undefined, SETTLE_TIMEOUT);
+  await screen.findByText("How the app looks for you", undefined, SETTLE_TIMEOUT);
   fireEvent.click(screen.getByText("Screen-reader optimised"));
   await act(async () => {
     fireEvent.click(screen.getByText("Save accessibility preferences"));
@@ -253,7 +253,7 @@ test("declared accessibility preferences are actually applied to the page immedi
     })
   });
   render(<CoachOnboardingPanel />);
-  await screen.findByText("Presentation preferences", undefined, SETTLE_TIMEOUT);
+  await screen.findByText("How the app looks for you", undefined, SETTLE_TIMEOUT);
 
   fireEvent.click(screen.getByText("Reduce motion"));
   fireEvent.click(screen.getByText("Screen-reader optimised"));
@@ -296,10 +296,8 @@ test("the review stage shows the saved profile, accepted terms and accessibility
     fireEvent.click(screen.getByText("Complete coach onboarding"));
   });
 
-  await screen.findByText("Coach workspace available", undefined, SETTLE_TIMEOUT);
-  assert.ok(screen.getByText("Open coach workspace"));
-  assert.ok(screen.getByText("Update coach profile"));
-  assert.ok(screen.getByText("Open commercial account"));
+  await waitFor(() => assert.equal(screen.queryByText("Setup so far"), null), SETTLE_TIMEOUT);
+  await screen.findByText("Your name and email", undefined, SETTLE_TIMEOUT);
 });
 
 test("completing onboarding navigates to the coach workspace route", async () => {
@@ -314,7 +312,8 @@ test("completing onboarding navigates to the coach workspace route", async () =>
     fireEvent.click(screen.getByText("Complete coach onboarding"));
   });
 
-  await screen.findByText("Coach workspace available", undefined, SETTLE_TIMEOUT);
+  await waitFor(() => assert.equal(screen.queryByText("Setup so far"), null), SETTLE_TIMEOUT);
+  await screen.findByText("Your name and email", undefined, SETTLE_TIMEOUT);
   assert.equal(window.location.hash, "#/coach/overview");
   window.location.hash = "";
 });
@@ -329,11 +328,12 @@ test("the completed view keeps the profile and accessibility forms visible for e
     })
   });
   render(<CoachOnboardingPanel />);
-  await screen.findByText("Coach workspace available", undefined, SETTLE_TIMEOUT);
+  await waitFor(() => assert.equal(screen.queryByText("Setup so far"), null), SETTLE_TIMEOUT);
+  await screen.findByText("Your name and email", undefined, SETTLE_TIMEOUT);
 
-  assert.ok(screen.getByText("Identity details"));
+  assert.ok(screen.getByText("Your name and email"));
   assert.equal((screen.getByLabelText("Display name") as HTMLInputElement).value, "Coach Completed");
-  assert.ok(screen.getByText("Presentation preferences"));
+  assert.ok(screen.getByText("How the app looks for you"));
 });
 
 test("a validation failure on saving the profile shows a mapped error and does not advance the stage", async () => {
@@ -348,7 +348,7 @@ test("a validation failure on saving the profile shows a mapped error and does n
   }) as typeof fetch;
 
   render(<CoachOnboardingPanel />);
-  await screen.findByText("Identity details", undefined, SETTLE_TIMEOUT);
+  await screen.findByText("Your name and email", undefined, SETTLE_TIMEOUT);
 
   fireEvent.change(screen.getByLabelText("Display name"), { target: { value: "Coach Test" } });
   fireEvent.change(screen.getByLabelText("Email"), { target: { value: "coach@example.test" } });
@@ -357,7 +357,7 @@ test("a validation failure on saving the profile shows a mapped error and does n
   });
 
   await screen.findByText("Check the coach profile details.", undefined, SETTLE_TIMEOUT);
-  assert.ok(screen.getByText("Identity details"));
+  assert.ok(screen.getByText("Your name and email"));
 });
 
 test("the history list shows a factual empty state when there are no records", async () => {

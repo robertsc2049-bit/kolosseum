@@ -1,3 +1,4 @@
+import { tryAgain } from "../../utils/friendlyError";
 import { useCallback, useEffect, useState } from "react";
 
 import { accountMayBeAthlete } from "../../api/client";
@@ -21,7 +22,7 @@ export function useAthleteMyProgramme() {
       setError(null);
     }
     catch {
-      setError("Your programme could not be loaded. Check your connection and try again.");
+      setError(tryAgain("Your programme could not be loaded."));
     }
   }, []);
 

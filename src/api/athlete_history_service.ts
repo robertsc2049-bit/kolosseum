@@ -262,6 +262,47 @@ function matchesFilters(session: EnrichedHistorySession, filters: AthleteHistory
   return true;
 }
 
+// "Back squat 5 × 105 kg · Barbell row 8 × 60 kg": the heaviest set of each
+// exercise, as logged, in the order done.
+const LIFTED_SHOWN = 4;
+async function loadLiftedLines(athleteUserId: string): Promise<Map<string, string>> {
+  const result = await pool.query(
+    `
+    WITH logged AS (
+      SELECT DISTINCT ON (re.session_id, re.event->>'exercise_id', COALESCE(re.event->>'set_index', re.seq::text))
+        re.session_id, re.seq,
+        re.event->>'exercise_id' AS exercise_id,
+        re.event->>'reps' AS reps,
+        (re.event->>'load_value')::numeric AS load_value,
+        re.event->>'load_unit' AS load_unit
+      FROM runtime_events re
+      JOIN sessions s ON s.session_id = re.session_id
+      WHERE s.beta_subject_user_id = $1
+        AND re.event->>'type' IN ('SET_LOG_REPORT', 'EXTRA_SET_REPORT', 'EXTRA_EXERCISE_REPORT')
+        AND re.event->>'reps' IS NOT NULL
+      ORDER BY re.session_id, re.event->>'exercise_id', COALESCE(re.event->>'set_index', re.seq::text), re.seq DESC
+    ), heaviest AS (
+      SELECT DISTINCT ON (session_id, exercise_id) session_id, exercise_id, reps, load_value, load_unit,
+        min(seq) OVER (PARTITION BY session_id, exercise_id) AS first_seq
+      FROM logged
+      ORDER BY session_id, exercise_id, load_value DESC NULLS LAST, reps::int DESC
+    )
+    SELECT session_id, exercise_id, reps, load_value, load_unit FROM heaviest ORDER BY session_id, first_seq
+    `,
+    [athleteUserId]
+  );
+  const lines = new Map<string, string[]>();
+  for (const row of result.rows) {
+    const id = cleanString(row.exercise_id).replace(/__r[0-9]+$/u, "").replace(/^custom_/u, "").replaceAll("_", " ");
+    if (!id) continue;
+    const load = row.load_value === null || row.load_value === undefined || Number(row.load_value) === 0 ? "" : ` × ${Number(row.load_value)} ${row.load_unit === "lb" ? "lb" : "kg"}`;
+    const list = lines.get(String(row.session_id)) ?? [];
+    list.push(`${id.charAt(0).toUpperCase()}${id.slice(1)} ${load ? `${row.reps}${load}` : `${row.reps} reps`}`);
+    lines.set(String(row.session_id), list);
+  }
+  return new Map([...lines].map(([sessionId, list]) => [sessionId, `${list.slice(0, LIFTED_SHOWN).join(" · ")}${list.length > LIFTED_SHOWN ? ` · ${list.length - LIFTED_SHOWN} more` : ""}`]));
+}
+
 export async function loadEnrichedAthleteSessions(athleteUserId: string): Promise<EnrichedHistorySession[]> {
   const result = await pool.query(
     `
@@ -357,8 +398,10 @@ export async function buildAthleteHistoryListResult(input: unknown): Promise<Bet
   if (denied) return denied;
 
   const filters = parseFilters(input);
-  const enriched = await loadEnrichedAthleteSessions(athleteUserId);
-  const filtered = enriched.filter((session) => matchesFilters(session, filters));
+  const [enriched, lifted] = await Promise.all([loadEnrichedAthleteSessions(athleteUserId), loadLiftedLines(athleteUserId)]);
+  const filtered = enriched
+    .filter((session) => matchesFilters(session, filters))
+    .map((session) => ({ ...session, lifted: lifted.get(session.session_id) ?? "" }));
 
   return Object.freeze({
     status: 200,

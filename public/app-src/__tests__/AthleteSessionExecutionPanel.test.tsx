@@ -165,8 +165,8 @@ test("shows a factual empty state when there is no active session", async () => 
   installMocks({});
   render(<AthleteSessionExecutionPanel />);
 
-  await waitFor(() => assert.equal(screen.getAllByText("No session selected").length, 2));
-  assert.ok(screen.getByText("Return to Today and create a session."));
+  await waitFor(() => screen.getByText("No session open"));
+  assert.ok(screen.getByText("Start or carry on with your session from Today."));
 });
 
 test("shows the service-unavailable state with a working retry button", async () => {
@@ -175,7 +175,7 @@ test("shows the service-unavailable state with a working retry button", async ()
   render(<AthleteSessionExecutionPanel />);
 
   await waitFor(() => assert.equal(screen.getAllByText("Session could not be loaded").length, 2));
-  assert.ok(screen.getByText("The session record could not be fetched. Check your connection and try again."));
+  assert.ok(screen.getByText("The session record could not be fetched. Try again in a moment."));
 
   installMocks({ sessionFails: false });
   await act(async () => {

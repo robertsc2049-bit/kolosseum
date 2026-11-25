@@ -184,7 +184,7 @@ test("a declined invitation is counted in its own metric card, filterable, and n
   const values = Array.from(counts).map((node) => node.textContent);
   assert.deepEqual(values, ["1", "0", "0", "0", "1"]);
 
-  const filterSelect = screen.getByLabelText("Relationship state") as HTMLSelectElement;
+  const filterSelect = screen.getByLabelText("Show") as HTMLSelectElement;
   fireEvent.change(filterSelect, { target: { value: "declined" } });
   await waitFor(() => screen.getByText("Sam Rivera"));
   assert.equal(screen.queryByText("Jordan Lee"), null);

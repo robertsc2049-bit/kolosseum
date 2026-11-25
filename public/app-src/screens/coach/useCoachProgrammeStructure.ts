@@ -1,3 +1,4 @@
+import { tryAgain } from "../../utils/friendlyError";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { loadAccountDetail } from "../../api/client";
@@ -59,7 +60,7 @@ export function useCoachProgrammeStructure() {
       setState((current) => ({
         ...current,
         loading: false,
-        error: "The programme structure could not be loaded. Check your connection and try again."
+        error: tryAgain("The programme structure could not be loaded.")
       }));
     }
   }, []);

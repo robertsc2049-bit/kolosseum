@@ -1,3 +1,4 @@
+import { tryAgain } from "../../utils/friendlyError";
 import React, { useEffect, useState } from "react";
 
 import { accountMayBeAthlete, loadAccountDetail } from "../../api/client";
@@ -60,7 +61,7 @@ export function OtherTrainingPanel() {
       load();
     }
     catch {
-      setError("That didn't save. Check your connection and try again.");
+      setError(tryAgain("That didn't save."));
     }
     finally {
       setBusy(false);

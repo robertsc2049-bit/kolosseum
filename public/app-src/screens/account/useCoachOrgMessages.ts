@@ -1,3 +1,4 @@
+import { tryAgain } from "../../utils/friendlyError";
 import { useCallback, useEffect, useState } from "react";
 
 import { loadAccountDetail } from "../../api/client";
@@ -91,7 +92,7 @@ export function useCoachOrgMessages() {
       setState((current) => ({
         ...current,
         loading: false,
-        error: "Organisation messages could not be loaded. Check your connection and try again."
+        error: tryAgain("Organisation messages could not be loaded.")
       }));
     }
   }, []);

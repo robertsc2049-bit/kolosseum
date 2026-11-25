@@ -1,3 +1,4 @@
+import { tryAgain } from "../../utils/friendlyError";
 import React, { useEffect, useState } from "react";
 
 import { type JsonRecord, updateAccountProfile } from "../../api/client";
@@ -58,7 +59,7 @@ export function ProfileForm({
       onSaved(developmentCodeText);
     }
     catch {
-      setResult("Profile could not be updated. Check your connection and try again.");
+      setResult(tryAgain("Profile could not be updated."));
     }
     finally {
       setSaving(false);

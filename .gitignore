@@ -6,6 +6,7 @@ server.log# local env
 dist/
 node_modules/
 public/app/react-dist/
+public/app/shell-dist/
 
 # local scratch outputs
 _tmp_pipeline_out.json

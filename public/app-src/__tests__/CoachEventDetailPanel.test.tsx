@@ -222,7 +222,7 @@ test("a cancelled event hides cancel/archive actions but keeps the archive actio
   assert.ok(screen.getByText("This event can no longer be edited."));
 });
 
-test("closing the panel resets the hash away from the event route", async () => {
+test("closing the panel says so, for the address", async () => {
   window.location.hash = `#/coach/events/${EVENT_ID}`;
   installMocks();
 
@@ -232,9 +232,14 @@ test("closing the panel resets the hash away from the event route", async () => 
   });
   await screen.findByText("Autumn Meet");
 
+  const closed: string[] = [];
+  const heard = (event: Event) => { closed.push(String((event as CustomEvent).detail?.route_id)); };
+  document.addEventListener("kolosseum:place-closed", heard);
   await act(async () => {
     screen.getByText("Close detail").click();
   });
+  document.removeEventListener("kolosseum:place-closed", heard);
 
-  assert.equal(window.location.hash, "#/coach/events");
+  // route_bootstrap.js takes the address back to the list.
+  assert.deepEqual(closed, ["coach_event_detail"]);
 });

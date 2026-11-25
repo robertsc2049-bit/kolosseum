@@ -189,6 +189,14 @@ export function genericFriendlyMessageForStatus(status: number): string {
   return "That request could not be completed. Try again, or report this problem if it continues.";
 }
 
+// What to do about something that didn't load or save: only blame the
+// connection when it's the connection.
+export function tryAgain(what: string): string {
+  return globalThis.navigator?.onLine === false
+    ? `${what} You're offline - it will work once you're connected.`
+    : `${what} Try again in a moment.`;
+}
+
 export function friendlyErrorMessage(payload: unknown, status: number): string {
   const record = isRecord(payload) ? payload : {};
   const reason = String(record.error ?? record.reason ?? record.failure_token ?? `request_${status}`);

@@ -1,8 +1,8 @@
 import { api } from "../core/api.js";
 import { elements } from "../core/elements.js";
-import { formatDate, nowIso, titleCase } from "../core/format.js";
-import { catchWithViewRetry, handleError, hideBusy, showBusy, showNotice } from "../core/notices.js";
-import { setView } from "../core/shell.js";
+import { nowIso, titleCase } from "../core/format.js";
+import { handleError, hideBusy, showBusy, showNotice } from "../core/notices.js";
+import { closedPlace, openedPlace, setView } from "../core/shell.js";
 import { saveState, state } from "../core/state.js";
 import { loadTemplateExercises, refreshTemplates } from "./programmes.js";
 
@@ -562,7 +562,7 @@ function renderAthleteDetail() {
 
   elements.athleteDetailStatus
     .textContent =
-      `${sessions.length} session${sessions.length === 1 ? "" : "s"} · ${notes.length} note${notes.length === 1 ? "" : "s"}`;
+      "";
 }
 
 async function refreshAthleteDetail(
@@ -587,7 +587,7 @@ async function refreshAthleteDetail(
   ) {
     elements.athleteDetailStatus
       .textContent =
-        "Loading persisted athlete records…";
+        "Loading…";
   }
 
   try {
@@ -774,6 +774,7 @@ async function openAthleteProfile(athleteUserId) {
 
   state.selectedCoachAthleteId =
     athleteUserId;
+  openedPlace("coach_athlete_detail", { athlete_id: athleteUserId });
 
   state.athleteProfileDraft =
     profileRecordToDraft(
@@ -802,6 +803,7 @@ async function openAthleteProfile(athleteUserId) {
 }
 
 export function closeAthleteProfile() {
+  const wasOpen = !elements.athleteProfilePanel.hidden;
   document.dispatchEvent(new CustomEvent("kolosseum:coach-athlete-profile-closed"));
   state.selectedCoachAthleteId = "";
   state.athleteProfileDraft = null;
@@ -816,6 +818,8 @@ export function closeAthleteProfile() {
     elements.athleteDetailHistoryPanel
       .hidden = true;
   }
+
+  if (wasOpen) closedPlace("coach_athlete_detail");
 }
 
 // NOTE: benchmark add/remove/save moved to React
@@ -921,8 +925,7 @@ export function renderCoachDashboard() {
     );
   }
   else if (state.coachDashboardUpdatedAt) {
-    elements.coachDashboardStatus.textContent =
-      `Dashboard refreshed ${formatDate(state.coachDashboardUpdatedAt)}.`;
+    elements.coachDashboardStatus.textContent = "";
 
     elements.coachDashboardStatus.classList.remove(
       "dashboard-status-warning"
@@ -947,7 +950,7 @@ export async function refreshCoachDashboard(
   }
 
   elements.coachDashboardStatus.textContent =
-    "Refreshing factual coach records…";
+    "Loading…";
 
   try {
     const refreshers = [];
@@ -1084,14 +1087,6 @@ export function renderCoachEvents() {
   );
 }
 
-elements.coachDashboardRefreshButton.addEventListener("click", () => {
-  refreshCoachDashboard().catch(handleError);
-});
-
-elements.refreshEventsButton.addEventListener("click", () => {
-  refreshCoachEvents().catch(handleError);
-});
-
 elements.closeAthleteProfileButton.addEventListener("click", closeAthleteProfile);
 
 // DEV NOTE: React owns the strength-profile editor now (see
@@ -1164,6 +1159,8 @@ document.addEventListener(
     const athleteUserId = event.detail?.athlete_user_id;
     if (!athleteUserId) return;
 
+    // The profile's own address first, so Back returns to where this was opened.
+    openedPlace("coach_athlete_detail", { athlete_id: athleteUserId });
     setView("athletes");
     openAthleteProfile(athleteUserId)
       .then(() => {
@@ -1177,21 +1174,6 @@ document.addEventListener(
 );
 
 // FULL-UI-04A relationship directory event wiring.
-elements.refreshAthleteDirectoryButton
-  ?.addEventListener(
-    "click",
-    () => {
-      refreshCoachAthletes()
-        .catch(
-          catchWithViewRetry(
-            elements.athleteDirectoryStatus,
-            () => refreshCoachAthletes(),
-            "Athlete directory could not be loaded."
-          )
-        );
-    }
-  );
-
 // The "View audit" button lives in the already-React AthleteDirectoryPanel.
 // tsx and the "Open training profile"/revoke/cancel controls live in the
 // also-React AthleteRelationshipDetailPanel.tsx now - this global click
@@ -1214,13 +1196,6 @@ document.addEventListener(
   }
 );
 
-// FULL-UI-04B athlete-detail controls.
-elements.athleteDetailRefreshButton
-  ?.addEventListener(
-    "click",
-    () => {
-      refreshAthleteDetail(
-        state.selectedCoachAthleteId
-      ).catch(handleError);
-    }
-  );
+document.addEventListener("kolosseum:close-place", (event) => {
+  if (event.detail?.view === "athletes" && !event.detail.opening && state.selectedCoachAthleteId) closeAthleteProfile();
+});

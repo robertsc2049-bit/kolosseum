@@ -1,3 +1,4 @@
+import { tryAgain } from "../../utils/friendlyError";
 import { useCallback, useEffect, useState } from "react";
 
 import { loadAthleteBodyMetrics } from "../../api/coachWorkspaceClient";
@@ -59,7 +60,7 @@ export function useAthleteNutrition() {
       setState((current) => ({
         ...current,
         loading: false,
-        error: "Nutrition history could not be loaded. Check your connection and try again."
+        error: tryAgain("Nutrition history could not be loaded.")
       }));
     }
   }, []);

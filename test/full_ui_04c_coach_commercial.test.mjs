@@ -374,13 +374,11 @@ test(
     }
 
     for (const token of [
-      "Incomplete onboarding",
+      "Setup not finished",
       "Coach profile",
       "Coach terms",
-      "Accessibility preferences",
-      "Completed onboarding",
-      "Open coach workspace",
-      "Update coach profile"
+      "How the app looks for you",
+      "Setup so far"
     ]) {
       assert.ok(
         onboardingPanel.includes(

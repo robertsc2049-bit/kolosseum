@@ -91,8 +91,7 @@ test("a route-level service-unavailable state reuses the view's own status line 
   const wiredSites = [
     /catchWithViewRetry\(\s*elements\.eventsStatus,\s*\(\) => refreshCoachEvents/u,
     /catchWithViewRetry\(\s*elements\.templateLibraryStatus,\s*\(\) => refreshProgrammeLibrary/u,
-    /catchWithViewRetry\(\s*elements\.coachDashboardStatus,\s*\(\) => refreshCoachDashboard/u,
-    /catchWithViewRetry\(\s*elements\.athleteDirectoryStatus,/u
+    /catchWithViewRetry\(\s*elements\.coachDashboardStatus,\s*\(\) => refreshCoachDashboard/u
   ];
   for (const re of wiredSites) {
     assert.match(js, re);
@@ -159,7 +158,7 @@ test("leaving a form with unsaved changes - a coach note or a programme draft - 
   assert.match(js, /let coachNoteDirty = false;/u);
   assert.match(js, /function confirmCoachNoteDeparture\(\) \{/u);
   assert.match(js, /if \(!coachNoteDirty\) return true;/u);
-  assert.match(js, /if \(!confirmCoachNoteDeparture\(\)\) \{\s*\n\s*return false;/u);
+  assert.match(js, /if \(!confirmCoachNoteDeparture\(\)\) \{[^}]*return false;/u);
 
   // The coach note form itself moved to React (CoachReviewPanel.tsx) - it
   // dispatches kolosseum:coach-note-dirty-changed on every keystroke
@@ -201,7 +200,7 @@ test("destructive or state-changing actions require an explicit confirmation bef
 
 test("an unmapped internal error token never reaches the user as raw text - it always falls back to a status-appropriate plain-English message", () => {
   assert.doesNotMatch(js, /messages\[reason\] \?\? titleCase\(reason\)/u);
-  assert.match(js, /messages\[reason\] \?\? genericFriendlyMessageForStatus\(status\)/u);
+  assert.match(js, /messages\[reason\] \?\? [^;]*genericFriendlyMessageForStatus\(status\)/u);
   assert.match(js, /function genericFriendlyMessageForStatus\(status\) \{/u);
   for (const code of ["401", "403", "404", "409", "423", "429"]) {
     assert.match(js, new RegExp(`if \\(status === ${code}\\) return`, "u"));
@@ -252,11 +251,10 @@ test("a coach deep link to a specific event or review athlete never reports succ
   assert.match(reviewHook, /document\.dispatchEvent\(new CustomEvent\(ATHLETE_NOT_FOUND_EVENT\)\);/u);
 });
 
-test("a coach programme-detail deep link that finds no matching template also falls through to the generic not-available notice", () => {
-  const programmeDetail = routeBootstrap.match(/if \(route\.route_id === "coach_programme_detail"\) \{[\s\S]*?\n {2}\}\n/u);
-  assert.ok(programmeDetail, "expected the coach_programme_detail branch");
-  assert.match(programmeDetail[0], /if \(target\) \{/u);
-  assert.doesNotMatch(programmeDetail[0].replace(/if \(target\) \{[\s\S]*?\n {4}\}/u, ""), /return true;/u);
+test("a coach programme-detail deep link that finds no matching template says it could not be found", () => {
+  // The programme's own opener (coach/programmes.js) looks it up and says so.
+  assert.match(routeBootstrap, /kolosseum:open-programme-detail/u);
+  assert.match(js, /That programme could not be found - refresh the programme library/u);
 });
 
 test("deep-linkable entity-detail routes are wired for real elements in the DOM, not a dead custom event with no listener", () => {

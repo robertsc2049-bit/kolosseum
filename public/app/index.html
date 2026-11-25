@@ -220,7 +220,6 @@
             </div>
             <div class="button-row">
               <button id="exportHistoryButton" class="button secondary" type="button">Export history</button>
-              <button id="refreshHistoryButton" class="button secondary" type="button">Refresh</button>
             </div>
           </div>
 
@@ -286,13 +285,6 @@
               </p>
             </div>
 
-            <button
-              id="coachDashboardRefreshButton"
-              class="button secondary"
-              type="button"
-            >
-              Refresh dashboard
-            </button>
           </div>
 
           <div
@@ -429,13 +421,6 @@
                 Export roster (CSV)
               </a>
 
-              <button
-                id="refreshAthleteDirectoryButton"
-                class="button secondary"
-                type="button"
-              >
-                Refresh directory
-              </button>
             </div>
           </div>
 
@@ -485,12 +470,11 @@
           <article id="athleteProfilePanel" class="panel athlete-profile-panel" hidden>
             <h2 class="sr-only">Athlete profile</h2>
             <div class="panel-header athlete-profile-header">
+              <button id="closeAthleteProfileButton" class="text-button back-button" type="button">← All athletes</button>
               <div>
-                <p class="eyebrow">Athlete</p>
                 <h3 id="athleteProfileHeading">Athlete profile</h3>
                 <p id="athleteProfileActivity" class="muted"></p>
               </div>
-              <button id="closeAthleteProfileButton" class="button secondary" type="button">← All athletes</button>
             </div>
 
             <!-- DEV NOTE: the assignment-from-profile form is now React -
@@ -502,23 +486,7 @@
               class="athlete-detail-history"
               hidden
             >
-              <div class="panel-header athlete-detail-header">
-                <div>
-                  <p class="eyebrow">Athlete detail</p>
-                  <h3>Programme and history</h3>
-                  <p class="muted">
-                    Recorded history for this accepted coach-athlete connection.
-                  </p>
-                </div>
-
-                <button
-                  id="athleteDetailRefreshButton"
-                  class="button secondary"
-                  type="button"
-                >
-                  Refresh detail
-                </button>
-              </div>
+              <h3 class="sr-only">Programme and history</h3>
 
               <p
                 id="athleteDetailStatus"
@@ -863,7 +831,6 @@
                 <div><p class="eyebrow">Competitions</p><h3>Your competitions</h3></div>
                 <div class="inline-controls">
                   <a id="exportEventsCalendarLink" class="button secondary" href="/coach-workspace/events/calendar.ics">Export calendar (.ics)</a>
-                  <button id="refreshEventsButton" class="button secondary" type="button">Refresh</button>
                 </div>
               </div>
               <div id="coach-events-list-root" class="record-list"></div>
@@ -931,7 +898,6 @@
                   <p class="eyebrow">Programme library</p>
                   <h3>Your programmes</h3>
                 </div>
-                <button id="refreshTemplatesButton" class="button secondary" type="button">Refresh</button>
               </div>
 
               <div id="templates-library-root"></div>
@@ -1080,7 +1046,6 @@
               <p class="muted">Your details, password, privacy and data.</p>
             </div>
             <button id="showMeAroundButton" class="button secondary" type="button">Show me around</button>
-            <button id="refreshAccountButton" class="button secondary" type="button">Refresh account</button>
           </div>
 
           <div class="two-column">

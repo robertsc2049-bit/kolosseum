@@ -17,6 +17,7 @@ export const PRODUCT_ROUTE_MAP = Object.freeze([
   { route_id: "coach_onboarding", pattern: "#/coach/onboarding", view: "coach-onboarding", actors: ["coach"], entity_key: null },
   { route_id: "athlete_today", pattern: "#/athlete/today", view: "today", actors: ["athlete"], entity_key: null },
   { route_id: "athlete_session", pattern: "#/athlete/session/:session_id", view: "session", actors: ["athlete"], entity_key: "session_id" },
+  { route_id: "athlete_session_open", pattern: "#/athlete/session", view: "session", actors: ["athlete"], entity_key: null },
   { route_id: "athlete_history", pattern: "#/athlete/history", view: "history", actors: ["athlete"], entity_key: null },
   { route_id: "athlete_history_detail", pattern: "#/athlete/history/:session_id", view: "history", actors: ["athlete"], entity_key: "session_id" },
   { route_id: "athlete_programme", pattern: "#/athlete/programme", view: "programme", actors: ["athlete"], entity_key: null },
@@ -28,11 +29,15 @@ export const PRODUCT_ROUTE_MAP = Object.freeze([
   { route_id: "coach_event_detail", pattern: "#/coach/events/:event_id", view: "events", actors: ["coach"], entity_key: "event_id" },
   { route_id: "coach_programmes", pattern: "#/coach/programmes", view: "templates", actors: ["coach"], entity_key: null },
   { route_id: "coach_programme_detail", pattern: "#/coach/programmes/:template_id", view: "templates", actors: ["coach"], entity_key: "template_id" },
+  { route_id: "coach_programme_builder", pattern: "#/coach/programmes/build/:draft", view: "templates", actors: ["coach"], entity_key: "draft" },
   { route_id: "coach_review", pattern: "#/coach/review", view: "review", actors: ["coach"], entity_key: null },
   { route_id: "coach_review_athlete", pattern: "#/coach/review/:athlete_id", view: "review", actors: ["coach"], entity_key: "athlete_id" },
+  { route_id: "coach_review_session", pattern: "#/coach/review/session/:session_id", view: "review", actors: ["coach"], entity_key: "session_id" },
   { route_id: "coach_marketplace", pattern: "#/coach/marketplace", view: "marketplace", actors: ["coach"], entity_key: null },
   { route_id: "coach_progress_overview", pattern: "#/coach/progress", view: "coach-progress", actors: ["coach"], entity_key: null },
+  { route_id: "coach_progress_athlete", pattern: "#/coach/progress/:athlete_id", view: "coach-progress", actors: ["coach"], entity_key: "athlete_id" },
   { route_id: "coach_attendance_events", pattern: "#/coach/attendance", view: "coach-attendance", actors: ["coach"], entity_key: null },
+  { route_id: "shared_calculator", pattern: "#/calculator", view: "calculator", actors: ["athlete", "coach"], entity_key: null },
   { route_id: "shared_account", pattern: "#/account", view: "account", actors: ["athlete", "coach"], entity_key: null }
 ]);
 
@@ -117,12 +122,14 @@ export function routeForView(actor, view, entity = {}) {
     if (view === "review" && entity.athlete_id) return serializeProductRoute("coach_review_athlete", entity);
     if (view === "review") return serializeProductRoute("coach_review");
     if (view === "marketplace") return serializeProductRoute("coach_marketplace");
+    if (view === "coach-progress" && entity.athlete_id) return serializeProductRoute("coach_progress_athlete", entity);
     if (view === "coach-progress") return serializeProductRoute("coach_progress_overview");
     if (view === "coach-attendance") return serializeProductRoute("coach_attendance_events");
   }
   else {
     if (view === "onboarding") return serializeProductRoute("athlete_onboarding");
     if (view === "session" && entity.session_id) return serializeProductRoute("athlete_session", entity);
+    if (view === "session") return serializeProductRoute("athlete_session_open");
     if (view === "history" && entity.session_id) return serializeProductRoute("athlete_history_detail", entity);
     if (view === "history") return serializeProductRoute("athlete_history");
     if (view === "today") return serializeProductRoute("athlete_today");
@@ -131,6 +138,7 @@ export function routeForView(actor, view, entity = {}) {
   }
 
   if (view === "account") return serializeProductRoute("shared_account");
+  if (view === "calculator") return serializeProductRoute("shared_calculator");
   return fallbackRouteForActor(actor);
 }
 
@@ -245,22 +253,9 @@ async function applyEntityRoute(route) {
     return true;
   }
 
-  if (route.route_id === "coach_programme_detail") {
-    const target = await waitForSelector(
-      `[data-template-id="${escapeSelector(params.template_id)}"]`
-    );
-    if (target) {
-      const detail = target.matches(".template-detail")
-        ? target
-        : target.querySelector(".template-detail");
-      const edit = target.matches(".template-edit")
-        ? target
-        : target.querySelector(".template-edit");
-      if (detail) detail.click();
-      else if (edit) edit.click();
-      else markRouteTarget(target.closest(".template-card") ?? target);
-      return true;
-    }
+  if (route.route_id === "coach_programme_detail" && params.template_id) {
+    document.dispatchEvent(new CustomEvent("kolosseum:open-programme-detail", { detail: { template_id: params.template_id } }));
+    return true;
   }
 
   // DEV NOTE: React owns the review queue now (CoachReviewPanel.tsx/
@@ -280,7 +275,69 @@ async function applyEntityRoute(route) {
     return true;
   }
 
+  if (route.route_id === "coach_programme_builder") {
+    document.dispatchEvent(new CustomEvent("kolosseum:open-builder-route", { detail: { draft: params.draft } }));
+    return true;
+  }
+
+  if (route.route_id === "coach_review_session") {
+    document.dispatchEvent(new CustomEvent("kolosseum:open-review-session", { detail: { session_id: params.session_id } }));
+    return true;
+  }
+
+  if (route.route_id === "coach_progress_athlete") {
+    document.dispatchEvent(new CustomEvent("kolosseum:open-analysis-athlete", { detail: { athlete_user_id: params.athlete_id } }));
+    return true;
+  }
+
   return route.entity_key === null;
+}
+
+// Where the page was scrolled to when something was opened from it, so going
+// back returns there.
+const scrollPlaces = new Map();
+function rememberScroll(hash) {
+  scrollPlaces.set(hash, window.scrollY);
+}
+function returnToScroll(hash) {
+  const top = scrollPlaces.get(hash);
+  if (!top) return;
+  scrollPlaces.delete(hash);
+  // The list fills in as its records arrive; stop once it's tall enough.
+  let tries = 0;
+  const go = () => {
+    window.scrollTo(0, top);
+    tries += 1;
+    if (Math.abs(window.scrollY - top) > 2 && tries < 12) setTimeout(go, 100);
+  };
+  requestAnimationFrame(go);
+}
+
+function pushRoute(hash) {
+  rememberScroll(location.hash);
+  history.pushState({ kolosseum_route: hash, opened_from: location.hash }, "", hash);
+}
+
+// What's open on a screen (an athlete's profile, a programme, a session) is a
+// place of its own: opening it adds to the history, so Back closes it.
+function placeOpened(routeId, params) {
+  const hash = serializeProductRoute(routeId, params);
+  if (!hash || hash === location.hash || !actorCanAccessRoute(readRole(), parseProductRoute(hash))) return;
+  // The same kind of place (a new programme's first save): not another step.
+  if (parseProductRoute(location.hash)?.route_id === routeId) {
+    history.replaceState({ ...history.state, kolosseum_route: hash }, "", hash);
+    return;
+  }
+  pushRoute(hash);
+}
+
+// Closed on the page: the step that opened it is taken back.
+function placeClosed(routeId) {
+  const current = parseProductRoute(location.hash);
+  if (current?.route_id !== routeId) return;
+  const bare = routeForView(readRole(), current.view, {});
+  if (history.state?.opened_from === bare) history.back();
+  else history.replaceState({ kolosseum_route: bare }, "", bare);
 }
 
 async function resolvedAthleteRoute(route, options) {
@@ -410,10 +467,20 @@ async function applyProductRouteNow(options) {
       await openCoachOnboardingView();
     }
     else {
+      // Going back to a screen closes what was open on it, unless they choose
+      // to stay (the builder, with something unsaved).
+      if (visibleViewName() === route.view && route.route_id !== "coach_programme_builder") {
+        const closing = new CustomEvent("kolosseum:close-place", { detail: { view: route.view, opening: route.entity_key !== null }, cancelable: true });
+        if (!document.dispatchEvent(closing)) {
+          if (closing.detail.stay) history.pushState({ kolosseum_route: closing.detail.stay, opened_from: location.hash }, "", closing.detail.stay);
+          return true;
+        }
+      }
       document.querySelector(`[data-view="${escapeSelector(route.view)}"]`)?.click();
       document.getElementById("sidebar")?.classList.remove("open");
     }
 
+    if (options.returning) returnToScroll(location.hash);
     const entityApplied = await applyEntityRoute(route);
     if (!entityApplied && route.entity_key) {
       showRouteNotice("The requested record is not available in this workspace.");
@@ -477,15 +544,25 @@ function syncRouteFromElement(element, replace = false) {
   // exactly what used to happen here: opening an event triggered
   // setView()'s own refreshCoachEvents(), whose list re-render fired this
   // observer and silently closed the event right back onto #/coach/events.
+  const currentRoute = parseProductRoute(location.hash);
   if (Object.keys(entity).length === 0) {
-    const currentRoute = parseProductRoute(location.hash);
-    if (currentRoute?.view === activeView && currentRoute.entity_key) return;
+    if (currentRoute?.view === activeView && currentRoute.entity_key) {
+      // The menu item of the screen you're on means the screen itself. (The
+      // builder stays: it has its own way out, which asks first.)
+      if (!replace && viewControl && currentRoute.route_id !== "coach_programme_builder") {
+        document.dispatchEvent(new CustomEvent("kolosseum:close-place", { detail: { view: activeView }, cancelable: true }));
+        const bare = routeForView(actor, activeView, {});
+        history.replaceState({ kolosseum_route: bare }, "", bare);
+      }
+      return;
+    }
   }
 
   const hash = routeForView(actor, activeView, entity);
   if (!hash || hash === location.hash) return;
-  if (replace) history.replaceState({ kolosseum_route: hash }, "", hash);
-  else history.pushState({ kolosseum_route: hash }, "", hash);
+  // A button that moved to another screen is a step too.
+  if (replace && currentRoute?.view === activeView) history.replaceState({ kolosseum_route: hash }, "", hash);
+  else pushRoute(hash);
 }
 
 function scheduleRouteApplication() {
@@ -539,7 +616,9 @@ function installProductRouting() {
   // successful sign-in/register unhides the shell synchronously as part of
   // app.js's enterApplication()), so no replacement listener is needed.
   addEventListener("hashchange", () => applyCurrentProductRoute());
-  addEventListener("popstate", () => applyCurrentProductRoute());
+  addEventListener("popstate", () => applyCurrentProductRoute({ returning: true }));
+  document.addEventListener("kolosseum:place-opened", (event) => placeOpened(event.detail?.route_id, event.detail?.params ?? {}));
+  document.addEventListener("kolosseum:place-closed", (event) => placeClosed(event.detail?.route_id));
 
   const views = document.querySelector(".views");
   if (views) {

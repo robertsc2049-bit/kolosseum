@@ -1,3 +1,4 @@
+import { tryAgain } from "../../utils/friendlyError";
 import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
@@ -414,7 +415,7 @@ function SendToAthlete({ athleteUserId, type, id, athleteName, onClose }: { athl
       setStatus({ ok: true, text: `Sent to ${athleteName}. They'll find it in History, and a message tells them it's there.` });
     }
     catch {
-      setStatus({ ok: false, text: "The report could not be sent. Check your connection and try again." });
+      setStatus({ ok: false, text: tryAgain("The report could not be sent.") });
     }
     finally {
       setBusy(false);
@@ -472,7 +473,7 @@ export function CoachReports({ athleteUserId, initialType = "week" }: { athleteU
     setError(null);
     request("GET", `/coach-workspace/athletes/${encodeURIComponent(athleteUserId)}/reports`)
       .then((result) => { if (!cancelled) setList(result); })
-      .catch(() => { if (!cancelled) setError("Reports could not be loaded. Check your connection and try again."); });
+      .catch(() => { if (!cancelled) setError(tryAgain("Reports could not be loaded.")); });
     return () => { cancelled = true; };
   }, [athleteUserId]);
 

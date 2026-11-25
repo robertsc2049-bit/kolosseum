@@ -95,10 +95,7 @@ test("renders a card with facts, status badge and updated date", async () => {
 
   await screen.findByText("Peak Block");
   const card = screen.getByText("Peak Block").closest(".template-card") as HTMLElement;
-  assert.ok(within(card).getByText("2 blocks"));
-  assert.ok(within(card).getByText("6 weeks"));
-  assert.ok(within(card).getByText("4 sessions"));
-  assert.ok(within(card).getByText("0 assignments"));
+  assert.ok(within(card).getByText("2 blocks · 6 weeks · 4 sessions · 0 assignments"));
   assert.ok(within(card).getByText("Draft"));
 });
 
@@ -108,7 +105,7 @@ test("shows real assignment usage counts on the card", async () => {
     [assignment({ assignment_id: "a1" }), assignment({ assignment_id: "a2", assigned_athlete_id: "athlete_2" })]
   );
   render(<CoachProgrammeLibraryPanel />);
-  await screen.findByText("2 assignments");
+  await screen.findByText(/ · 2 assignments$/u);
 });
 
 test("searching filters the visible cards by name", async () => {
@@ -157,10 +154,10 @@ test("clear filters resets search, state, activity and sort", async () => {
   assert.equal((screen.getByPlaceholderText("Name, activity, event or version") as HTMLInputElement).value, "");
 });
 
-test("draft cards show Edit and Check it's ready but not Ready to send; only draft cards show View detail plus Duplicate/Archive by state", async () => {
+test("draft cards show Edit and Check it's ready but not Ready to send; only draft cards show Open plus Duplicate/Archive by state", async () => {
   installMocks([template({ template_status: "draft" })]);
   render(<CoachProgrammeLibraryPanel />);
-  await screen.findByText("View detail");
+  await screen.findByText("Open");
 
   assert.ok(screen.getByText("Edit"));
   assert.ok(screen.getByText("Check it's ready"));
@@ -172,7 +169,7 @@ test("draft cards show Edit and Check it's ready but not Ready to send; only dra
 test("a complete card nobody has yet can still be edited; once sent, Edit makes a new version", async () => {
   installMocks([template({ template_status: "complete" })]);
   render(<CoachProgrammeLibraryPanel />);
-  await screen.findByText("View detail");
+  await screen.findByText("Open");
 
   assert.ok(screen.getByText("Ready to send"));
   assert.ok(screen.getByText("Duplicate version"));
@@ -182,14 +179,14 @@ test("a complete card nobody has yet can still be edited; once sent, Edit makes 
 
   installMocks([template({ template_status: "active", sent: true })]);
   render(<CoachProgrammeLibraryPanel />);
-  await screen.findByText("View detail");
+  await screen.findByText("Open");
   assert.ok(screen.getByText("Edit as a new version"));
 });
 
 test("archived cards do not show an Archive action", async () => {
   installMocks([template({ template_status: "archived" })]);
   render(<CoachProgrammeLibraryPanel />);
-  await screen.findByText("View detail");
+  await screen.findByText("Open");
   assert.equal(screen.queryByText("Archive"), null);
 });
 
@@ -211,18 +208,16 @@ function withBridgeSpy(run: () => void): { eventName: string; templateId: string
   return captured;
 }
 
-test("View detail dispatches a bridge event with the template id and sets the hash", async () => {
+test("Open dispatches a bridge event with the template id", async () => {
   installMocks([template({ template_id: "tmpl_9_v1", template_family_id: "tmpl_9" })]);
   render(<CoachProgrammeLibraryPanel />);
-  await screen.findByText("View detail");
+  await screen.findByText("Open");
 
   const captured = withBridgeSpy(() => {
-    fireEvent.click(screen.getByText("View detail"));
+    fireEvent.click(screen.getByText("Open"));
   });
 
   assert.deepEqual(captured, { eventName: "kolosseum:open-programme-detail", templateId: "tmpl_9_v1" });
-  assert.equal(window.location.hash, "#/coach/programmes/tmpl_9_v1");
-  window.location.hash = "";
 });
 
 test("Archive dispatches the archive bridge event with the template id, without porting the archive mutation itself", async () => {

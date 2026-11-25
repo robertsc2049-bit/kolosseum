@@ -1,3 +1,4 @@
+import { tryAgain } from "../../utils/friendlyError";
 import React, { useCallback, useEffect, useState } from "react";
 
 import { loadAccountDetail } from "../../api/client";
@@ -57,7 +58,7 @@ export function AthletePainFlagsPanel() {
       setStandDown(((stand as JsonRecord).stand_down as JsonRecord | null) ?? null);
     }
     catch {
-      setError("Pain flags could not be loaded. Check your connection and try again.");
+      setError(tryAgain("Pain flags could not be loaded."));
     }
     finally {
       setLoading(false);

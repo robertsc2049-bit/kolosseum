@@ -184,7 +184,7 @@ test("adding a new strength record posts it alongside the existing persisted ben
     fireEvent.submit(screen.getByText("Save athlete profile").closest("form")!);
   });
 
-  await waitFor(() => screen.getByText("Athlete profile could not be saved. Check your connection and try again."));
+  await waitFor(() => screen.getByText("Athlete profile could not be saved. Try again in a moment."));
 
   const saveCall = mock.calls.find(
     (call) => String(call.input) === "/coach-workspace/athlete-strength-profile" && call.init?.method === "POST"

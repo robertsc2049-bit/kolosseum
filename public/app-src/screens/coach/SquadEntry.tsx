@@ -1,3 +1,4 @@
+import { tryAgain } from "../../utils/friendlyError";
 import React, { useMemo, useState } from "react";
 
 import { loadAccountDetail } from "../../api/client";
@@ -115,7 +116,7 @@ function SquadSession({ athletes }: { athletes: SquadAthlete[] }) {
       setEfforts({});
       setRequestId(newRequestId("sq"));
     }
-    catch { setStatus("That didn't save. Check your connection and try again."); }
+    catch { setStatus(tryAgain("That didn't save.")); }
     finally { setBusy(false); }
   }
   return (

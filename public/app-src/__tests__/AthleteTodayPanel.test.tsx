@@ -47,7 +47,7 @@ test("shows the unavailable empty state and a working retry when the fetch fails
 
   render(<AthleteTodaySessionCard />);
   await waitFor(() => screen.getByText("Today is unavailable right now"));
-  assert.ok(screen.getByText("We could not reach the server to load your current programme. Check your connection and try again."));
+  assert.ok(screen.getByText("Your current programme could not be loaded. Try again in a moment."));
 
   installMocks({ state: "no_session", assignment: null, session: null, event: null, notes: [] });
   const retryButton = screen.getByText("Retry");

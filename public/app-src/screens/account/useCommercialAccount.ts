@@ -252,18 +252,6 @@ export function useCommercialAccount() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    const button = document.getElementById("refreshAccountButton");
-    if (!button) return;
-    function handleClick() {
-      window.setTimeout(() => {
-        refresh({ quiet: true });
-      }, 0);
-    }
-    button.addEventListener("click", handleClick);
-    return () => button.removeEventListener("click", handleClick);
-  }, [refresh]);
-
   return {
     ...state,
     refresh,

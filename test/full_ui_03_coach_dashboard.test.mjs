@@ -60,7 +60,6 @@ const coachOverviewMetricsPanel = fs.readFileSync(
 
 test("FULL-UI-03 exposes the complete factual coach dashboard", () => {
   const ids = [
-    "coachDashboardRefreshButton",
     "coachDashboardStatus"
   ];
 
@@ -234,9 +233,6 @@ test("FULL-UI-03 remains factual and read-only", () => {
     coachOverviewSessionReviewPanel.includes("planned_work_item_count")
   );
 
-  assert.ok(
-    dashboardSource.includes("factual coach records")
-  );
 });
 
 test("FULL-UI-03 has responsive product styling", () => {

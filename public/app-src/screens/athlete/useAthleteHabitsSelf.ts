@@ -1,3 +1,4 @@
+import { tryAgain } from "../../utils/friendlyError";
 import { useCallback, useEffect, useState } from "react";
 
 import { accountMayBeAthlete, loadAccountDetail } from "../../api/client";
@@ -51,7 +52,7 @@ export function useAthleteHabitsSelf() {
       setState((current) => ({
         ...current,
         loading: false,
-        error: "Habits could not be loaded. Check your connection and try again."
+        error: tryAgain("Habits could not be loaded.")
       }));
     }
   }, []);

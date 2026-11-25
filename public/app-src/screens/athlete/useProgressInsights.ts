@@ -1,3 +1,4 @@
+import { tryAgain } from "../../utils/friendlyError";
 import { useCallback, useEffect, useState } from "react";
 
 import { accountMayBeAthlete } from "../../api/client";
@@ -53,7 +54,7 @@ export function useProgressInsights() {
       setState((current) => ({
         ...current,
         loading: false,
-        error: "Progress insights could not be loaded. Check your connection and try again."
+        error: tryAgain("Progress insights could not be loaded.")
       }));
     }
   }, []);

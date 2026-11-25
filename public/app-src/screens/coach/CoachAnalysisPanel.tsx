@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 
+import { closedPlace, onClosePlace, onOpenPlace, openedPlace } from "../../utils/place";
 import { type JsonRecord } from "../../api/transport";
+import { LoadFailed } from "../../components/LoadFailed";
 import { TrendChart, shortWeek, type TrendMarker } from "../../components/TrendChart";
 import { Explain } from "./analysisGuide";
 import { FindingList, type Finding } from "./FindingList";
@@ -522,7 +524,7 @@ function AthleteAnalysis({ athleteUserId, onBack, initialView = "trends", initia
 }
 
 export function CoachAnalysisPanel() {
-  const { roster, error } = useCoachAnalysisRoster();
+  const { roster, error, retry } = useCoachAnalysisRoster();
   const teams = useCoachTeams();
   const [selected, setSelected] = useState<string | null>(null);
   // The report a notification opened ("block" or "programme"), or null.
@@ -544,7 +546,13 @@ export function CoachAnalysisPanel() {
     document.addEventListener("kolosseum:open-notification-target", onOpenTarget);
     return () => document.removeEventListener("kolosseum:open-notification-target", onOpenTarget);
   }, []);
-  if (selected) return <AthleteAnalysis key={`${selected}:${openOnReport ?? ""}`} athleteUserId={selected} initialView={openOnReport ? "reports" : "trends"} initialReport={openOnReport ?? undefined} onBack={() => { setSelected(null); setOpenOnReport(null); }} />;
+  useEffect(() => {
+    const offClose = onClosePlace("coach-progress", () => { setSelected(null); setOpenOnReport(null); });
+    const offOpen = onOpenPlace("kolosseum:open-analysis-athlete", "athlete_user_id", (id) => { setOpenOnReport(null); setSelected(id); });
+    return () => { offClose(); offOpen(); };
+  }, []);
+  const openAthlete = (id: string) => { setOpenOnReport(null); setSelected(id); openedPlace("coach_progress_athlete", { athlete_id: id }); };
+  if (selected) return <AthleteAnalysis key={`${selected}:${openOnReport ?? ""}`} athleteUserId={selected} initialView={openOnReport ? "reports" : "trends"} initialReport={openOnReport ?? undefined} onBack={() => { setSelected(null); setOpenOnReport(null); closedPlace("coach_progress_athlete"); }} />;
   const athletes = rows(roster?.athletes);
   const team = teams.find((entry) => entry.org_id === scope) ?? null;
   return (
@@ -566,11 +574,11 @@ export function CoachAnalysisPanel() {
           ))}
         </div>
       ) : null}
-      {team && team.visibility_mode === "shared" ? <TeamAnalysis team={team} onOpenAthlete={(id) => { setOpenOnReport(null); setSelected(id); }} /> : null}
+      {team && team.visibility_mode === "shared" ? <TeamAnalysis team={team} onOpenAthlete={openAthlete} /> : null}
       {team && team.visibility_mode === "individual" ? <GymAnalysis team={team} /> : null}
       {team ? null : <>
       <Explain id="roster" />
-      {error ? <p className="field-error" role="alert">{error}</p> : null}
+      {error ? <LoadFailed message={error} onRetry={retry} /> : null}
       {!roster && !error ? <p className="muted">Working out the patterns…</p> : null}
       {roster && !athletes.length ? <div className="empty-state"><h3>No athletes yet</h3><p className="muted">Once athletes train with you, their patterns show here.</p></div> : null}
       {athletes.length ? (
@@ -587,13 +595,13 @@ export function CoachAnalysisPanel() {
                 const z = num((athlete.readiness as JsonRecord | undefined)?.z);
                 return (
                   <tr key={String(athlete.athlete_user_id)}>
-                    <td data-label="Athlete"><button type="button" className="analysis-athlete-link" onClick={() => { setOpenOnReport(null); setSelected(String(athlete.athlete_user_id)); }}>{String(athlete.display_name)}</button></td>
+                    <td data-label="Athlete"><button type="button" className="analysis-athlete-link" onClick={() => openAthlete(String(athlete.athlete_user_id))}>{String(athlete.display_name)}</button></td>
                     <td data-label="Status"><span className={`analysis-status is-${status.level}`}>{status.label}</span></td>
-                    <td data-label="What stands out" className="analysis-roster-findings">{findings.length ? <FindingList findings={findings.slice(0, 3)} compact /> : <span className="muted small">{athlete.unavailable ? "Couldn't be analysed" : athlete.last_session ? "No flags" : "No sessions logged in the last 8 weeks"}</span>}</td>
+                    <td data-label="What stands out" className="analysis-roster-findings">{findings.length ? <FindingList findings={findings.slice(0, 3)} compact /> : <span className="muted small">{athlete.unavailable ? "Couldn't be analysed" : athlete.last_session ? "–" : "No sessions logged in the last 8 weeks"}</span>}</td>
                     <td data-label="Sessions">{show((athlete.adherence as JsonRecord | undefined)?.latest_pct, "%")}</td>
                     <td data-label="Load vs usual" className={ratio === null ? "" : ratio > 1.5 || ratio < 0.8 ? "is-alert-text" : ratio > 1.3 ? "is-watch-text" : ""}>{ratio === null ? "–" : `${ratio}×`}</td>
                     <td data-label="Readiness" className={z === null ? "" : z <= -1.5 ? "is-alert-text" : z <= -1 ? "is-watch-text" : ""}>{z === null ? "–" : z > -1 ? "Normal" : "Low"}</td>
-                    <td data-label="Main lifts">{rows(athlete.strength).map((lift) => `${lift.name} ${lift.status === "rising" ? "↑" : lift.status === "falling" ? "↓" : lift.status === "plateau" ? "→" : "·"}`).join(" · ") || "–"}</td>
+                    <td data-label="Main lifts">{rows(athlete.strength).map((lift) => `${lift.name}${lift.status === "rising" ? " ↑" : lift.status === "falling" ? " ↓" : lift.status === "plateau" ? " →" : ""}`).join(", ") || "–"}</td>
                   </tr>
                 );
               })}

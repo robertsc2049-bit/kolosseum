@@ -1,3 +1,4 @@
+import { tryAgain } from "../../utils/friendlyError";
 import { useCallback, useEffect, useState } from "react";
 
 import { type JsonRecord, loadAccountDetail } from "../../api/client";
@@ -50,7 +51,7 @@ export function useAccountDetail(refreshToken: number) {
       setState((current) => ({
         ...current,
         loading: false,
-        error: "Account details could not be loaded. Check your connection and try again."
+        error: tryAgain("Account details could not be loaded.")
       }));
     }
   }, []);

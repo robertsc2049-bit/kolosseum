@@ -20,7 +20,8 @@
     var own = document.currentScript && document.currentScript.src;
     if (own && (role === "athlete" || role === "coach")) {
       var files = ["react-dist/kolosseum-react-" + role + ".js"];
-      if (role === "coach") files = files.concat(COACH_FILES);
+      var builtCoach = document.currentScript.dataset.coach;
+      if (role === "coach") files = files.concat(builtCoach ? [builtCoach] : COACH_FILES);
       files.forEach(function (file) {
         var link = document.createElement("link");
         link.rel = "modulepreload";

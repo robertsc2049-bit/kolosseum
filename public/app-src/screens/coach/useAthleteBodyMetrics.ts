@@ -1,3 +1,4 @@
+import { tryAgain } from "../../utils/friendlyError";
 import { useCallback, useEffect, useState } from "react";
 
 import { loadAccountDetail } from "../../api/client";
@@ -68,7 +69,7 @@ export function useAthleteBodyMetrics() {
       setState((current) => ({
         ...current,
         loading: false,
-        error: "Body-metric history could not be loaded. Check your connection and try again."
+        error: tryAgain("Body-metric history could not be loaded.")
       }));
     }
   }, []);

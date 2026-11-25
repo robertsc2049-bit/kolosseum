@@ -1,3 +1,4 @@
+import { tryAgain } from "../../utils/friendlyError";
 import { useCallback, useEffect, useState } from "react";
 
 import { loadAthleteProgressInsights, loadTemplateExercises } from "../../api/coachWorkspaceClient";
@@ -59,7 +60,7 @@ export function useAthleteProgressInsights() {
       setState((current) => ({
         ...current,
         loading: false,
-        error: "Progress insights could not be loaded. Check your connection and try again."
+        error: tryAgain("Progress insights could not be loaded.")
       }));
     }
   }, []);

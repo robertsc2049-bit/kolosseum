@@ -31,7 +31,7 @@ export function SignOutPanel({ csrfToken }: { csrfToken: string }) {
     <article className="panel danger-panel">
       <div>
         <h3>Sign out</h3>
-        <p className="muted">Revokes this server session and clears local browser identity.</p>
+        <p className="muted">Signs you out on this device.</p>
       </div>
       <button className="button danger" type="button" disabled={signingOut} onClick={() => handleSignOut()}>Sign out</button>
     </article>

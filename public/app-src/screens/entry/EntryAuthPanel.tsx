@@ -97,6 +97,13 @@ function PendingCoachBanner() {
   );
 }
 
+// "terms_v1" is the record's name for it; a person reads "version 1".
+function versionLabel(version: unknown): string {
+  if (!version) return "unavailable";
+  const number = /_v([0-9]+)$/u.exec(String(version))?.[1];
+  return number ? `version ${number}` : String(version);
+}
+
 export function EntryAuthPanel() {
   const {
     mode, terms, termsAvailable, submitting, error, statusMessage, resetRequestResult,
@@ -264,7 +271,7 @@ export function EntryAuthPanel() {
               value={password}
               onChange={(event) => setPassword(event.target.value)}
             />
-            <small>At least 12 characters.</small>
+            {createMode ? <small>At least 12 characters.</small> : null}
           </label>
 
           {createMode ? (
@@ -283,7 +290,7 @@ export function EntryAuthPanel() {
                   <span>
                     I am 18 or over and I agree to the{" "}
                     <a href="/app/legal/terms.html" target="_blank" rel="noopener">Terms of Service</a>
-                    {" "}(<strong>{terms?.current_terms_version ? String(terms.current_terms_version) : "unavailable"}</strong>).
+                    {" "}(<strong>{versionLabel(terms?.current_terms_version)}</strong>).
                   </span>
                 </label>
                 <label>
@@ -297,7 +304,7 @@ export function EntryAuthPanel() {
                     I explicitly consent to Kolosseum using the health information I choose to record (such as pain,
                     injuries and readiness) to provide the service, as set out in the{" "}
                     <a href="/app/legal/privacy.html" target="_blank" rel="noopener">Privacy Notice</a>
-                    {" "}(<strong>{terms?.current_consent_version ? String(terms.current_consent_version) : "unavailable"}</strong>).
+                    {" "}(<strong>{versionLabel(terms?.current_consent_version)}</strong>).
                     I can withdraw this consent at any time.
                   </span>
                 </label>

@@ -2,6 +2,7 @@ import { api } from "../core/api.js";
 import { elements } from "../core/elements.js";
 import { todayDateOnly } from "../core/format.js";
 import { handleError, hideBusy, showBusy, showNotice } from "../core/notices.js";
+import { closedPlace, openedPlace } from "../core/shell.js";
 import { saveState, state } from "../core/state.js";
 import { refreshCoachAssignments } from "./athletes.js";
 import { closeTemplateBuilder, confirmRecoveredTemplateReplacement, openTemplateBuilder, renderTemplateRecovery } from "./builder.js";
@@ -716,8 +717,7 @@ function openProgrammeDetail(templateId, options = {}) {
   renderProgrammeDetail();
 
   if (options.updateRoute !== false) {
-    location.hash =
-      `#/coach/programmes/${encodeURIComponent(template.template_id)}`;
+    openedPlace("coach_programme_detail", { template_id: template.template_id });
   }
 
   if (options.scroll !== false) {
@@ -735,9 +735,7 @@ function closeProgrammeDetail(options = {}) {
   saveState();
   elements.templateDetailPanel.hidden = true;
 
-  if (options.updateRoute !== false) {
-    location.hash = "#/coach/programmes";
-  }
+  if (options.updateRoute !== false) closedPlace("coach_programme_detail");
 }
 
 export async function refreshProgrammeLibrary(options = {}) {
@@ -934,7 +932,7 @@ async function archiveTemplate(templateId) {
 // The React library loads programmes itself; this file's own copy can lag
 // (programmes added in another tab, by a script, or since sign-in), and a
 // card action then silently did nothing. Reload the copy once and retry.
-async function coachTemplateById(templateId) {
+export async function coachTemplateById(templateId) {
   const find = () => state.coachTemplates.find((entry) => entry.template_id === templateId);
   if (!find()) await refreshTemplates({ quiet: true });
   return find();
@@ -945,8 +943,9 @@ document.addEventListener("kolosseum:open-programme-detail", (event) => {
   if (!templateId) return;
   coachTemplateById(templateId)
     .then((template) => {
-      if (template) openProgrammeDetail(templateId);
-      else handleError(new Error("That programme could not be found - refresh the programme library."));
+      if (template) { openProgrammeDetail(templateId); return; }
+      closedPlace("coach_programme_detail");
+      handleError(new Error("That programme could not be found - refresh the programme library."));
     })
     .catch(handleError);
 });
@@ -995,11 +994,11 @@ document.addEventListener("kolosseum:archive-programme", (event) => {
   if (templateId) archiveTemplate(templateId).catch(handleError);
 });
 
-elements.refreshTemplatesButton.addEventListener("click", () => {
-  refreshProgrammeLibrary().catch(handleError);
-});
-
 elements.templateDetailCloseButton.addEventListener(
   "click",
   closeProgrammeDetail
 );
+
+document.addEventListener("kolosseum:close-place", (event) => {
+  if (event.detail?.view === "templates" && !event.detail.opening && !elements.templateDetailPanel.hidden) closeProgrammeDetail({ updateRoute: false });
+});

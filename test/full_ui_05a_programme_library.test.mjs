@@ -125,8 +125,8 @@ test("FULL-UI-05A provides a full visible activation validation summary", () => 
 });
 
 test("FULL-UI-05A direct programme routes open programme detail", () => {
-  assert.match(routes, /target\.querySelector\("\.template-detail"\)/u);
-  assert.match(app, /#\/coach\/programmes\/\$\{encodeURIComponent/u);
+  assert.match(routes, /coach_programme_detail" && params\.template_id\)[^}]*kolosseum:open-programme-detail/u);
+  assert.match(app, /openedPlace\("coach_programme_detail"/u);
   assert.match(libraryPanel, /className="button secondary small-button template-detail"/u);
 });
 

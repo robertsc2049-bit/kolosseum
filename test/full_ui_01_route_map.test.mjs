@@ -59,3 +59,20 @@ test("FULL-UI-01 actor access is fail-closed", () => {
   assert.equal(fallbackRouteForActor("athlete"), "#/athlete/today");
   assert.equal(parseProductRoute("#/unknown"), null);
 });
+
+test("what's open on a screen has an address of its own, and the screen's address is the one to go back to", () => {
+  for (const [routeId, params, hash, view, actor] of [
+    ["coach_programme_builder", { draft: "new" }, "#/coach/programmes/build/new", "templates", "coach"],
+    ["coach_review_session", { session_id: "s1" }, "#/coach/review/session/s1", "review", "coach"],
+    ["coach_progress_athlete", { athlete_id: "a1" }, "#/coach/progress/a1", "coach-progress", "coach"],
+    ["athlete_session_open", {}, "#/athlete/session", "session", "athlete"],
+    ["shared_calculator", {}, "#/calculator", "calculator", "athlete"]
+  ]) {
+    assert.equal(serializeProductRoute(routeId, params), hash);
+    assert.equal(parseProductRoute(hash)?.route_id, routeId);
+    assert.equal(actorCanAccessRoute(actor, parseProductRoute(hash)), true);
+    if (Object.keys(params).length) assert.equal(parseProductRoute(routeForView(actor, view, {}))?.entity_key, null);
+  }
+  assert.equal(parseProductRoute("#/coach/programmes/some_template_v1")?.route_id, "coach_programme_detail");
+  assert.equal(parseProductRoute("#/coach/review/athlete_1")?.route_id, "coach_review_athlete");
+});

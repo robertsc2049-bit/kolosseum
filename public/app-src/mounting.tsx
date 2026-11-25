@@ -23,13 +23,14 @@ const waiting = new Set<Waiting>();
 
 // Events that open a screen and say what to show in it: if the panel they're
 // for mounts because of one, it hears it too.
-const OPENING_EVENTS: Record<string, string> = {
-  "coach-review-root": "kolosseum:open-session-review",
-  "coach-event-detail-root": "kolosseum:open-event-detail",
-  "athlete-history-root": "kolosseum:history-detail-route"
+const OPENING_EVENTS: Record<string, string[]> = {
+  "coach-review-root": ["kolosseum:open-session-review", "kolosseum:open-review-session"],
+  "coach-progress-overview-root": ["kolosseum:open-analysis-athlete"],
+  "coach-event-detail-root": ["kolosseum:open-event-detail"],
+  "athlete-history-root": ["kolosseum:history-detail-route"]
 };
 const lastOpening = new Map<string, { detail: unknown; at: number }>();
-for (const name of Object.values(OPENING_EVENTS)) {
+for (const name of Object.values(OPENING_EVENTS).flat()) {
   document.addEventListener(name, (event) => lastOpening.set(name, { detail: (event as CustomEvent).detail, at: Date.now() }), true);
 }
 
@@ -48,11 +49,12 @@ export function mountReady(): void {
     for (const { container, node } of due) createRoot(container).render(<StrictMode>{node}</StrictMode>);
   });
   for (const { container } of due) {
-    const name = OPENING_EVENTS[container.id];
-    const said = name ? lastOpening.get(name) : undefined;
-    if (!name || !said || Date.now() - said.at > 2000) continue;
-    lastOpening.delete(name);
-    setTimeout(() => document.dispatchEvent(new CustomEvent(name, { detail: said.detail })), 0);
+    for (const name of OPENING_EVENTS[container.id] ?? []) {
+      const said = lastOpening.get(name);
+      if (!said || Date.now() - said.at > 2000) continue;
+      lastOpening.delete(name);
+      setTimeout(() => document.dispatchEvent(new CustomEvent(name, { detail: said.detail })), 0);
+    }
   }
 }
 

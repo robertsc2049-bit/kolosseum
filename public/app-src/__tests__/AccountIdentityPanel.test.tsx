@@ -345,7 +345,7 @@ test("a stale account-details error from before sign-in clears itself once entry
   }) as typeof fetch;
 
   render(<AccountIdentityPanel />);
-  await screen.findByText("Account details could not be loaded. Check your connection and try again.");
+  await screen.findByText("Account details could not be loaded. Try again in a moment.");
 
   authenticated = true;
   await act(async () => {
@@ -353,7 +353,7 @@ test("a stale account-details error from before sign-in clears itself once entry
   });
 
   await screen.findByLabelText("Display name");
-  assert.equal(screen.queryByText("Account details could not be loaded. Check your connection and try again."), null);
+  assert.equal(screen.queryByText("Account details could not be loaded. Try again in a moment."), null);
 });
 
 test("a rejected closure request shows an inline error and does not end the session", async () => {

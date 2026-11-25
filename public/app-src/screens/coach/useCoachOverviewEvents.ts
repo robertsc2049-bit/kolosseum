@@ -1,3 +1,4 @@
+import { tryAgain } from "../../utils/friendlyError";
 import { useCallback, useEffect, useState } from "react";
 
 import { loadAccountDetail } from "../../api/client";
@@ -50,7 +51,7 @@ export function useCoachOverviewEvents() {
       setState((current) => ({
         ...current,
         loading: false,
-        error: "Upcoming events could not be loaded. Check your connection and try again."
+        error: tryAgain("Upcoming events could not be loaded.")
       }));
     }
   }, []);

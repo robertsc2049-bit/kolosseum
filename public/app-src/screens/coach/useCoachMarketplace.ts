@@ -1,3 +1,4 @@
+import { tryAgain } from "../../utils/friendlyError";
 import { useCallback, useEffect, useState } from "react";
 
 import { loadMarketplaceTemplates } from "../../api/marketplaceClient";
@@ -34,7 +35,7 @@ export function useCoachMarketplace() {
       setState((current) => ({
         ...current,
         loading: false,
-        error: "The marketplace could not be loaded. Check your connection and try again."
+        error: tryAgain("The marketplace could not be loaded.")
       }));
     }
   }, []);

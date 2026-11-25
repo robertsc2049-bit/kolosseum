@@ -67,3 +67,15 @@ test("training e1RM: only strength lifts estimate a max - never jumps, sprints, 
   const trends = computeTrainingE1rmTrends([set("countermovement_jump", 3, 150), set("back_squat", 3, 150)], "kg", 30, patternOf);
   assert.deepEqual(trends.map((t) => t.exercise_id), ["back_squat"]);
 });
+
+test("training e1RM: a planned lighter week doesn't bring the estimate down; the last day's own sets are kept apart", () => {
+  const [squat] = computeTrainingE1rmTrends([
+    set("back_squat", 5, 110, "2026-10-10"), set("back_squat", 5, 117.5, "2026-11-16"), set("back_squat", 5, 105, "2026-11-24")
+  ], "kg", 30, patternOf);
+  assert.equal(squat.current_e1rm, 137.1);
+  assert.equal(squat.current_date, "2026-11-16");
+  assert.equal(squat.latest_e1rm, 122.5);
+  assert.equal(squat.latest_date, "2026-11-24");
+  assert.ok(squat.delta > 0);
+  assert.deepEqual(squat.series.map((p) => p.e1rm), [128.3, 137.1, 137.1]);
+});
