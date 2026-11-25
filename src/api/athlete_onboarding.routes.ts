@@ -56,6 +56,7 @@ import { ProgrammeCatalogueError, getAthleteProgrammes, setAthleteProgramme } fr
 import { ProgrammeGrantError, declineProgrammeGrant, listAthleteProgrammeGrants, startProgrammeGrant } from "./programme_grant_service.js";
 import { TrainingWeekError, getAthleteTrainingWeek, saveAthleteTrainingWeek, starterTrainingWeek } from "./athlete_training_week_service.js";
 import { loadAthleteMyProgramme } from "./athlete_my_programme_service.js";
+import { loadBlockAwards } from "./block_award_service.js";
 
 export const athleteOnboardingRouter = Router();
 
@@ -459,6 +460,16 @@ athleteOnboardingRouter.get(
   asyncHandler(async (request, response) => {
     const { session } = await athleteSession(request);
     return response.status(200).json(await loadAthleteMyProgramme(session.account_row.user_id));
+  })
+);
+
+// Blocks the athlete has finished (block_award_service.ts).
+athleteOnboardingRouter.get(
+  "/block-awards",
+  athleteProgrammeRateLimit,
+  asyncHandler(async (request, response) => {
+    const { session } = await athleteSession(request);
+    return response.status(200).json(await loadBlockAwards(session.account_row.user_id));
   })
 );
 
