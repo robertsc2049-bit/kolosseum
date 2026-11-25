@@ -11,6 +11,7 @@ import {
   loadStandaloneEventDetail,
   unlinkStandaloneEventAthlete
 } from "../../api/coachWorkspaceClient";
+import { closedPlace, onClosePlace } from "../../utils/place";
 import { ApiRequestError, type JsonRecord } from "../../api/transport";
 import { FRIENDLY_ERROR_MESSAGES, genericFriendlyMessageForStatus } from "../../utils/friendlyError";
 
@@ -110,10 +111,9 @@ export function useCoachEventDetail() {
 
   const close = useCallback(() => {
     setState(initialState);
-    if (window.location.hash.startsWith("#/coach/events/")) {
-      window.location.hash = "#/coach/events";
-    }
+    closedPlace("coach_event_detail");
   }, []);
+  useEffect(() => onClosePlace("events", close), [close]);
 
   const runAction = useCallback(async (action: () => Promise<void>, successMessage: string) => {
     setState((current) => ({ ...current, actionPending: true, actionError: null, actionMessage: null }));

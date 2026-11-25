@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 
 import { loadAthleteHistoryDetail, loadTemplateExercises } from "../../api/coachWorkspaceClient";
 import { loadSessionSummary } from "../../api/sessionSummaryClient";
+import { closedPlace, onClosePlace, onOpenPlace, openedPlace } from "../../utils/place";
 import { type JsonRecord } from "../../api/transport";
 import { PhoneDisclosure } from "../../components/PhoneDisclosure";
 import { TickIcon } from "../../components/TickIcon";
@@ -305,6 +306,12 @@ export function CoachReviewPanel() {
   const [selectedSessionId, setSelectedSessionId] = useState("");
   // On a phone the list and a session are two screens; side by side on a laptop.
   const [open, setOpen] = useState(false);
+  useEffect(() => {
+    const offClose = onClosePlace("review", () => setOpen(false));
+    const offOpen = onOpenPlace("kolosseum:open-review-session", "session_id", (sessionId) => { setSelectedSessionId(sessionId); setOpen(true); });
+    return () => { offClose(); offOpen(); };
+  }, []);
+  const closeSession = () => { setOpen(false); closedPlace("coach_review_session"); };
   const [noteRecord, setNoteRecord] = useState<ReviewRecord | null>(null);
   const [noteText, setNoteText] = useState("");
   const [noteVisibility, setNoteVisibility] = useState("coach_private");
@@ -507,7 +514,7 @@ export function CoachReviewPanel() {
                   athleteName={reviewAthleteName(record, athleteNamesById)}
                   selected={String(record.session_id) === selectedSessionId}
                   marking={marking}
-                  onSelect={(sessionId) => { setSelectedSessionId(sessionId); setOpen(true); if (window.matchMedia?.("(max-width: 900px)").matches) window.scrollTo?.(0, 0); }}
+                  onSelect={(sessionId) => { setSelectedSessionId(sessionId); setOpen(true); if (window.matchMedia?.("(max-width: 900px)").matches) { openedPlace("coach_review_session", { session_id: sessionId }); window.scrollTo?.(0, 0); } }}
                   onMark={handleMark}
                 />
               ))
@@ -524,7 +531,7 @@ export function CoachReviewPanel() {
             exerciseNames={exerciseNames}
             onMark={handleMark}
             onNote={handleOpenNote}
-            onBack={() => setOpen(false)}
+            onBack={closeSession}
           />
         ) : null}
       </div>

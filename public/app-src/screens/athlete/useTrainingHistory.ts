@@ -9,6 +9,7 @@ import {
 } from "../../api/athleteHistoryClient";
 import { loadSessionSummary } from "../../api/sessionSummaryClient";
 import { type JsonRecord } from "../../api/transport";
+import { closedPlace, onClosePlace } from "../../utils/place";
 import { ENTRY_AUTH_SUCCEEDED_EVENT } from "../entry/useEntryAuth";
 
 // DEV NOTE: FULL-UI-16C athlete training history (list, server-side filters,
@@ -154,9 +155,7 @@ export function useTrainingHistory() {
       detailSummary: null,
       detailError: null
     }));
-    if (window.location.hash.startsWith("#/athlete/history/")) {
-      window.location.hash = "#/athlete/history";
-    }
+    closedPlace("athlete_history_detail");
   }, []);
 
   useEffect(() => {
@@ -172,14 +171,16 @@ export function useTrainingHistory() {
     }
 
     document.addEventListener(CHANGED_EVENT, onChanged);
+    const offClose = onClosePlace("history", closeDetail);
     document.addEventListener(DETAIL_ROUTE_EVENT, onDetailRoute);
     document.addEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, onChanged);
     return () => {
+      offClose();
       document.removeEventListener(CHANGED_EVENT, onChanged);
       document.removeEventListener(DETAIL_ROUTE_EVENT, onDetailRoute);
       document.removeEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, onChanged);
     };
-  }, [refresh, openDetail]);
+  }, [refresh, openDetail, closeDetail]);
 
   return { ...state, refresh, applyFilters, clearFilters, openDetail, closeDetail };
 }

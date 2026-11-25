@@ -73,6 +73,16 @@ function announceView(view) {
   elements.topbarTitle.focus({ preventScroll: true });
 }
 
+// What's open on a screen, for the address and the Back button
+// (route_bootstrap.js).
+export function openedPlace(routeId, params) {
+  document.dispatchEvent(new CustomEvent("kolosseum:place-opened", { detail: { route_id: routeId, params } }));
+}
+
+export function closedPlace(routeId) {
+  document.dispatchEvent(new CustomEvent("kolosseum:place-closed", { detail: { route_id: routeId } }));
+}
+
 export function setView(view) {
   if (!confirmCoachNoteDeparture()) {
     document.dispatchEvent(new CustomEvent("kolosseum:view-kept"));

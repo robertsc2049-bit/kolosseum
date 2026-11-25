@@ -2,7 +2,7 @@ import { api } from "../core/api.js";
 import { elements } from "../core/elements.js";
 import { formatDate, nowIso, titleCase } from "../core/format.js";
 import { catchWithViewRetry, handleError, hideBusy, showBusy, showNotice } from "../core/notices.js";
-import { setView } from "../core/shell.js";
+import { closedPlace, openedPlace, setView } from "../core/shell.js";
 import { saveState, state } from "../core/state.js";
 import { loadTemplateExercises, refreshTemplates } from "./programmes.js";
 
@@ -774,6 +774,7 @@ async function openAthleteProfile(athleteUserId) {
 
   state.selectedCoachAthleteId =
     athleteUserId;
+  openedPlace("coach_athlete_detail", { athlete_id: athleteUserId });
 
   state.athleteProfileDraft =
     profileRecordToDraft(
@@ -802,6 +803,7 @@ async function openAthleteProfile(athleteUserId) {
 }
 
 export function closeAthleteProfile() {
+  const wasOpen = !elements.athleteProfilePanel.hidden;
   document.dispatchEvent(new CustomEvent("kolosseum:coach-athlete-profile-closed"));
   state.selectedCoachAthleteId = "";
   state.athleteProfileDraft = null;
@@ -816,6 +818,8 @@ export function closeAthleteProfile() {
     elements.athleteDetailHistoryPanel
       .hidden = true;
   }
+
+  if (wasOpen) closedPlace("coach_athlete_detail");
 }
 
 // NOTE: benchmark add/remove/save moved to React
@@ -1164,6 +1168,8 @@ document.addEventListener(
     const athleteUserId = event.detail?.athlete_user_id;
     if (!athleteUserId) return;
 
+    // The profile's own address first, so Back returns to where this was opened.
+    openedPlace("coach_athlete_detail", { athlete_id: athleteUserId });
     setView("athletes");
     openAthleteProfile(athleteUserId)
       .then(() => {
@@ -1224,3 +1230,7 @@ elements.athleteDetailRefreshButton
       ).catch(handleError);
     }
   );
+
+document.addEventListener("kolosseum:close-place", (event) => {
+  if (event.detail?.view === "athletes" && state.selectedCoachAthleteId) closeAthleteProfile();
+});

@@ -1,12 +1,12 @@
 import { elements } from "../core/elements.js";
 import { handleError } from "../core/notices.js";
-import { coachNoteDirty } from "../core/shell.js";
+import { closedPlace, coachNoteDirty } from "../core/shell.js";
 import { state } from "../core/state.js";
-import { activateOpenTemplate, closeTemplateBuilder, completeOpenTemplate, discardRecoveredTemplateDraft, handleTemplateEventFieldEvent, openTemplateBuilder, rerenderTemplateBuilder, resumeRecoveredTemplateDraft, saveTemplateDraft, scheduleTemplateBuilderStateRefresh, templateBuilderSaving, templateDraftIsDirty } from "./builder.js";
+import { activateOpenTemplate, closeTemplateBuilder, completeOpenTemplate, confirmTemplateBuilderDeparture, discardRecoveredTemplateDraft, handleTemplateEventFieldEvent, hasRecoverableTemplateDraft, openTemplateBuilder, rerenderTemplateBuilder, resumeRecoveredTemplateDraft, saveTemplateDraft, scheduleTemplateBuilderStateRefresh, templateBuilderSaving, templateDraftIsDirty } from "./builder.js";
 import { addTemplateBlock, addTemplateSession, addTemplateWeek, addTemplateWorkItem, duplicateTemplateBlock, duplicateTemplateSession, duplicateTemplateWeek, duplicateTemplateWorkItem, fitFinalBlockToEvent, groupWorkItemWithNext, moveTemplateBlock, moveTemplateSession, moveTemplateWeek, moveTemplateWorkItem, removeTemplateBlock, removeTemplateSession, removeTemplateWeek, removeTemplateWorkItem, ungroupWorkItem, updateTemplateFieldFromControl, updateTemplateIdentityField } from "./builderEdits.js";
-import { newTemplateDraft, workItemLoadValue } from "./draft.js";
+import { newTemplateDraft, templateRecordToDraft, workItemLoadValue } from "./draft.js";
 import { bindSelectedEventToTemplate, ensureDraftEventPlan, previewEventCalendar } from "./eventPlan.js";
-import { loadTemplateExercises } from "./programmes.js";
+import { coachTemplateById, loadTemplateExercises } from "./programmes.js";
 import { focusTemplateValidationIssue } from "./validation.js";
 
 // FULL-UI-05B builder interaction bindings.
@@ -281,4 +281,33 @@ elements.templateBlocks.addEventListener("click", (event) => {
   else if (action.classList.contains("move-template-block")) {
     moveTemplateBlock(blockIndex, direction);
   }
+});
+
+// Back, with the builder open: it asks first if something's unsaved.
+document.addEventListener("kolosseum:close-place", (event) => {
+  if (event.detail?.view !== "templates" || elements.templateBuilderView.hidden) return;
+  if (confirmTemplateBuilderDeparture()) {
+    closeTemplateBuilder({ force: true, silent: true, updateRoute: false });
+    return;
+  }
+  event.detail.stay = `#/coach/programmes/build/${encodeURIComponent(state.templateDraft?.template_id || "new")}`;
+  event.preventDefault();
+});
+
+// The builder's own address (a reload, or Forward).
+document.addEventListener("kolosseum:open-builder-route", (event) => {
+  const draft = String(event.detail?.draft ?? "new");
+  if (!elements.templateBuilderView.hidden && (state.templateDraft?.template_id || "new") === draft) return;
+  if (hasRecoverableTemplateDraft() && (state.templateDraft?.template_id || "new") === draft) {
+    resumeRecoveredTemplateDraft();
+    return;
+  }
+  loadTemplateExercises()
+    .then(() => (draft === "new" ? null : coachTemplateById(draft)))
+    .then((template) => {
+      if (draft === "new") openTemplateBuilder(newTemplateDraft());
+      else if (template) openTemplateBuilder(templateRecordToDraft(template));
+      else closedPlace("coach_programme_builder");
+    })
+    .catch(handleError);
 });

@@ -2,6 +2,7 @@ import { api } from "../core/api.js";
 import { elements } from "../core/elements.js";
 import { nowIso } from "../core/format.js";
 import { hideBusy, showBusy, showNotice } from "../core/notices.js";
+import { closedPlace, openedPlace } from "../core/shell.js";
 import { currentTemplateDraftOwnerUserId, dropTemplateDraft, normalisePersistedTemplateDraft, saveState, state } from "../core/state.js";
 import { reindexTemplateDraft } from "./builderEdits.js";
 import { templateRecordToDraft, withSetPlanPayload } from "./draft.js";
@@ -86,7 +87,7 @@ export function templateDraftIsDirty() {
 // A draft is only offered back to the coach who left it - one saved by an
 // earlier account in this browser (or before drafts recorded an owner) is
 // never shown.
-function hasRecoverableTemplateDraft() {
+export function hasRecoverableTemplateDraft() {
   const ownerUserId = currentTemplateDraftOwnerUserId();
   return Boolean(
     state.templateDraft &&
@@ -284,6 +285,7 @@ export function openTemplateBuilder(draft, options = {}) {
   elements.activateTemplateButton.hidden =
     state.templateDraft.template_status !== "complete";
 
+  openedPlace("coach_programme_builder", { draft: state.templateDraft.template_id || "new" });
   saveState();
   rerenderTemplateBuilder();
 
@@ -317,9 +319,7 @@ export function closeTemplateBuilder(options = {}) {
   elements.templateDetailPanel.hidden = true;
   renderTemplateLibrary();
 
-  if (options.updateRoute !== false) {
-    location.hash = "#/coach/programmes";
-  }
+  if (options.updateRoute !== false) closedPlace("coach_programme_builder");
 
   if (options.silent !== true) {
     showNotice("Programme builder closed.");
