@@ -54,7 +54,7 @@ function stoppedPartWay(detail: JsonRecord): string {
   const decision = String(detail.split_return_decision ?? "");
   if (/continue/iu.test(decision)) return "Yes - came back and carried on";
   if (/skip/iu.test(decision)) return "Yes - finished there";
-  return "Yes - not finished yet";
+  return detail.execution_status === "completed" ? "Yes" : "Yes - not finished yet";
 }
 
 function dispatchContinueSession(sessionId: string) {

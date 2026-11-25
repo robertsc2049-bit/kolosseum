@@ -5877,7 +5877,7 @@ form > .checkbox-field > input[type="checkbox"] { margin-top: 0.25em; }
 .metric-card span { overflow-wrap: anywhere; }
 @media (max-width: 900px) {
   .metric-cards { grid-template-columns: repeat(auto-fill, minmax(min(100%, 6.6rem), 1fr)); }
-  .tab-item span { font-size: min(0.78rem, 3.3vw); }
+  .tab-item span { font-size: min(0.78rem, 3vw); text-overflow: clip; }
   .notification-unread-badge { font-size: min(0.72rem, 13px); }
 }
 
@@ -5886,7 +5886,7 @@ form > .checkbox-field > input[type="checkbox"] { margin-top: 0.25em; }
   .topbar { min-height: 44px; padding-block: 2px; position: static; }
   .topbar .brand-mark { width: 30px; height: 30px; }
   .tab-bar { min-height: 44px; }
-  .tab-item { min-height: 44px; padding-block: 0; }
+  .tab-item { min-height: 44px; padding-block: 0; justify-content: center; }
   .tab-icon { width: 20px; height: 20px; }
   .session-next { position: static; }
   .page-heading { min-height: 0; padding-top: 0; margin-top: 0; }
