@@ -32,6 +32,9 @@ export const ATHLETE_ACTIVITY_IDS = V1_ACTIVITY_IDS;
 export const ATHLETE_EXECUTION_SCOPES = Object.freeze([
   "individual", "coach_managed"
 ] as const);
+// "other" is kept only for athletes who declared it before the beta was for
+// the UK alone: their stored declaration still reads, but nobody new can
+// choose it (assertUkJurisdiction).
 export const ATHLETE_JURISDICTIONS = Object.freeze([
   "england_wales", "scotland", "northern_ireland", "other"
 ] as const);
@@ -293,6 +296,9 @@ export function validateAthleteExecutionScope(value: unknown): string {
 export function validateAthleteJurisdiction(value: unknown): string {
   return enumValue(value, ATHLETE_JURISDICTIONS, "jurisdiction_code", "Choose the jurisdiction you are acknowledging.");
 }
+export function assertUkJurisdiction(value: unknown): void {
+  if (value === "other") fail("jurisdiction_code", "Kolosseum is only for people in the UK during the beta.");
+}
 export const ATHLETE_EXPERIENCE_LEVELS = Object.freeze(["beginner", "amateur", "pro"] as const);
 export function validateAthleteExperienceLevel(value: unknown): string {
   return enumValue(value, ATHLETE_EXPERIENCE_LEVELS, "experience_level", "Choose your training level.");
@@ -514,6 +520,7 @@ export function validateAthleteOnboardingDraftInput(value: unknown): Readonly<{
   }
   const currentStage = stage(value.current_stage);
   const validatedFields = fields(value.fields, true);
+  assertUkJurisdiction(validatedFields.jurisdiction_code);
   for (const key of REQUIRED_BEFORE[currentStage]) {
     if (!Object.prototype.hasOwnProperty.call(validatedFields, key)) {
       fail(key, MISSING_ANSWER[key] ?? "Answer this to continue.");
@@ -760,6 +767,8 @@ export async function confirmAthleteOnboarding(userId: string, input: unknown): 
       throw new AthleteOnboardingError("athlete_onboarding_draft_required", 409);
     }
     const declared = validateCompleteAthleteDeclaration(draft.fields);
+    // A draft saved before the beta was for the UK alone.
+    assertUkJurisdiction(declared.jurisdiction_code);
     // A draft saved before sport was required can reach review without one.
     if (!declared.activity_id) fail("activity_id", MISSING_ANSWER.activity_id);
     assertPositionMatchesActivity(declared.position, declared.activity_id);

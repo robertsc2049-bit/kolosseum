@@ -111,6 +111,21 @@ test("FULL-UI-03C validates every declaration field directly", () => {
     }
   );
 
+  // Nobody new can declare "other"; an earlier declaration with it still reads.
+  const draft = { activity_id: "powerlifting", jurisdiction_code: "other" };
+  assert.throws(
+    () => service.validateAthleteOnboardingDraftInput({ current_stage: "experience_level", fields: draft }),
+    (error) => {
+      assert.match(error.field_errors.jurisdiction_code, /only for people in the UK/u);
+      return true;
+    }
+  );
+  assert.equal(service.validateAthleteOnboardingDraftInput({ current_stage: "experience_level", fields: { ...draft, jurisdiction_code: "northern_ireland" } }).fields.jurisdiction_code, "northern_ireland");
+  assert.equal(service.validateCompleteAthleteDeclaration({
+    activity_id: "powerlifting", execution_scope: "individual", product_acknowledged: true, jurisdiction_code: "other", jurisdiction_acknowledged: true,
+    accessibility_preferences: { reduced_motion: false, high_contrast: false, larger_text: false, screen_reader_optimised: false }, instruction_density: "standard"
+  }).jurisdiction_code, "other");
+
   for (const [functionName, value, field] of [
     ["validateAthleteActivityId", "golf", "activity_id"],
     ["validateAthleteExecutionScope", "inferred", "execution_scope"],
