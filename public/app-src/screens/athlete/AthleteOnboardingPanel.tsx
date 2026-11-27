@@ -33,6 +33,7 @@ import { ReadinessCard } from "./ReadinessCard";
 import { StandDownCard } from "./StandDownCard";
 import { InjuryStatusCard } from "./InjuryStatusCard";
 import { ProgrammeExercisesCard } from "./ProgrammeExercisesCard";
+import { sportLabel } from "../../utils/sportLabel";
 
 // DEV NOTE: FULL-UI-03C athlete onboarding wizard/completed-declaration
 // view - ported field-for-field from public/app/athlete_onboarding_ui.js's
@@ -118,7 +119,7 @@ function ProgressBar({ stage }: { stage: string }) {
 function DeclarationFacts({ fields, promptPosition = false, onChoosePosition }: { fields: JsonRecord; promptPosition?: boolean; onChoosePosition?: () => void }) {
   return (
     <div className="declaration-grid">
-      <div className="declaration-fact"><span>Activity</span><strong>{label(fields.activity_id)}</strong></div>
+      <div className="declaration-fact"><span>Activity</span><strong>{sportLabel(String(fields.activity_id ?? ""))}</strong></div>
       <div className="declaration-fact"><span>Training level</span><strong>{fields.experience_level ? label(fields.experience_level) : "Not declared"}</strong></div>
       {fields.activity_id === POWERLIFTING ? (
         <div className="declaration-fact"><span>Competition event</span><strong>{competitionEventLabel(fields.competition_event)}</strong></div>

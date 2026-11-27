@@ -328,10 +328,10 @@ export function exerciseDetails(exercise: JsonRecord | null | undefined): string
     details.push(`${repRange?.minimum}–${repRange?.maximum} reps`);
   }
   else if (Number.isInteger(durationRange?.minimum) && Number.isInteger(durationRange?.maximum)) {
-    details.push(`Hold ${durationRange?.minimum}–${durationRange?.maximum}s`);
+    details.push(`${durationText(Number(durationRange?.minimum))}–${durationText(Number(durationRange?.maximum))}`);
   }
   else if (Number.isInteger(exercise?.duration_seconds)) {
-    details.push(`Hold ${exercise?.duration_seconds}s`);
+    details.push(durationText(Number(exercise?.duration_seconds)));
   }
   else if (Number.isFinite(distanceRange?.minimum) && Number.isFinite(distanceRange?.maximum)) {
     const unit = exercise?.distance_unit === "feet" ? "ft" : "m";
@@ -400,4 +400,12 @@ export function exerciseDetails(exercise: JsonRecord | null | undefined): string
   }
 
   return details;
+}
+
+// A timed dose: "30s", "20 min", "1:30" - a plank, an interval or a
+// steady row alike (never "Hold 1200s").
+export function durationText(seconds: number): string {
+  if (!Number.isFinite(seconds) || seconds < 60) return `${seconds}s`;
+  if (seconds % 60 === 0) return `${seconds / 60} min`;
+  return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
 }

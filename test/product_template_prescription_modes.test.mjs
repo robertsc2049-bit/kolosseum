@@ -129,8 +129,9 @@ test("coach builder exposes a prescription mode selector with duration and dista
 });
 
 test("athlete session formatting distinguishes duration, distance and tempo", () => {
-  assert.match(format, /Hold \$\{durationRange\?\.minimum\}–\$\{durationRange\?\.maximum\}s/u);
-  assert.match(format, /Hold \$\{exercise\?\.duration_seconds\}s/u);
+  assert.match(format, /durationText\(Number\(durationRange\?\.minimum\)\)/u);
+  assert.match(format, /durationText\(Number\(exercise\?\.duration_seconds\)\)/u);
+  assert.match(format, /export function durationText/u);
   assert.match(format, /Tempo \$\{tempo\}/u);
 });
 

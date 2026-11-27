@@ -7,10 +7,11 @@ import { type JsonRecord } from "../../api/transport";
 import { LoadFailed } from "../../components/LoadFailed";
 import { PhoneDisclosure } from "../../components/PhoneDisclosure";
 import { TickIcon } from "../../components/TickIcon";
-import { formatDate, sentenceCase, titleCase } from "../../utils/format";
+import { formatDate, sentenceCase } from "../../utils/format";
 import { ReviewSessionWork, type SessionWorkState } from "./ReviewSessionWork";
 import { type ReviewRecord, useCoachReview } from "./useCoachReview";
 import { finishedEarly } from "../../utils/sessionSummary";
+import { sportLabel } from "../../utils/sportLabel";
 
 // DEV NOTE: FULL-UI-17 coach review queue - ported from app.js's
 // reviewRecordCard()/renderCoachReviewDetail()/reviewNoteList()/
@@ -274,7 +275,7 @@ function ReviewDetail({
             <div><dt>Assignment</dt><dd>{record.self_directed === true ? "None - the athlete ran this session themselves" : String(record.assignment_id || "Not recorded")}</dd></div>
             <div><dt>Programme</dt><dd>{String(assignment.template_name ?? assignment.template_id ?? "Not recorded")}</dd></div>
             <div><dt>Programme version</dt><dd>{Number(assignment.template_version ?? 0) || "Not recorded"}</dd></div>
-            <div><dt>Activity</dt><dd>{titleCase(assignment.activity_id ?? "not recorded")}</dd></div>
+            <div><dt>Activity</dt><dd>{assignment.activity_id ? sportLabel(String(assignment.activity_id)) : "Not recorded"}</dd></div>
             <div><dt>Event</dt><dd>{String(eventLink.event_id ?? "No event link")}</dd></div>
           </dl>
         </section>

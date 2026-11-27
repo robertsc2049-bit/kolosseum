@@ -6,6 +6,9 @@
 // are filled with the engine's first recommendation; named competition lifts
 // stay. The coach then edits it like any other draft; nothing is assigned.
 
+import fs from "node:fs";
+import path from "node:path";
+
 import {
   MACRO_PHASES_BY_MODEL,
   cycleModelFor,
@@ -14,6 +17,7 @@ import {
   phase4AssembleProgram
 } from "@kolosseum/engine/phases/phase4.js";
 import { saveCoachProgrammeTemplate } from "./beta18_programme_template_service.js";
+import { CONDITIONING_EXERCISE_IDS, type GeneralShape, generalBlockLabel, shapeGeneralSession } from "./general_training_goals.js";
 
 // The method references these generated programmes rest on: progressive
 // loading by level, blocks ending in a deload, RPE where chosen (the same
@@ -26,6 +30,9 @@ const LEVELS = new Set(["beginner", "amateur", "pro"]);
 const LEVEL_LABEL: Record<string, string> = { beginner: "Beginner", amateur: "Amateur", pro: "Pro" };
 const isRecord = (v: unknown): v is Json => !!v && typeof v === "object" && !Array.isArray(v);
 const titleCase = (id: string) => id.replaceAll("_", " ").replace(/\b\w/gu, (c) => c.toUpperCase());
+
+// Someone not training for a sport is "General training" in a programme's name.
+const activityName = (id: string) => (id === "general_strength" ? "General training" : titleCase(id));
 
 export class StarterTemplateError extends Error {
   constructor(public readonly code: string, public readonly status: number, public readonly fieldErrors?: Json) {
@@ -176,7 +183,7 @@ export async function createKolosseumStarterTemplate(coachUserId: string, input:
 // an athlete's own equipment does; a session length trims accessory work
 // (never the main lifts) until the estimated session fits.
 
-type Goal = { goal_id: string; label: string; summary: string; phases: (blocks: number) => string[] };
+type Goal = { goal_id: string; label: string; summary: string; phases: (blocks: number) => string[]; shape?: GeneralShape };
 
 const repeatTo = (pattern: string[], blocks: number) => Array.from({ length: blocks }, (_, n) => pattern[n % pattern.length]);
 
@@ -209,6 +216,22 @@ export const QUICK_BUILD_GOALS: Readonly<Record<string, readonly Goal[]>> = Obje
   ]
 });
 
+// Not training for a sport: get stronger, build muscle, general fitness or
+// lose fat (general_training_goals.ts), or peak for a test day.
+const GENERAL_GOALS: readonly Goal[] = Object.freeze([
+  QUICK_BUILD_GOALS.meet[0],
+  { goal_id: "muscle", label: "Build muscle", summary: "More sets of 6-12 reps; blocks alternate higher reps and heavier.", phases: (b) => repeatTo(["accumulation"], b), shape: "muscle" },
+  { goal_id: "fitness", label: "General fitness", summary: "Strength work and conditioning every session - intervals one day, steady work the next.", phases: (b) => repeatTo(["accumulation"], b), shape: "fitness" },
+  { goal_id: "fat_loss", label: "Lose fat", summary: "Strength work to hold on to muscle, plus more conditioning. Training only - Kolosseum gives no diet advice.", phases: (b) => repeatTo(["accumulation"], b), shape: "fat_loss" },
+  { ...QUICK_BUILD_GOALS.meet[1], label: "Peak for a test day or competition" }
+]);
+
+function goalsFor(activity: string): readonly Goal[] {
+  const model = cycleModelFor(activity);
+  if (!model) return [];
+  return activity === "general_strength" ? GENERAL_GOALS : QUICK_BUILD_GOALS[model];
+}
+
 const PHASE_LABEL: Record<string, string> = {
   accumulation: "Volume", intensification: "Intensity", peak: "Peak", off_season: "Off-season", pre_season: "Pre-season",
   in_season: "In-season", base: "Base", build: "Build", specific: "Event-specific"
@@ -226,9 +249,9 @@ const EQUIPMENT: Record<string, string[] | null> = {
 };
 
 export function quickBuildGoals(activityId: unknown): Json {
-  const model = cycleModelFor(String(activityId ?? ""));
-  if (!model) throw new StarterTemplateError("starter_template_invalid", 422, { activity_id: "Choose a supported sport." });
-  return { ok: true, goals: QUICK_BUILD_GOALS[model].map(({ goal_id, label, summary }) => ({ goal_id, label, summary })) };
+  const goals = goalsFor(String(activityId ?? ""));
+  if (!goals.length) throw new StarterTemplateError("starter_template_invalid", 422, { activity_id: "Choose a supported sport." });
+  return { ok: true, goals: goals.map(({ goal_id, label, summary }) => ({ goal_id, label, summary })) };
 }
 
 // Roughly how long a session takes: each set's work plus its rest, and ten
@@ -243,11 +266,12 @@ function estimatedMinutes(items: Json[]): number {
 }
 
 // Drop accessory work from the end until the session fits; the main lifts stay.
+// The conditioning a general goal adds is part of the goal, so it stays too.
 export function fitToSession(items: Json[], minutes: number | null): Json[] {
   if (!minutes) return items;
   const kept = [...items];
   while (estimatedMinutes(kept) > minutes) {
-    const last = kept.map((item) => item.role).lastIndexOf("accessory");
+    const last = kept.map((item) => (item.role === "accessory" && !CONDITIONING_EXERCISE_IDS.has(String(item.exercise_id)) ? "accessory" : "")).lastIndexOf("accessory");
     if (last < 0 || kept.length <= 2) break;
     kept.splice(last, 1);
   }
@@ -269,6 +293,19 @@ function byRpe(item: Json): Json {
   return { ...item, load_mode: "rpe", rpe_value: rpeForPercent(Number(item.percent_1rm), Number(item.planned_reps ?? 1)) };
 }
 
+// Barbell and trap-bar lifts: the ones a % of max is written for.
+let barbellLifts: Set<string> | null = null;
+function isBarbellLift(exerciseId: string): boolean {
+  if (!barbellLifts) {
+    const doc = JSON.parse(fs.readFileSync(path.join(process.cwd(), "registries", "exercise", "exercise.registry.json"), "utf8")) as Json;
+    const entries = isRecord(doc.entries) ? Object.values(doc.entries).filter(isRecord) : [];
+    barbellLifts = new Set(entries
+      .filter((entry) => Array.isArray(entry.equipment_requirements) && entry.equipment_requirements.some((kit) => kit === "barbell" || kit === "trap_bar"))
+      .map((entry) => String(entry.exercise_id)));
+  }
+  return barbellLifts.has(exerciseId);
+}
+
 export const QUICK_BUILD_WEIGHTS: readonly string[] = Object.freeze(["percent_1rm", "rpe"]);
 
 export async function createQuickBuildProgramme(coachUserId: string, input: unknown): Promise<Readonly<Json>> {
@@ -282,7 +319,7 @@ export async function createQuickBuildProgramme(coachUserId: string, input: unkn
   const equipmentId = String(input.equipment ?? "full_gym");
   const errors: Json = {};
   const model = cycleModelFor(activity);
-  const goal = model ? QUICK_BUILD_GOALS[model].find((g) => g.goal_id === goalId) : undefined;
+  const goal = goalsFor(activity).find((g) => g.goal_id === goalId);
   if (!model) errors.activity_id = "Choose a supported sport.";
   if (!LEVELS.has(level)) errors.experience_level = "Choose beginner, amateur or pro.";
   if (!Number.isInteger(days) || days < 1 || days > 6) errors.days_per_week = "Choose 1 to 6 training days a week.";
@@ -301,8 +338,8 @@ export async function createQuickBuildProgramme(coachUserId: string, input: unkn
   const blocks = phases.map((phase, blockIndex) => ({
     block_id: "",
     order_index: blockIndex + 1,
-    name: `Block ${blockIndex + 1} - ${PHASE_LABEL[phase] ?? titleCase(phase)}`,
-    description: `${PHASE_LABEL[phase] ?? titleCase(phase)}: weeks 1-3 build, week 4 is a deload.`,
+    name: `Block ${blockIndex + 1} - ${goal.shape ? generalBlockLabel(goal.shape, blockIndex) : PHASE_LABEL[phase] ?? titleCase(phase)}`,
+    description: `${goal.shape ? generalBlockLabel(goal.shape, blockIndex) : PHASE_LABEL[phase] ?? titleCase(phase)}: weeks 1-3 build, week 4 is a deload.`,
     block_type: PHASE_BLOCK_TYPE[phase] ?? "general",
     week_count: 4,
     weeks: [1, 2, 3, 4].map((week) => ({
@@ -320,7 +357,11 @@ export async function createQuickBuildProgramme(coachUserId: string, input: unkn
         // marks the second one a repeat (<id>__r2) - one is enough here.
         const items = (Array.isArray(program.planned_items) ? program.planned_items.filter(isRecord) : [])
           .filter((item) => !standIns.has(String(item.exercise_id)) && !/__r\d+$/u.test(String(item.exercise_id)));
-        return { session_id: "", order_index: slot + 1, title: `Day ${slot + 1}`, work_items: fitToSession(items.map(workItem).map((item, index) => ({ ...(weights === "rpe" ? byRpe(item) : item), order_index: index + 1 })), minutes) };
+        const converted = items.map(workItem);
+        const shaped = goal.shape
+          ? shapeGeneralSession(converted, { shape: goal.shape, blockIndex, week, sessionIndex: slot, level, weights, equipment: equipmentId, percentLift: isBarbellLift })
+          : converted;
+        return { session_id: "", order_index: slot + 1, title: `Day ${slot + 1}`, work_items: fitToSession(shaped.map((item, index) => ({ ...(weights === "rpe" ? byRpe(item) : item), order_index: index + 1 })), minutes) };
       })
         // A day whose every exercise needs kit that isn't there is dropped.
         .filter((session) => session.work_items.length > 0)
@@ -336,8 +377,8 @@ export async function createQuickBuildProgramme(coachUserId: string, input: unkn
     coach_user_id: coachUserId,
     template_version: 1,
     // Says how weights are set, so a %-of-max and an RPE build don't share a name.
-    template_name: `${titleCase(activity)} - ${goal.label}, ${LEVEL_LABEL[level]}, ${totalWeeks} weeks, ${weights === "rpe" ? "by effort (RPE)" : "% of max"}`,
-    description: `Quick build: ${goal.label.toLowerCase()} for ${titleCase(activity)} (${LEVEL_LABEL[level].toLowerCase()}), ${days} day${days === 1 ? "" : "s"} a week, ${equipmentLabel}${minutes ? `, about ${minutes} minutes a session` : ""}, weights by ${weights === "rpe" ? "RPE (no maxes needed)" : "% of max (needs each athlete's maxes)"}. ${phases.length} block${phases.length === 1 ? "" : "s"} of 4 weeks, each ending in a deload.${leftOut.length ? ` Left out - needs equipment that isn't there: ${leftOut.join(", ")}.` : ""} ${METHOD_SOURCES} Change anything before assigning it.`,
+    template_name: `${activityName(activity)} - ${goal.label}, ${LEVEL_LABEL[level]}, ${totalWeeks} weeks, ${weights === "rpe" ? "by effort (RPE)" : "% of max"}`,
+    description: `Quick build: ${goal.label.toLowerCase()} for ${activityName(activity)} (${LEVEL_LABEL[level].toLowerCase()}), ${days} day${days === 1 ? "" : "s"} a week, ${equipmentLabel}${minutes ? `, about ${minutes} minutes a session` : ""}, weights by ${weights === "rpe" ? "RPE (no maxes needed)" : "% of max (needs each athlete's maxes)"}. ${phases.length} block${phases.length === 1 ? "" : "s"} of 4 weeks, each ending in a deload.${leftOut.length ? ` Left out - needs equipment that isn't there: ${leftOut.join(", ")}.` : ""} ${METHOD_SOURCES} Change anything before assigning it.`,
     activity_id: activity,
     event_plan: null,
     blocks,

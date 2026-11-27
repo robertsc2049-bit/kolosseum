@@ -161,7 +161,7 @@ export function KolosseumStarterForm({ onCreated }: { onCreated: (templateId: st
     <div className="panel kolosseum-starter-form" data-testid="kolosseum-starter">
       <StarterHeader title="Start from a Kolosseum programme" onClose={() => setOpen(false)} />
       <p className="muted">A 4-week block (three loading weeks and a deload) from the Kolosseum programme for this sport and level, as a draft you can change before assigning.</p>
-      <ActivityCategoryFilter value={activityId} onChange={setActivityId} sportLabel="Sport" />
+      <ActivityCategoryFilter value={activityId} onChange={setActivityId} sportLabel="Training for" />
       <label className="field">
         <span>Level</span>
         <select aria-label="Level" value={level} onChange={(event) => setLevel(event.target.value)}>

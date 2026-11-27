@@ -50,10 +50,15 @@ export const CATEGORY_ACTIVITY_IDS: Record<string, readonly string[]> = {
   ]
 };
 
+// Not training for a sport (general_strength) comes first, whatever the
+// category: most people a coach sees aren't.
+const NO_SPORT = "general_strength";
+
 export function sportOptionsForCategory(categoryId: string) {
-  if (!categoryId) return V1_ACTIVITIES;
-  const ids = CATEGORY_ACTIVITY_IDS[categoryId];
-  return ids && ids.length ? V1_ACTIVITIES.filter((activity) => ids.includes(activity.activity_id)) : V1_ACTIVITIES;
+  const ids = categoryId ? CATEGORY_ACTIVITY_IDS[categoryId] : undefined;
+  const sports = ids && ids.length ? V1_ACTIVITIES.filter((activity) => ids.includes(activity.activity_id)) : V1_ACTIVITIES;
+  const noSport = V1_ACTIVITIES.filter((activity) => activity.activity_id === NO_SPORT);
+  return [...noSport, ...sports.filter((activity) => activity.activity_id !== NO_SPORT)];
 }
 
 export function ActivityCategoryFilter({

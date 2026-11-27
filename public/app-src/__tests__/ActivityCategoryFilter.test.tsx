@@ -35,11 +35,11 @@ test.afterEach(() => {
   cleanup();
 });
 
-test("with no category chosen, the sport select shows every locked activity", () => {
+test("with no category chosen, the sport select shows every locked activity, not training for a sport first", () => {
   render(<Harness />);
   const sportSelect = screen.getByLabelText("Activity") as HTMLSelectElement;
   const optionValues = Array.from(sportSelect.options).map((option) => option.value);
-  assert.deepEqual(optionValues, [...V1_ACTIVITY_IDS]);
+  assert.deepEqual(optionValues, ["general_strength", ...V1_ACTIVITY_IDS.filter((id: string) => id !== "general_strength")]);
 });
 
 test("picking a category narrows the sport select to exactly that category's grouping", async () => {
@@ -62,7 +62,7 @@ test("picking a category that excludes the current value updates the value to th
     fireEvent.change(screen.getByLabelText("Training category"), { target: { value: "conditioning" } });
   });
 
-  assert.equal((screen.getByLabelText("Activity") as HTMLSelectElement).value, "hyrox");
+  assert.equal((screen.getByLabelText("Activity") as HTMLSelectElement).value, "general_strength");
 });
 
 test("with allowEmptySport, a category change that excludes the current value clears the sport selection instead", async () => {
@@ -122,4 +122,13 @@ test("every category grouping is non-empty and their union covers every locked a
 test("sportOptionsForCategory falls back to every activity for an unknown or empty category id", () => {
   assert.equal(sportOptionsForCategory("").length, V1_ACTIVITY_IDS.length);
   assert.equal(sportOptionsForCategory("not_a_real_category").length, V1_ACTIVITY_IDS.length);
+});
+
+test("not training for a sport comes first in every category", () => {
+  for (const categoryId of ["", ...CATEGORIES.map((category) => category.id)]) {
+    const options = sportOptionsForCategory(categoryId);
+    assert.equal(options[0].activity_id, "general_strength", categoryId || "all");
+    assert.equal(options[0].display_label, "General training (no sport)");
+    assert.equal(options.filter((activity) => activity.activity_id === "general_strength").length, 1);
+  }
 });

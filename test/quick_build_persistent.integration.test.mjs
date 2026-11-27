@@ -81,6 +81,8 @@ test("quick build makes a whole periodised draft from one short form", { timeout
   assert.deepEqual(await goals("powerlifting"), ["build", "peak"]);
   assert.deepEqual(await goals("rugby_union"), ["off_season", "pre_season", "in_season"]);
   assert.deepEqual(await goals("hyrox"), ["base", "event_prep"]);
+  // Not training for a sport.
+  assert.deepEqual(await goals("general_strength"), ["build", "muscle", "fitness", "fat_loss", "peak"]);
   expect(await request(base, "GET", "/templates/quick-build/goals?activity_id=quidditch", undefined, coach), 422, "unknown sport");
   const athlete = await register("athlete", "athlete", "Sam Lifter");
   expect(await request(base, "GET", "/templates/quick-build/goals?activity_id=powerlifting", undefined, athlete), 403, "coaches only");
@@ -171,6 +173,34 @@ test("quick build makes a whole periodised draft from one short form", { timeout
   assert.match(byRpe.description, /weights by RPE \(no maxes needed\)/u);
   const { rpeForPercent } = await import("../dist/src/api/kolosseum_starter_template_service.js");
   assert.deepEqual([rpeForPercent(80, 5), rpeForPercent(90, 3), rpeForPercent(70, 8), rpeForPercent(60, 5), rpeForPercent(100, 1)], [8, 10, 5, 5, 10]);
+
+  // Not training for a sport: build muscle, general fitness, lose fat.
+  const general = (goal, extra = {}) => build({ activity_id: "general_strength", experience_level: "amateur", days_per_week: 3, weeks: 8, goal, equipment: "full_gym", ...extra });
+  const muscle = expect(await general("muscle"), 201, "build muscle").template;
+  assert.equal(muscle.template_name, "General training - Build muscle, Amateur, 8 weeks, % of max");
+  assert.deepEqual(muscle.template_structure.blocks.map((b) => b.name), ["Block 1 - Muscle - higher reps", "Block 2 - Muscle - heavier"]);
+  const ranges = itemsOf(muscle).filter((w) => w.rep_prescription?.type === "range").map((w) => `${w.rep_prescription.minimum}-${w.rep_prescription.maximum}`);
+  assert.ok(ranges.includes("8-12") && ranges.includes("6-8"), `rep ranges ${[...new Set(ranges)]}`);
+  const conditioningIds = new Set(["rowing_ergometer", "bike_ergometer", "burpee", "jumping_jack", "brisk_walk"]);
+  assert.equal(itemsOf(muscle).filter((w) => conditioningIds.has(w.exercise_id)).length, 0, "no conditioning for muscle");
+  const musclePrimary = (week) => sessionsOf(week).flatMap((s) => s.work_items).filter((w) => w.role === "primary");
+  const firstWeek = muscle.template_structure.blocks[0].weeks[0];
+  assert.ok(musclePrimary(firstWeek).every((w) => w.planned_sets === 4), "4 sets of the main lifts");
+  assert.ok(musclePrimary(muscle.template_structure.blocks[0].weeks[3]).every((w) => w.planned_sets === 2), "deload week halves them");
+
+  for (const [goal, intervals, steady] of [["fitness", "rowing_ergometer", "bike_ergometer"], ["fat_loss", "rowing_ergometer", "bike_ergometer"]]) {
+    const template = expect(await general(goal), 201, goal).template;
+    const week = template.template_structure.blocks[0].weeks[1];
+    const days = sessionsOf(week).map((s) => s.work_items.at(-1).exercise_id);
+    assert.deepEqual(days, [intervals, steady, intervals], `${goal}: conditioning last, intervals then steady`);
+  }
+  const fatLoss = expect(await general("fat_loss", { equipment: "bodyweight", experience_level: "beginner", weights: "rpe", session_minutes: 45 }), 201, "lose fat at home").template;
+  assert.match(fatLoss.template_name, /^General training - Lose fat, Beginner/u);
+  const fatItems = itemsOf(fatLoss);
+  assert.ok(fatItems.some((w) => w.exercise_id === "jumping_jack") && fatItems.some((w) => w.exercise_id === "brisk_walk"), "bodyweight conditioning");
+  assert.ok(sessionsOf(fatLoss.template_structure.blocks[0].weeks[0]).every((s) => conditioningIds.has(s.work_items.at(-1).exercise_id)), "a session length never trims the conditioning");
+  assert.ok(fatItems.every((w) => w.loading_reference?.type !== "percent_1rm"), "beginners never get % of max");
+  assert.ok(fatItems.filter((w) => w.loading_reference?.type === "rpe").every((w) => w.loading_reference.value <= 7), "beginners stay at or below RPE 7");
 
   // It's an ordinary draft: it completes and activates.
   expect(await request(base, "POST", `/templates/${encodeURIComponent(peak.template_id)}/complete`, { coach_user_id: coach.userId }, coach), 200, "complete");

@@ -216,7 +216,7 @@ test("loads the session and shows Start session before the session has started",
 test("shows distance- and time-prescribed work by its dose, not as a single rep", async () => {
   const yoke = { exercise_id: "yoke_walk", display_name: "Yoke walk", segment: "working", sets: 4, reps: 1, distance_value: 20, distance_unit: "meters", intensity: { type: "rpe", value: 8 }, rest_seconds: 180 };
   const hold = { exercise_id: "trap_bar_static_hold", display_name: "Trap bar static hold", segment: "working", sets: 3, reps: 1, duration_seconds: 20, rest_seconds: 90 };
-  for (const [exercise, sets, dose] of [[yoke, "4 sets", "20m"], [hold, "3 sets", "Hold 20s"]] as const) {
+  for (const [exercise, sets, dose] of [[yoke, "4 sets", "20m"], [hold, "3 sets", "20s"]] as const) {
     seedActiveSession("session_1");
     installMocks({ sessionState: baseSessionState({ current_step: { type: "EXERCISE", exercise }, remaining_exercises: [exercise] }) });
     render(<AthleteSessionExecutionPanel />);
