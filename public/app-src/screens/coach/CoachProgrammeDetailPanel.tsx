@@ -14,6 +14,7 @@ import { GroupAssignSection } from "./GroupAssignSection";
 import { ProgrammeCatalogueListingSection } from "./ProgrammeCatalogueListingSection";
 import { ProgrammeGrantsSection } from "./ProgrammeGrantsSection";
 import { useCoachProgrammeDetail } from "./useCoachProgrammeDetail";
+import { sportLabel } from "../../utils/sportLabel";
 
 // DEV NOTE: FULL-UI-05A programme detail (read-only) - ported field-for-
 // field from public/app/app.js's renderProgrammeDetail() (title/status/
@@ -58,7 +59,7 @@ export function CoachProgrammeDetailHeader() {
       <div className="template-status-line">
         <span className={badge.className}>{badge.label}</span>
         <span className="badge neutral">Version {programmeVersionNumber(template)}</span>
-        <span className="badge neutral">{titleCase(template.activity_id)}</span>
+        <span className="badge neutral">{sportLabel(String(template.activity_id ?? ""))}</span>
       </div>
     </div>
   );

@@ -543,7 +543,7 @@ test("the completed view shows historical (superseded) declarations, never their
   await screen.findByText("Earlier versions");
 
   assert.ok(screen.getByText("Superseded declaration"));
-  assert.ok(container.querySelector(".declaration-history")?.textContent?.includes("General strength"));
+  assert.ok(container.querySelector(".declaration-history")?.textContent?.includes("General training (no sport)"));
   assert.equal(screen.queryByText(/decl_old/u), null, "the raw internal declaration id must never be shown");
 });
 

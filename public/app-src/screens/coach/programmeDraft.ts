@@ -1,4 +1,4 @@
-import { formatDate, sentenceCase } from "../../utils/format";
+import { durationText, formatDate, sentenceCase } from "../../utils/format";
 import { type JsonRecord } from "../../api/transport";
 // eslint-disable-next-line import/no-unresolved
 import { V1_ACTIVITY_IDS } from "../../../../shared/v1-boundary/v1ActivityRegistry.mjs";
@@ -859,9 +859,9 @@ export function programmePreviewRepetitions(workItem: ProgrammeWorkItemDraft): s
 
 export function programmePreviewDuration(workItem: ProgrammeWorkItemDraft): string {
   if (workItem.duration_mode === "range") {
-    return `Hold ${workItem.duration_min_seconds}–${workItem.duration_max_seconds}s`;
+    return `${durationText(workItem.duration_min_seconds)}–${durationText(workItem.duration_max_seconds)}`;
   }
-  return `Hold ${workItem.planned_duration_seconds}s`;
+  return durationText(workItem.planned_duration_seconds);
 }
 
 export function programmePreviewDistance(workItem: ProgrammeWorkItemDraft): string {

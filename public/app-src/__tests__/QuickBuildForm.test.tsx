@@ -41,7 +41,7 @@ function installFetch(options: { buildFails?: boolean } = {}) {
 test.afterEach(() => cleanup());
 
 async function chooseSport(id: string) {
-  const sport = screen.getByLabelText("Sport") as HTMLSelectElement;
+  const sport = screen.getByLabelText("Training for") as HTMLSelectElement;
   await act(async () => {
     fireEvent.change(sport, { target: { value: id } });
   });

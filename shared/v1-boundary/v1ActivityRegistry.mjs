@@ -47,7 +47,7 @@ const V1_ACTIVITIES = Object.freeze([
   }),
   Object.freeze({
     activity_id: "general_strength",
-    display_label: "General strength",
+    display_label: "General training (no sport)",
     event_types: Object.freeze([
       Object.freeze({ event_type_id: "strength_event", display_label: "Strength event" }),
       Object.freeze({ event_type_id: "test_day", display_label: "Test day" }),

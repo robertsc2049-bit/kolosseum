@@ -5,6 +5,7 @@ import { countdownLabel, formatDate, titleCase } from "../../utils/format";
 import { useCoachEventDetail } from "./useCoachEventDetail";
 // eslint-disable-next-line import/no-unresolved
 import { V1_ACTIVITIES } from "../../../../shared/v1-boundary/v1ActivityRegistry.mjs";
+import { sportLabel } from "../../utils/sportLabel";
 
 // DEV NOTE: FULL-UI-09C event detail/lifecycle - see useCoachEventDetail.ts.
 // Ported field-for-field from the now-deleted event_lifecycle_ui.js's
@@ -145,7 +146,7 @@ export function CoachEventDetailPanel() {
         <div><span>Version</span><strong>{Number(event.event_version ?? 1)}</strong></div>
         <div><span>Countdown</span><strong>{countdownLabel(plan.event_date)}</strong></div>
         <div><span>Date</span><strong>{formatDate(plan.event_date)}</strong></div>
-        <div><span>Activity</span><strong>{titleCase(event.activity_id)}</strong></div>
+        <div><span>Activity</span><strong>{sportLabel(String(event.activity_id ?? ""))}</strong></div>
         <div><span>Type</span><strong>{titleCase(plan.event_type)}</strong></div>
         <div><span>Location</span><strong>{String(plan.location || "Not recorded")}</strong></div>
         <div><span>Timezone</span><strong>{String(plan.timezone || "Not recorded")}</strong></div>

@@ -102,7 +102,7 @@ export function QuickBuildForm({ onCreated, startOpen = false }: { onCreated: (t
         <button className="button secondary small-button" type="button" onClick={() => setOpen(false)}>Close</button>
       </div>
       <p className="muted">Answer a few questions and get a whole programme as a draft - 4-week blocks, each ending in a deload - to change and assign.</p>
-      <ActivityCategoryFilter value={activityId} onChange={setActivityId} sportLabel="Sport" />
+      <ActivityCategoryFilter value={activityId} onChange={setActivityId} sportLabel="Training for" />
       <label className="field">
         <span>Level</span>
         <select aria-label="Level" value={level} onChange={(event) => setLevel(event.target.value)}>
@@ -114,7 +114,7 @@ export function QuickBuildForm({ onCreated, startOpen = false }: { onCreated: (t
       <label className="field">
         <span>Goal</span>
         <select aria-label="Goal" value={goal} disabled={!goals.length} onChange={(event) => setGoal(event.target.value)}>
-          {!goals.length ? <option value="">Choose a sport first</option> : null}
+          {!goals.length ? <option value="">Choose what they train for first</option> : null}
           {goals.map((g) => <option key={g.goal_id} value={g.goal_id}>{g.label}</option>)}
         </select>
       </label>

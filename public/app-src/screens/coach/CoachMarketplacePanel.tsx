@@ -4,10 +4,10 @@ import { PhoneDisclosure } from "../../components/PhoneDisclosure";
 
 import { type JsonRecord } from "../../api/transport";
 import { coachLabel } from "../../utils/coachName";
-import { titleCase } from "../../utils/format";
 import { useCoachMarketplace } from "./useCoachMarketplace";
 // eslint-disable-next-line import/no-unresolved
 import { V1_ACTIVITIES } from "../../../../shared/v1-boundary/v1ActivityRegistry.mjs";
+import { sportLabel } from "../../utils/sportLabel";
 
 // DEV NOTE: FULL-UI-67 programme marketplace browse - ported from
 // app.js's renderMarketplace()/filteredMarketplaceTemplates()/
@@ -123,7 +123,7 @@ export function CoachMarketplacePanel() {
               <div>
                 <strong>{String(template.template_name ?? "")}</strong>
                 <p className="muted small">
-                  {titleCase(template.activity_id)} · {String(template.template_status ?? "")}
+                  {sportLabel(String(template.activity_id ?? ""))} · {String(template.template_status ?? "")}
                 </p>
                 {template.description ? <p className="muted small">{String(template.description)}</p> : null}
                 {template.price_label ? (

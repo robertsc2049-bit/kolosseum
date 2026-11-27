@@ -3,6 +3,7 @@ import React, { useMemo } from "react";
 import { type JsonRecord } from "../../api/transport";
 import { countdownLabel, formatDate, titleCase } from "../../utils/format";
 import { useCoachEventsLibrary } from "./useCoachEventsLibrary";
+import { sportLabel } from "../../utils/sportLabel";
 
 // DEV NOTE: the Events screen's event library (part of FULL-UI-12C) -
 // ported from app.js's renderCoachEvents(). The create-event form
@@ -127,7 +128,7 @@ export function CoachEventsListPanel() {
         return (
           <article className="record-card coach-event-card" data-event-id={eventId} key={eventId || index}>
             <div>
-              <p className="eyebrow">{titleCase(eventRecord.activity_id ?? "event")}</p>
+              <p className="eyebrow">{eventRecord.activity_id ? sportLabel(String(eventRecord.activity_id)) : "Event"}</p>
               <h3>{String(plan.event_name ?? "Event")}</h3>
               <p>
                 {titleCase(plan.event_type ?? "event")} · {formatDate(plan.event_date)}

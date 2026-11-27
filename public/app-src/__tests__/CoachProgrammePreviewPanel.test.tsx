@@ -118,7 +118,7 @@ test("prescription formats reps, duration and distance correctly", () => {
   assert.equal(programmePreviewPrescription(repRange), "6–10 reps");
 
   const duration = storedWorkItemToDraft({ prescription_mode: "duration", duration_prescription: { type: "fixed", value: 45 } }, 0);
-  assert.equal(programmePreviewPrescription(duration), "Hold 45s");
+  assert.equal(programmePreviewPrescription(duration), "45s");
 
   const distance = storedWorkItemToDraft({ prescription_mode: "distance", distance_prescription: { type: "fixed", value: 400 }, distance_unit: "meters" }, 0);
   assert.equal(programmePreviewPrescription(distance), "400m");

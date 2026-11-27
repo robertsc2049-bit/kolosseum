@@ -8,6 +8,7 @@ import { topPersonalRecord } from "../../utils/personalRecords";
 import { CoachProgrammePrintButton } from "./CoachProgrammePrintButton";
 import { AthleteProgrammeAdjust } from "./AthleteProgrammeAdjust";
 import { AthleteReadinessLightening } from "./AthleteReadinessLightening";
+import { sportLabel } from "../../utils/sportLabel";
 
 // DEV NOTE: current programme, current event, and the assignment/
 // strength/bodyweight/event-link/session history lists from
@@ -215,7 +216,7 @@ export function AthleteAssignmentHistoryList() {
             <div>
               <h4>{String(template?.template_name ?? assignment.template_id ?? "Programme")}</h4>
               <p>
-                {titleCase(assignment.activity_id)} · {formatDate(recordDate(assignment))}
+                {sportLabel(String(assignment.activity_id ?? ""))} · {formatDate(recordDate(assignment))}
               </p>
             </div>
             <div className="record-meta">

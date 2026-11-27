@@ -26,8 +26,8 @@ test("with no Kolosseum programmes published yet, a rugby coach starts a pro, 4-
   const opened: string[] = [];
   render(<KolosseumStarterForm onCreated={(id) => opened.push(id)} />);
   fireEvent.click(screen.getByText("Start from a Kolosseum programme"));
-  await screen.findByLabelText("Sport");
-  fireEvent.change(screen.getByLabelText("Sport"), { target: { value: "rugby_union" } });
+  await screen.findByLabelText("Training for");
+  fireEvent.change(screen.getByLabelText("Training for"), { target: { value: "rugby_union" } });
   fireEvent.change(screen.getByLabelText("Level"), { target: { value: "pro" } });
   fireEvent.change(screen.getByLabelText("Training days a week"), { target: { value: "4" } });
   await act(async () => {
@@ -76,7 +76,7 @@ test("a rugby coach copies the coach-written off-season build into their library
     "grouped by sport, Any sport first"
   );
   assert.ok(screen.getByText("3 days a week · Amateur, Pro"));
-  assert.equal(screen.queryByLabelText("Sport"), null, "no generated programme once coach-written ones are published");
+  assert.equal(screen.queryByLabelText("Training for"), null, "no generated programme once coach-written ones are published");
   await act(async () => {
     fireEvent.click(copyButtonFor("Off-season strength build (8 weeks)"));
   });
@@ -116,7 +116,7 @@ test("the generated-programme form also closes from its header", async () => {
     String(input) === "/templates/kolosseum-programmes" ? jsonResponse({ programmes: [] }) : jsonResponse({ error: "unhandled" }, false, 404)) as typeof fetch;
   render(<KolosseumStarterForm onCreated={() => {}} />);
   fireEvent.click(screen.getByText("Start from a Kolosseum programme"));
-  await screen.findByLabelText("Sport");
+  await screen.findByLabelText("Training for");
   fireEvent.click(within(document.querySelector(".kolosseum-starter-header") as HTMLElement).getByText("Close"));
-  assert.equal(screen.queryByLabelText("Sport"), null);
+  assert.equal(screen.queryByLabelText("Training for"), null);
 });
